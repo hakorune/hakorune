@@ -529,7 +529,7 @@ fn refresh_module_global_call_routes_accepts_map_handle_child_field_get_string_b
         .find(|route| route.callee_name() == "Helper.make_map/0")
         .expect("child map factory route");
     assert_eq!(child_route.reason(), None);
-    assert_eq!(child_route.return_shape(), Some("object_handle"));
+    assert_eq!(child_route.return_shape(), Some("map_handle"));
     assert_eq!(child_route.target_result_box_name(), Some("MapBox"));
 
     let route = &module.functions["main"].metadata.global_call_routes[0];

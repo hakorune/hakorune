@@ -698,7 +698,7 @@ fn verify_still_rejects_a_non_handle_borrow_on_the_argument_edge() {
     // that declares every borrow kind, isolating the escape check from
     // coverage).
     let package = issue(
-        "static box Helpers { consume(m) { return 30 } run() { local n = %{\"x\" => 1} return Helpers.consume(%{\"a\" => n}) } }
+        "static box Helpers { consume(m: MapBox) { return 30 } run() { local n = %{\"x\" => 1} return Helpers.consume(%{\"a\" => n}) } }
          static box Main { main() { return 30 } }",
     )
     .expect("argument-edge map-local borrow package");

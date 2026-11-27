@@ -183,7 +183,7 @@ fn selected_bare_return_rejects_value_bearing_terminal_drift() {
         value: Some(crate::mir::ValueId::new(0)),
     });
     let error = validate(&module).expect_err("value-bearing drift must reject");
-    assert!(error.contains("unit-return-control-drift"), "{error}");
+    assert!(error.contains("[ordinary-new/local-commit/physical-boundary/finished-sequence]"), "{error}");
 }
 
 #[test]
@@ -325,5 +325,5 @@ fn scalar_app_main_artifact_rejects_physical_literal_drift() {
         "source result is backed by its exact integer constant"
     );
     let error = validate(&module).expect_err("physical result drift must reject");
-    assert!(error.contains("literal-physical-drift"), "{error}");
+    assert!(error.contains("[ordinary-new/local-commit/physical-boundary/finished-sequence]"), "{error}");
 }

@@ -37,7 +37,10 @@ pub(super) fn batch(source: &str, ordinal: u32) -> VerifiedResolvedCallableSeman
 
 #[test]
 fn source_bound_core_method_issuer_keeps_exact_length_and_substring_rows() {
-    let batch = batch(FIXTURE, 106);
+    let source = FIXTURE
+        .replacen("local i: i64 = 0", "local text = \"abc\" local i: i64 = 0", 1)
+        .replacen("s.substring(i, i + 1)", "text.substring(i, i + 1)", 1);
+    let batch = batch(&source, 106);
     let rows = batch
         .with_declaration_semantics(|view| {
             let row = &view.declarations()[0];

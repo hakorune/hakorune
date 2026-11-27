@@ -91,26 +91,17 @@ static box Main {
 #[test]
 fn artifact_child_rejects_retained_unavailable_commit_before_lifecycle_coverage() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    for holder_birth in [false, true] {
-        let holder = if holder_birth {
-            "box Holder {
-  init { items }
-  birth() {
-    local items = new ArrayBox()
-    me.items = items
-  }
-}"
-        } else {
-            "box Holder {
-  init { items }
-}"
-        };
+    for (body, cause) in [
+        ("me.x = v + 1", "StoreValueUnsupported"),
+        ("me.x = v me.x = v", "ReplacementStoreUnsupported"),
+    ] {
+        let holder = format!("box Holder {{ x: i64 birth(v) {{ {body} }} }}");
         let source = callable_source(
             &format!(
                 "{holder}
 box Worker {{
   run(): i64 {{
-    local h = new Holder()
+    local h = new Holder(1)
     return 0
   }}
 }}
@@ -133,8 +124,10 @@ static box Main {{
         let (_, module, validate) = completed.into_artifact_parts();
         let error = validate(&module).unwrap_err();
         assert!(
-            error.contains("artifact-source-unavailable"),
-            "holder_birth={holder_birth}: {error}"
+            error.contains("[ordinary-new/local-commit/artifact-source-unavailable]")
+                && error.contains("symbol=Worker.run/0")
+                && error.contains(cause),
+            "{body}: {error}"
         );
     }
 }

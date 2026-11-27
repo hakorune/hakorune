@@ -1,5 +1,5 @@
 //! Exact source reach and correspondence, using the existing source-use fixture.
-use super::super::tests::with_source_product;
+use super::super::tests::{try_with_source_product, with_source_product};
 use super::super::{BorrowedFormalUseDraftErrorV1, BorrowedFormalUseDraftKindV1};
 use super::*;
 
@@ -131,6 +131,10 @@ fn checked_operand_reach_lends_exact_normal_branch_and_retains_original_guard() 
 
 #[test]
 fn checked_actual_requires_same_sequence_normal_reach_and_unpoisoned_binding() {
+    use crate::mir::normal_callable_semantic_package::{
+        ordinary_new_coseal::OrdinaryNewCoSealIssueV1, NormalCallableSemanticPackageIssueV1,
+    };
+
     for (body, count, unsupported) in [
         (
             "if p <= 0 { return 0 } local out = me.sink(p) return 0",
@@ -207,7 +211,7 @@ fn checked_actual_requires_same_sequence_normal_reach_and_unpoisoned_binding() {
             false,
         ),
     ] {
-        with_source_product(
+        let result = try_with_source_product(
             body,
             |_| {},
             |input, product| {
@@ -229,14 +233,41 @@ fn checked_actual_requires_same_sequence_normal_reach_and_unpoisoned_binding() {
                 }
             },
         );
+        if let Err(error) = result {
+            assert!(
+                matches!(
+                    body,
+                    "if p <= true { } local out = me.sink(p) return 0"
+                    | "if p <= null { } local out = me.sink(p) return 0"
+                    | "local bad = p * 2 if p > 0 { } local out = me.sink(p) return 0"
+                ),
+                "{body}: {error:?}"
+            );
+            let NormalCallableSemanticPackageIssueV1::OrdinaryNew {
+                _error: OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { issue, .. },
+            } = error else { panic!("{body}: {error:?}"); };
+            assert!(issue.contains("[ordinary-new/borrowed-actual/entry-source]"), "{body}: {issue}");
+        }
     }
-    for body in [
-        "if p > 0 { } p = 1 local out = me.sink(p) return 0",
-        "local a = p if p > 0 { } a = 1 local out = me.sink(p) return 0",
-        "local a: i64 = p if p > 0 { } local out = me.sink(a) return 0",
-        "local f = fn() { return p } if p > 0 { } local out = me.sink(p) return 0",
+    for (body, reason) in [
+        (
+            "if p > 0 { } p = 1 local out = me.sink(p) return 0",
+            "[ordinary-new/borrowed-actual/unsupported-or-unavailable]",
+        ),
+        (
+            "local a = p if p > 0 { } a = 1 local out = me.sink(p) return 0",
+            "[ordinary-new/borrowed-actual/entry-source]",
+        ),
+        (
+            "local a: i64 = p if p > 0 { } local out = me.sink(a) return 0",
+            "[ordinary-new/borrowed-actual/entry-source]",
+        ),
+        (
+            "local f = fn() { return p } if p > 0 { } local out = me.sink(p) return 0",
+            "[ordinary-new/borrowed-actual/entry-source]",
+        ),
     ] {
-        with_source_product(
+        let package = try_with_source_product(
             body,
             |_| {},
             |_, product| {
@@ -251,6 +282,12 @@ fn checked_actual_requires_same_sequence_normal_reach_and_unpoisoned_binding() {
                 );
             },
         );
+        if let Err(error) = package {
+            let NormalCallableSemanticPackageIssueV1::OrdinaryNew {
+                _error: OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { issue, .. },
+            } = error else { panic!("{body}: {error:?}"); };
+            assert!(issue.contains(reason), "{body}: {issue}");
+        }
     }
 }
 

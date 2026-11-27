@@ -244,6 +244,15 @@ fn test_emit_frag_block_params_inserts_phi() {
         values: vec![ValueId(12), ValueId(13)],
     };
 
+    for (pred, args) in [(pred1, &args1), (pred2, &args2)] {
+        let block = function.get_block_mut(pred).unwrap();
+        for &dst in &args.values {
+            block.add_instruction(MirInstruction::Const {
+                dst,
+                value: crate::mir::ConstValue::Integer(i64::from(dst.as_u32())),
+            });
+        }
+    }
     let wires = vec![
         EdgeStub::new(pred1, ExitKind::Normal, Some(target), args1),
         EdgeStub::new(pred2, ExitKind::Normal, Some(target), args2),

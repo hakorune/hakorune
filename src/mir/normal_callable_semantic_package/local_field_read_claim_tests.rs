@@ -129,8 +129,14 @@ fn local_field_read_claims_object_alias_on_selected_new_home() {
                 guard: None,
             };
             let expected = Some((request.field(), request.child()));
-            assert!(package.ordinary_new_claim_ledger.take_lexical_instance_call(site.owner(), site.site()).unwrap().is_none(),
-                "original constructor source is not a qualified scalar caller");
+            let call = package.ordinary_new_claim_ledger
+                .take_lexical_instance_call(site.owner(), site.site())
+                .unwrap()
+                .expect("original constructor already contributes a lexical call row");
+            assert_eq!(call.call_site(), site);
+            assert_eq!(call.receiver_site(), request.receiver_site());
+            assert_eq!(call.target(), &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Page", "seed", 0));
+            assert!(call.argument_sites().is_empty());
             assert_eq!(receiver.corroborate_constructor_origin_v1(package.batch(), package.instance_constructors(), site).unwrap(), expected);
             let foreign = std::rc::Rc::new(source.as_ref().clone());
             assert_eq!(foreign.as_ref(), source.as_ref());

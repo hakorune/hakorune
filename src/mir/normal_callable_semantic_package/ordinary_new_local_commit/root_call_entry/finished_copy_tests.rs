@@ -215,7 +215,14 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
     use crate::mir::normal_callable_semantic_package::FinalizedLexicalCallContextV1 as Context;
     // Original unannotated borrowed source and one-shot disposition, synthetic
     // CFG finishing only. This does not claim tagged ABI or EXE execution.
-    let (ledger, _, packet, physical, _) = fixture_with_continuation(BasicBlockId(0), true);
+    let (ledger, _, packet, mut physical, _) = fixture_with_continuation(BasicBlockId(0), true);
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1::{BorrowedTaggedValue, ExistingCallableI64};
+
+    // The original forwarding fixture installs these exact entry values.
+    physical.params = vec![ValueId(51), ValueId(72)];
+    physical.signature.params = vec![crate::mir::MirType::Box("Transport".into()), crate::mir::MirType::Unknown];
+    physical.metadata.physical_param_carriers =
+        Some(vec![ExistingCallableI64, BorrowedTaggedValue].into_boxed_slice());
     let owner = packet.call_site().owner();
     assert!(ledger
         .lexical_i64_call_source(packet.call_site())
@@ -288,6 +295,7 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
     module
         .functions
         .insert(physical.signature.name.clone(), physical);
+    publish_borrowed_visitor_callee(&mut module, &source, &packet);
     let mut visited = 0;
     source.visit_finalized_lexical_call_nodes_v1(&module,
         |observed_owner, context, original, arguments, function, coordinate, copies| {
@@ -403,4 +411,53 @@ fn empty_terminal_root_source_keeps_verified_owner_without_abi() {
         1,
         "the lexical group survives an empty terminal map"
     );
+}
+
+/// Finish the original Borrowed callee for the two synthetic visitor fixtures.
+pub(super) fn publish_borrowed_visitor_callee(
+    module: &mut crate::mir::MirModule,
+    source: &super::super::super::super::FinalizedRootSourceHandoffV1,
+    packet: &EmittedLexicalCallProjectionV1,
+) {
+    use super::super::super::super::ChildPhysicalValidation;
+    use crate::mir::{ConstValue, EffectMask, FunctionSignature, MirFunction, MirType};
+    use hakorune_mir_defs::PhysicalCallableLaneCarrierV1::{BorrowedTaggedValue, ExistingCallableI64};
+
+    let original = packet.original_source();
+    let key = original.target().clone();
+    let owner = original.callee_owner();
+    let [actual] = source.borrowed_packet_actuals_v1(packet).unwrap().unwrap() else {
+        panic!("each fixture has exactly one Borrowed argument");
+    };
+    assert_eq!(actual.ordinal, 0);
+    let symbol = key.mir_symbol_projection();
+    let entry = BasicBlockId(0);
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: symbol.clone(),
+            params: vec![MirType::Box(key.owner().into()), MirType::Unknown],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        entry,
+    );
+    let formal = ValueId(1);
+    let result = ValueId(2);
+    callee.params = vec![ValueId(0), formal];
+    callee.metadata.physical_param_carriers =
+        Some(vec![ExistingCallableI64, BorrowedTaggedValue].into_boxed_slice());
+    let body = callee.blocks.get_mut(&entry).unwrap();
+    body.add_instruction(MirInstruction::Const { dst: result, value: ConstValue::Integer(0) });
+    body.set_terminator(MirInstruction::Return { value: Some(result) });
+
+    let boundary = PhysicalBoundary::capture(&callee, &[]).unwrap();
+    let mut projection = boundary.project(&callee).unwrap();
+    boundary.validate_complete(&callee, &mut projection, &[]).unwrap();
+    source.ledger.record_borrowed_ordinary_entry_values_v1(
+        owner, Ok(vec![(actual.ordinal, actual.formal, formal)].into_boxed_slice()),
+    ).unwrap();
+    assert!(source.ledger.child_physical_validation.borrow_mut().insert(
+        owner, ChildPhysicalValidation::FinishingChecked { symbol, projection },
+    ).is_none());
+    module.add_cataloged_box_method(key, callee).unwrap();
 }

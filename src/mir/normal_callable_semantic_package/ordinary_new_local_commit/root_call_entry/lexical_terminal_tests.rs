@@ -462,10 +462,12 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
         local_calls: Default::default(),
         construction: Vec::new(),
     };
+    let caller_symbol = physical.signature.name.clone();
     let mut module = crate::mir::MirModule::new("return-loan".into());
     module
         .functions
         .insert(physical.signature.name.clone(), physical);
+    super::finished_copy_tests::publish_borrowed_visitor_callee(&mut module, &source, &packet);
     let mut visited = 0;
     source
         .visit_finalized_lexical_call_nodes_v1(
@@ -493,8 +495,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
     assert_eq!(visited, 1);
     module
         .functions
-        .values_mut()
-        .next()
+        .get_mut(&caller_symbol)
         .unwrap()
         .signature
         .name

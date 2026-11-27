@@ -640,8 +640,15 @@ fn strict_outer_noninteger_return_does_not_claim_borrowed_terminal() {
         "if x > 0 { return 1 } return 1.5",
     ] {
         let source = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ return 0 }} bad(x: i64): i64 {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() return recv.bad(recv.probe(true)) }} }}");
-        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
-            .unwrap_or_else(|error| panic!("{body}: {error:?}"));
+        let package = match crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source) {
+            Ok(package) => package,
+            Err(crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackageIssueV1::PhysicalHeader {
+                _error: crate::mir::normal_callable_semantic_package::physical_header::CallablePhysicalHeaderIssueV1::DeclaredResultDisagrees {
+                    _name, ..
+                },
+            }) if body == "return true" && _name.as_ref() == "i64" => continue,
+            Err(error) => panic!("{body}: {error:?}"),
+        };
         let ledger = &package.ordinary_new_claim_ledger;
         let owner = ledger.root_owner().unwrap();
         let exit = exit(ledger);

@@ -200,28 +200,62 @@ static box Main {
   }
 }
 "#;
-    let ast = NyashParser::parse_from_string(source).unwrap();
+    use crate::mir::{instruction::InvokeOperation, NormalCompileRequestV1};
+    use crate::runner::modes::common_util::normal_callable::{
+        materialize_normal_callable_program_with_identity_v1,
+        NormalCallableMaterializationOutcomeV1,
+    };
+
+    let path = "local-contract-rhs-once.hako";
+    let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =
+        materialize_normal_callable_program_with_identity_v1(
+            source,
+            crate::parser::ParserBuildConfig::default(),
+            path,
+        )
+        .unwrap()
+    else {
+        panic!("fixture must reach the source-backed entry");
+    };
     let result = MirCompiler::with_options(false)
-        .compile_with_source(ast, Some("local-contract-rhs-once.hako"))
+        .compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
+            source,
+            Some(path),
+            Default::default(),
+        ))
         .unwrap();
-    let function = result
-        .module
-        .functions
-        .values()
-        .find(|function| !function.metadata.local_slot_contracts.is_empty())
-        .expect("function with local contract");
-    let calls = function
-        .blocks
-        .values()
-        .flat_map(|block| block.instructions.iter())
-        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
-        .count();
-    let writes = function
-        .blocks
-        .values()
-        .flat_map(|block| block.instructions.iter())
-        .filter(|instruction| matches!(instruction, MirInstruction::LocalContractWrite { .. }))
-        .count();
-    assert_eq!(calls, 1);
-    assert_eq!(writes, 1);
+    result.verification_result.unwrap();
+    let function = &result.module.functions["main"];
+    let calls: Vec<_> = function.blocks.iter().filter_map(|(block, body)| {
+        match body.terminator.as_ref() {
+            Some(MirInstruction::Invoke {
+                operation: InvokeOperation::Call { call, .. },
+                normal_landing,
+                ..
+            }) => Some((*block, *normal_landing, call)),
+            _ => None,
+        }
+    }).collect();
+    let [(invoke, normal, call)] = calls.as_slice() else {
+        panic!("one initializer call required, got {calls:?}");
+    };
+    let target = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "Helper", "value", 0,
+    ).canonical_global_target_v1().unwrap();
+    assert_eq!(call.callee, crate::mir::Callee::Global(target));
+
+    let result = function.blocks[normal].instructions.iter().find_map(|instruction| {
+        match instruction {
+            MirInstruction::InvokeNormalResult { invoke_block, dst } if invoke_block == invoke => Some(*dst),
+            _ => None,
+        }
+    }).expect("the initializer consumes the call's Normal result");
+    let writes: Vec<_> = function.blocks.values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            MirInstruction::LocalContractWrite { src, write_kind, .. } => Some((*src, *write_kind)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(writes, [(result, LocalContractWriteKind::Init)]);
 }

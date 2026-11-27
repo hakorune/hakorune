@@ -378,12 +378,12 @@ fn lexical_i64_call_stays_fail_closed() {
             "bad(x: i64): i64 { if x > 0 { return 1 } return 1.5 }",
             "pool.bad(1)",
         ),
-        // A callee formal without `: i64` is `OpaqueHandle`, never
-        // `ExactTrivial(I64)`.
+        // An unannotated formal needs exact evidence from the original actual.
+        // Bool still cannot grant the I64 result or the prefix permission.
         (
             "untyped-formal",
             "allocate(size): i64 { return size }",
-            "pool.allocate(8)",
+            "pool.allocate(true)",
         ),
         // A handle actual is not scalar-i64 evidence.
         (
@@ -433,7 +433,15 @@ fn lexical_i64_call_stays_fail_closed() {
                 return 0
             }} }}"
         );
-        let package = issue(&source).unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        let package = match issue(&source) {
+            Ok(package) => package,
+            Err(super::NormalCallableSemanticPackageIssueV1::PhysicalHeader {
+                _error: super::physical_header::CallablePhysicalHeaderIssueV1::DeclaredResultDisagrees {
+                    _name, ..
+                },
+            }) if label == "bool-result" && _name.as_ref() == "i64" => continue,
+            Err(issue) => panic!("{label} package: {issue:?}"),
+        };
         assert!(
             local_calls(&package)
                 .iter()

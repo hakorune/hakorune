@@ -285,56 +285,24 @@ fn source_only_declared_domain_retains_class_without_entry_activation() {
 
 #[test]
 fn source_only_declared_domain_propagates_invalid_incoming_to_forward_target() {
+    use crate::mir::normal_callable_semantic_package::{
+        NormalCallableSemanticPackageIssueV1, ordinary_new_coseal::OrdinaryNewCoSealIssueV1,
+    };
     for actual in ["7", "true", "owned_other"] {
         let text = source_domain_fixture(
             "local alias = h local out = me.probe(alias) return 0",
             actual,
         );
-        let package = issue(&text).expect("invalid candidate input remains source-only");
-        let prepared = package
-            .ordinary_new_claim_ledger
-            .borrowed_formal_source
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .unwrap();
-        let contract = package
-            .parameter_contracts
-            .iter()
-            .find(|row| {
-                row.parameters.iter().any(|formal| {
-                    matches!(
-                        &formal.kind,
-                        CallableParameterContractKindV1::DeclaredObject(_)
-                    )
-                })
-            })
-            .unwrap();
-        let formal = contract.parameters[0].binding;
-        assert!(prepared
-            .source_object_view_v1(formal)
-            .unwrap_err()
-            .contains("declared-object-class"));
-        let outgoing = prepared
-            .source_incoming
-            .exact_rows()
-            .find(|row| {
-                row.call.owner() == contract.owner
-                    && row.source.target()
-                        == &CanonicalSameModuleCallableKeyV1::instance_box_method(
-                            "Door", "probe", 1,
-                        )
-            })
-            .expect("original typed alias argument");
-        let target_formal = outgoing.arguments[0].2;
-        assert!(
-            !prepared.object_views.contains_key(&target_formal),
-            "{actual} must not become a class"
-        );
-        assert!(prepared.formal_object_view(formal).is_none());
-        assert!(!prepared.definitions.contains_key(&contract.owner));
+        let error = issue(&text).expect_err("invalid input cannot lend its class to the alias target");
+        let NormalCallableSemanticPackageIssueV1::OrdinaryNew {
+            _error: OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { issue, .. },
+        } = error else {
+            panic!("{actual}: unexpected package refusal {error:?}");
+        };
+        assert!(issue.contains("[ordinary-new/borrowed-result/source-not-i64]"), "{actual}: {issue}");
     }
 }
+
 
 #[test]
 fn array_index_requires_numeric_origin_even_with_an_exact_receiver_loan() {

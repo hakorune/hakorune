@@ -185,7 +185,7 @@ fn artifact_validation_rejects_exact_read_drift_and_birth_reentry() {
             error.contains(if mutation == "birth" {
                 "unowned-exact-field-read"
             } else {
-                "ordinary-field-read/"
+                "[ordinary-new/local-commit/physical-boundary/finished-sequence]"
             }),
             "{mutation}: {error}"
         );
@@ -226,9 +226,11 @@ fn artifact_validation_rejects_terminal_add_operand_drift() {
         unreachable!()
     };
     *lhs = crate::mir::ValueId(90001);
-    assert!(validate(&module)
-        .unwrap_err()
-        .contains("ordinary-terminal-result/add-binding-drift"));
+    let error = validate(&module).unwrap_err();
+    assert!(
+        error.contains("[ordinary-new/local-commit/physical-boundary/finished-sequence]"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -465,8 +467,15 @@ fn source_backed_app_main_qualified_static_call_uses_canonical_owner() {
         .values()
         .flat_map(|block| block.all_instructions())
         .find_map(|instruction| match instruction {
-            crate::mir::MirInstruction::Call(call) => Some(call),
-            crate::mir::MirInstruction::LegacyCallV0 { .. } => None,
+            crate::mir::MirInstruction::Invoke {
+                operation: crate::mir::instruction::InvokeOperation::Call { call, .. },
+                normal_landing,
+                fault_landing,
+                ..
+            } => {
+                assert_ne!(normal_landing, fault_landing);
+                Some(call)
+            }
             _ => None,
         })
         .expect("qualified call physical terminal");

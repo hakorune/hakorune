@@ -152,7 +152,10 @@ fn original_null_loan_append_and_unselected_boundaries() {
                 .is_empty());
             let before = snapshot(&ledger);
             assert!(ledger
-                .record_root_home_exit(site.owner(), &exit, Vec::new(), vec![returned])
+                .record_root_home_exit_with_entry(
+                    site.owner(), &exit, Vec::new(), vec![returned],
+                    RootHomeExitEntry::Plain { local_bindings: Vec::new() },
+                )
                 .unwrap_err()
                 .contains("return-value"));
             assert_eq!(
@@ -173,7 +176,7 @@ fn original_null_loan_append_and_unselected_boundaries() {
         .is_empty());
     let before = snapshot(&ledger);
     assert!(ledger
-        .record_root_home_exit(
+        .record_root_home_exit_with_entry(
             site.owner(),
             &exit,
             Vec::new(),
@@ -182,7 +185,8 @@ fn original_null_loan_append_and_unselected_boundaries() {
                 MirInstruction::Return {
                     value: Some(completed.value())
                 }
-            )]
+            )],
+            RootHomeExitEntry::Plain { local_bindings: Vec::new() },
         )
         .unwrap_err()
         .contains("producer-missing"));

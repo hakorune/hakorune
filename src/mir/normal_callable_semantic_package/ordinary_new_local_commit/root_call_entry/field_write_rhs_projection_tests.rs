@@ -190,7 +190,12 @@ fn owned_rhs_original_recursive_writers_reach_the_checked_writer() {
             } else {
                 match published {
                     Err(error) => {
-                        assert!(error.contains("instruction-unsupported"), "{rhs}: {error}")
+                        let token = if rhs.contains('%') {
+                            "[published-lifecycle-program/scalar-source-coverage]"
+                        } else {
+                            "[published-lifecycle-program/instruction-unsupported]"
+                        };
+                        assert!(error.contains(token), "{rhs}: {error}");
                     }
                     Ok(_) => panic!("{rhs}: source class grants no unsupported execution"),
                 }

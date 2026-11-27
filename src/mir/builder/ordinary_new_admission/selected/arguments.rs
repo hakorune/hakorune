@@ -423,7 +423,7 @@ mod tests {
                 let before = builder.function_state.current_function.as_ref().unwrap().clone();
                 let error = super::super::expression_value::emit(&mut builder, &mut state, &ledger, frame.evaluation(),
                     &mut |_, _, _, _, _, _| Err("no ordinary Call".into())).err().unwrap();
-                assert!(error.contains("finite-envelope-execution-pending"), "{error}");
+                assert!(error.contains("[ordinary-new/local-commit/expression/reference-execution-pending/text-entry-domain]"), "{error}");
                 let rows = |function: &crate::mir::MirFunction| function.blocks.iter()
                     .map(|(block, body)| (*block, body.all_instructions().cloned().collect::<Vec<_>>()))
                     .collect::<std::collections::BTreeMap<_, _>>();
@@ -562,8 +562,11 @@ mod tests {
                     if let Some(source) = frame.static_reads().last() {
                         let snapshot = builder.function_state.current_function.as_ref().unwrap().clone();
                         let pending = state.prepare_exact_lexical_read(input.owner(), source.read().node(), source.binding()).unwrap();
-                        let (initializer, copies) = pending.loan_local_initializer_v1(source.definition_binding()).unwrap();
-                        let first_copy = copies.first().unwrap().clone();
+                        let read = pending.observation_v1();
+                        let initializer = read.binding_observation_v2()
+                            .loan_root_initializer_v1(source.definition_binding()).unwrap();
+                        let first_copy = read.original_copy_dependencies_v1().unwrap().first().unwrap().clone();
+                        assert!(matches!(&first_copy.1, MirInstruction::Copy { src, .. } if *src == initializer));
                         let physical_rows = |function: &crate::mir::MirFunction| function.blocks.iter()
                             .map(|(id, block)| (*id, block.all_instructions().cloned().collect::<Vec<_>>()))
                             .collect::<std::collections::BTreeMap<_, _>>();
