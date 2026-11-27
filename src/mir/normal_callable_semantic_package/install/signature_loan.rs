@@ -22,7 +22,7 @@ impl<'loan> ResolvedCallablePhysicalSignatureLoanV1<'loan> {
 
     /// Internal adapter for the S6C loan. It preserves the package-owned
     /// signature row and does not create a second signature authority.
-    pub(crate) fn from_s6c_row(row: PhysicalCallableSignatureRowRefV1<'loan>) -> Self {
+    pub(crate) fn from_row_for_test(row: PhysicalCallableSignatureRowRefV1<'loan>) -> Self {
         Self::new(row)
     }
 

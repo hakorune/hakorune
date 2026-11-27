@@ -110,11 +110,6 @@ impl InstalledNormalCallableSemanticPackageV1 {
             }
         }
         let result_contract = match key {
-            // The S6C child consumed this row's Completion seed exclusively
-            // before the generic retention cohort was assembled. Its selected
-            // view remains valid, but the generic result contract is absent by
-            // construction; S6C owns the matching completion through its
-            // child loan instead.
             SelectedNormalCallableKeyV1::Cataloged(_) if self.selected.is_main_child_key(key) => {
                 None
             }

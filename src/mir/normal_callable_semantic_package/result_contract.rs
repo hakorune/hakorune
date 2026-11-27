@@ -466,29 +466,7 @@ impl VerifiedCallableResultContractBuilderV1 {
         Ok(())
     }
 
-    pub(super) fn take_main_child_row(
-        &mut self,
-        row: SelectedCallableBatchMapRowRefV1<'_>,
-    ) -> Option<VerifiedCallableResultContractRowV1> {
-        let index = self.rows.iter().position(|candidate| {
-            candidate.batch_slot == row.batch_slot()
-                && candidate.identity().same_as(row.identity())
-                && candidate.role == row.role()
-        })?;
-        Some(self.rows.remove(index))
-    }
 
-    pub(super) fn peek_main_child_result(
-        &self,
-        row: SelectedCallableBatchMapRowRefV1<'_>,
-    ) -> Option<Option<ExactTrivialScalarAbiV1>> {
-        self.rows.iter().find_map(|candidate| {
-            (candidate.batch_slot() == row.batch_slot()
-                && candidate.identity().same_as(row.identity())
-                && candidate.role() == row.role())
-            .then_some(candidate.result())
-        })
-    }
 
     /// Borrow one already-issued row during the same single source walk.
     /// No second completion or result index is constructed.

@@ -25,10 +25,7 @@ pub(crate) use callable_receiver_policy::SameModuleCallableSourceReceiverPolicyV
 pub(crate) use core_method::{
     issue_source_bound_core_method_calls_v1,
     issue_source_bound_core_method_calls_with_dynamic_sources_v1,
-    issue_source_bound_s6c_call_relation_v1,
-    S6CSourceBoundCallRelationRefV1, S6CSourceBoundCallRelationRejectV1, S6CSourceBoundCallRoleV1,
     SourceBoundCoreMethodTargetIssueV1, VerifiedSourceBoundCoreMethodCallV1,
-    VerifiedSourceBoundS6CCallRelationV1,
 };
 pub(in crate::mir) use dynamic_member::{
     issue_source_bound_dynamic_member_calls_v1, DynamicMemberSourceIssueV1, DynamicMemberSourceRejectV1, VerifiedSourceBoundDynamicMemberCallV1,

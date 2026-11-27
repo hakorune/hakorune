@@ -150,7 +150,7 @@ fn ordinary_formal_stays_one_lane_and_exact_text_pair_is_adjacent() {
 fn residence_backend_carrier_exports_source_issued_root_mapping() {
     let package = issue("static box Api { run(text: StringBox) { return 0 } }");
     let row = package.physical_signature().rows().next().expect("one row");
-    let loan = ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(row);
+    let loan = ResolvedCallablePhysicalSignatureLoanV1::from_row_for_test(row);
     let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(
         PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
     )
@@ -199,7 +199,7 @@ fn residence_backend_carrier_exports_source_issued_root_mapping() {
 fn residence_backend_carrier_rejects_finish_on_trap_before_transport() {
     let package = issue("static box Api { run(text: StringBox) { return 0 } }");
     let row = package.physical_signature().rows().next().expect("one row");
-    let loan = ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(row);
+    let loan = ResolvedCallablePhysicalSignatureLoanV1::from_row_for_test(row);
     let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(
         PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
     )
