@@ -52,9 +52,8 @@ fn pre_effect_parts(
     (facts, source_window, lookup, resolver)
 }
 
-#[test]
-fn no_direct_arm_retains_each_explicit_non_direct_source_row() {
-    let package = package("return 1.run()", 9120);
+fn script_transport_dispositions(source: &str, owner: u32) -> (usize, usize) {
+    let package = package(source, owner);
     let (facts, source_window, lookup, mut resolver) = pre_effect_parts(&package);
     let observation = NormalScriptPreEffectSourceObservationIssuerV1::issue(
         &package,
@@ -65,24 +64,24 @@ fn no_direct_arm_retains_each_explicit_non_direct_source_row() {
     )
     .expect("complete source observation");
     let transport = issue_into_c_transport(observation).expect("A/C disposition");
-    assert_eq!(transport.disposition_counts(), (0, 1));
+    transport.disposition_counts()
+}
+
+#[test]
+fn no_direct_arm_retains_each_explicit_non_direct_source_row() {
+    assert_eq!(
+        script_transport_dispositions("return 1.run()", 9120),
+        (0, 1)
+    );
 }
 
 #[test]
 fn direct_arm_retains_candidate_rows_without_a_second_lookup() {
-    let package = package(
-        "static box Helpers { run(value) { return 7 } }\nreturn Helpers.run(1)",
-        9122,
+    assert_eq!(
+        script_transport_dispositions(
+            "static box Helpers { run(value) { return 7 } }\nreturn Helpers.run(1)",
+            9122
+        ),
+        (1, 0)
     );
-    let (facts, source_window, lookup, mut resolver) = pre_effect_parts(&package);
-    let observation = NormalScriptPreEffectSourceObservationIssuerV1::issue(
-        &package,
-        source_window,
-        lookup,
-        &facts,
-        &mut resolver,
-    )
-    .expect("complete source observation");
-    let transport = issue_into_c_transport(observation).expect("A/C disposition");
-    assert_eq!(transport.disposition_counts(), (1, 0));
 }

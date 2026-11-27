@@ -105,23 +105,41 @@ fn rebind_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
 }
 
 #[test]
-fn variable_target_rebind_is_part_of_the_complete_script_owner() {
-    let program = NyashParser::parse_from_string("local x = 1\nx = 2\nprint(x)")
-        .expect("binding-rebind source");
-    let source = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
-    let window = VerifiedScriptRootDemandWindowV1::seal(
-        vec![resolved_entry(0), rebind_entry(1), resolved_entry(2)],
-        3,
-    )
-    .expect("binding-rebind demand window");
-    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
-    assert!(matches!(
-        FunctionSemanticResolverSessionV1::new(0)
-            .expect("resolver")
-            .resolve_script(view, &window)
-            .expect("binding-rebind resolve"),
-        ResolveScriptOutcomeV1::Complete(_)
-    ));
+fn variable_and_grouped_assignments_seal_complete_rebinds() {
+    for (case_name, make_program, window_description, resolver_description) in [
+        (
+            "variable_target_rebind_is_part_of_the_complete_script_owner",
+            (|| {
+                NyashParser::parse_from_string("local x = 1\nx = 2\nprint(x)")
+                    .expect("binding-rebind source")
+            }) as fn() -> ASTNode,
+            "binding-rebind demand window",
+            "binding-rebind resolve",
+        ),
+        (
+            "grouped_assignment_resolves_as_a_complete_script_rebind",
+            || grouped_rebind_program(integer(2), true),
+            "grouped binding-rebind demand window",
+            "grouped binding-rebind resolve",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let program = make_program();
+        let source = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
+        let window = VerifiedScriptRootDemandWindowV1::seal(
+            vec![resolved_entry(0), rebind_entry(1), resolved_entry(2)],
+            3,
+        )
+        .expect(window_description);
+        let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+        assert!(matches!(
+            FunctionSemanticResolverSessionV1::new(0)
+                .expect("resolver")
+                .resolve_script(view, &window)
+                .expect(resolver_description),
+            ResolveScriptOutcomeV1::Complete(_)
+        ));
+    }
 }
 
 #[test]
@@ -181,25 +199,6 @@ fn prior_local_grouped_assignment_rebinds_the_script_ledger() {
         true,
     );
     assert_selected_program_parity(program, "script-binding-rebind-grouped.hako");
-}
-
-#[test]
-fn grouped_assignment_resolves_as_a_complete_script_rebind() {
-    let program = grouped_rebind_program(integer(2), true);
-    let source = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
-    let window = VerifiedScriptRootDemandWindowV1::seal(
-        vec![resolved_entry(0), rebind_entry(1), resolved_entry(2)],
-        3,
-    )
-    .expect("grouped binding-rebind demand window");
-    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
-    assert!(matches!(
-        FunctionSemanticResolverSessionV1::new(0)
-            .expect("resolver")
-            .resolve_script(view, &window)
-            .expect("grouped binding-rebind resolve"),
-        ResolveScriptOutcomeV1::Complete(_)
-    ));
 }
 
 #[test]

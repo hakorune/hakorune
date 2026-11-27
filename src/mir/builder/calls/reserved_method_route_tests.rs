@@ -222,94 +222,60 @@ fn selected_fastmem_method_route_preserves_memop_lowering() {
     }));
 }
 
-#[test]
-fn selected_fastmem_arity_failure_precedes_argument_effects() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_method_arity/0".into());
-    let body = vec![ASTNode::FastMemRegion {
-        contract: "PageMapV0".into(),
-        body: vec![method("mem", "addr", vec![integer(1), integer(2)])],
-        span: Span::unknown(),
-    }];
-    let error =
-        crate::mir::builder::stmts::block_stmt::build_block(&mut builder, body).unwrap_err();
-    assert!(error.contains("[freeze:contract][fastmem/arity]"));
-    assert!(!instructions(&builder).any(|instruction| matches!(
-        instruction,
-        MirInstruction::Const {
-            value: crate::mir::ConstValue::Integer(1 | 2),
-            ..
-        }
-    )));
-}
 
 #[test]
-fn selected_fastmem_forbidden_failure_precedes_argument_effects() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_method_forbidden/0".into());
-    let body = vec![ASTNode::FastMemRegion {
-        contract: "PageMapV0".into(),
-        body: vec![method("mem", "unknown", vec![integer(1)])],
-        span: Span::unknown(),
-    }];
-    let error =
-        crate::mir::builder::stmts::block_stmt::build_block(&mut builder, body).unwrap_err();
-    assert!(error.contains("[freeze:contract][fastmem/forbidden_call] call=mem.unknown"));
-    assert!(!instructions(&builder).any(|instruction| matches!(
-        instruction,
-        MirInstruction::Const {
-            value: crate::mir::ConstValue::Integer(1),
-            ..
-        }
-    )));
-}
-
-#[test]
-fn selected_fastmem_table_id_preflight_precedes_argument_effects() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_method_table_id/0".into());
-    let body = vec![ASTNode::FastMemRegion {
-        contract: "PageMapV0".into(),
-        body: vec![method(
-            "mem",
+fn fastmem_method_preflight_rejects_before_argument_effects() {
+    for (case_name, symbol, selector, arguments, expected_error) in [
+        (
+            "selected_fastmem_arity_failure_precedes_argument_effects",
+            "fastmem_method_arity/0",
+            "addr",
+            &[1, 2][..],
+            "[freeze:contract][fastmem/arity]",
+        ),
+        (
+            "selected_fastmem_forbidden_failure_precedes_argument_effects",
+            "fastmem_method_forbidden/0",
+            "unknown",
+            &[1],
+            "[freeze:contract][fastmem/forbidden_call] call=mem.unknown",
+        ),
+        (
+            "selected_fastmem_table_id_preflight_precedes_argument_effects",
+            "fastmem_method_table_id/0",
             "assumeTableLength",
-            vec![integer(7), integer(4)],
-        )],
-        span: Span::unknown(),
-    }];
-    let error =
-        crate::mir::builder::stmts::block_stmt::build_block(&mut builder, body).unwrap_err();
-    assert!(error.contains("[freeze:contract][fastmem/table_length_requires_table_variable]"));
-    assert!(!instructions(&builder).any(|instruction| matches!(
-        instruction,
-        MirInstruction::Const {
-            value: crate::mir::ConstValue::Integer(7 | 4),
-            ..
-        }
-    )));
-}
-
-#[test]
-fn selected_fastmem_positive_upper_preflight_precedes_argument_effects() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("fastmem_method_positive_upper/0".into());
-    let body = vec![ASTNode::FastMemRegion {
-        contract: "PageMapV0".into(),
-        body: vec![method(
-            "mem",
+            &[7, 4],
+            "[freeze:contract][fastmem/table_length_requires_table_variable]",
+        ),
+        (
+            "selected_fastmem_positive_upper_preflight_precedes_argument_effects",
+            "fastmem_method_positive_upper/0",
             "assumeIndexInRange",
-            vec![integer(7), integer(0)],
-        )],
-        span: Span::unknown(),
-    }];
-    let error =
-        crate::mir::builder::stmts::block_stmt::build_block(&mut builder, body).unwrap_err();
-    assert!(error.contains("[freeze:contract][fastmem/table_length_requires_positive_usize]"));
-    assert!(!instructions(&builder).any(|instruction| matches!(
-        instruction,
-        MirInstruction::Const {
-            value: crate::mir::ConstValue::Integer(7 | 0),
-            ..
-        }
-    )));
+            &[7, 0],
+            "[freeze:contract][fastmem/table_length_requires_positive_usize]",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test(symbol.into());
+        let body = vec![ASTNode::FastMemRegion {
+            contract: "PageMapV0".into(),
+            body: vec![method(
+                "mem",
+                selector,
+                arguments.iter().copied().map(integer).collect(),
+            )],
+            span: Span::unknown(),
+        }];
+        let error =
+            crate::mir::builder::stmts::block_stmt::build_block(&mut builder, body).unwrap_err();
+        assert!(error.contains(expected_error));
+        assert!(!instructions(&builder).any(|instruction| matches!(
+            instruction,
+            MirInstruction::Const {
+                value: crate::mir::ConstValue::Integer(value),
+                ..
+            } if arguments.contains(value)
+        )));
+    }
 }

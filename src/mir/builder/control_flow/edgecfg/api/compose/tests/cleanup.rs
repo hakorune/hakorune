@@ -57,55 +57,70 @@ fn test_cleanup_return_propagation() {
 }
 
 // Phase 281 P2: cleanup() test - Return wiring
+
 #[test]
-fn test_cleanup_return_wiring() {
-    let main_entry = BasicBlockId(100);
-    let cleanup_bb = BasicBlockId(200);
-    let target_bb = BasicBlockId(300); // Wire destination
-
-    // Main Frag: empty
-    let main_frag = Frag {
-        entry: main_entry,
-        block_params: BTreeMap::new(),
-        exits: BTreeMap::new(),
-        wires: vec![],
-        branches: vec![],
-    };
-
-    // Cleanup Frag: Return exit
-    let cleanup_frag = Frag {
-        entry: cleanup_bb,
-        block_params: BTreeMap::new(),
-        exits: BTreeMap::from([(
+fn cleanup_wires_selected_normal_or_return_exit() {
+    for (case_name, exit_kind, normal_target, return_target) in [
+        (
+            "test_cleanup_return_wiring",
             ExitKind::Return,
-            vec![EdgeStub::new(
-                cleanup_bb,
-                ExitKind::Return,
-                None, // Unresolved
-                EdgeArgs {
-                    layout: JumpArgsLayout::CarriersOnly,
-                    values: vec![],
-                },
-            )],
-        )]),
-        wires: vec![],
-        branches: vec![],
-    };
+            None,
+            Some(BasicBlockId(300)),
+        ),
+        (
+            "test_cleanup_normal_wiring",
+            ExitKind::Normal,
+            Some(BasicBlockId(300)),
+            None,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let main_entry = BasicBlockId(100);
+        let cleanup_bb = BasicBlockId(200);
 
-    // Execute: normal_target=None, ret_target=Some(target_bb) → wire Return
-    let result = cleanup(main_frag, cleanup_frag, None, Some(target_bb));
+        // Main Frag: empty
+        let main_frag = Frag {
+            entry: main_entry,
+            block_params: BTreeMap::new(),
+            exits: BTreeMap::new(),
+            wires: vec![],
+            branches: vec![],
+        };
 
-    // Verify: Return in wires (not exits), wired to target_bb
-    assert!(result.is_ok());
-    let composed = result.unwrap();
-    assert_eq!(composed.entry, main_entry);
-    assert_eq!(composed.exits.len(), 0); // No exits (closed)
-    assert_eq!(composed.wires.len(), 1); // Return wired
+        // Cleanup Frag with one unresolved exit
+        let cleanup_frag = Frag {
+            entry: cleanup_bb,
+            block_params: BTreeMap::new(),
+            exits: BTreeMap::from([(
+                exit_kind,
+                vec![EdgeStub::new(
+                    cleanup_bb,
+                    exit_kind,
+                    None, // Unresolved
+                    EdgeArgs {
+                        layout: JumpArgsLayout::CarriersOnly,
+                        values: vec![],
+                    },
+                )],
+            )]),
+            wires: vec![],
+            branches: vec![],
+        };
 
-    let wired_stub = &composed.wires[0];
-    assert_eq!(wired_stub.from, cleanup_bb);
-    assert_eq!(wired_stub.kind, ExitKind::Return);
-    assert_eq!(wired_stub.target, Some(target_bb)); // Wired!
+        let result = cleanup(main_frag, cleanup_frag, normal_target, return_target);
+
+        // The selected exit becomes a wire to the destination.
+        assert!(result.is_ok());
+        let composed = result.unwrap();
+        assert_eq!(composed.entry, main_entry);
+        assert_eq!(composed.exits.len(), 0); // No exits (closed)
+        assert_eq!(composed.wires.len(), 1);
+
+        let wired_stub = &composed.wires[0];
+        assert_eq!(wired_stub.from, cleanup_bb);
+        assert_eq!(wired_stub.kind, exit_kind);
+        assert_eq!(wired_stub.target, Some(BasicBlockId(300))); // Wired!
+    }
 }
 
 // Phase 281 P3: cleanup() test - Normal propagation
@@ -159,53 +174,3 @@ fn test_cleanup_normal_propagation() {
 }
 
 // Phase 281 P3: cleanup() test - Normal wiring
-#[test]
-fn test_cleanup_normal_wiring() {
-    let main_entry = BasicBlockId(100);
-    let cleanup_bb = BasicBlockId(200);
-    let target_bb = BasicBlockId(300); // Wire destination
-
-    // Main Frag: empty
-    let main_frag = Frag {
-        entry: main_entry,
-        block_params: BTreeMap::new(),
-        exits: BTreeMap::new(),
-        wires: vec![],
-        branches: vec![],
-    };
-
-    // Cleanup Frag: Normal exit
-    let cleanup_frag = Frag {
-        entry: cleanup_bb,
-        block_params: BTreeMap::new(),
-        exits: BTreeMap::from([(
-            ExitKind::Normal,
-            vec![EdgeStub::new(
-                cleanup_bb,
-                ExitKind::Normal,
-                None, // Unresolved
-                EdgeArgs {
-                    layout: JumpArgsLayout::CarriersOnly,
-                    values: vec![],
-                },
-            )],
-        )]),
-        wires: vec![],
-        branches: vec![],
-    };
-
-    // Execute: normal_target=Some(target_bb), ret_target=None → wire Normal
-    let result = cleanup(main_frag, cleanup_frag, Some(target_bb), None);
-
-    // Verify: Normal in wires (not exits), wired to target_bb
-    assert!(result.is_ok());
-    let composed = result.unwrap();
-    assert_eq!(composed.entry, main_entry);
-    assert_eq!(composed.exits.len(), 0); // No exits (closed)
-    assert_eq!(composed.wires.len(), 1); // Normal wired
-
-    let wired_stub = &composed.wires[0];
-    assert_eq!(wired_stub.from, cleanup_bb);
-    assert_eq!(wired_stub.kind, ExitKind::Normal);
-    assert_eq!(wired_stub.target, Some(target_bb)); // Wired!
-}

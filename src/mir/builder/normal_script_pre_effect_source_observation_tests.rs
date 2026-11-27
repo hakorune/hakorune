@@ -47,24 +47,42 @@ fn inputs(
 }
 
 #[test]
-fn zero_call_source_is_complete_before_effects() {
-    let package = package("42", 2601);
-    let window =
-        PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package).expect("neutral window");
-    let (lookup, facts) = inputs(&package, &window);
-    let (source_window, _post_install) = window.split_for_pre_effect();
-    let mut resolver = FunctionSemanticResolverSessionV1::new(2602).expect("resolver");
+fn script_source_observation_preserves_zero_call_and_empty_windows() {
+    for (case_name, text, package_id, resolver_id, expected_entries) in [
+        (
+            "zero_call_source_is_complete_before_effects",
+            "42",
+            2601,
+            2602,
+            1,
+        ),
+        (
+            "empty_script_window_moves_without_default_repair",
+            "",
+            2606,
+            2607,
+            0,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = package(text, package_id);
+        let window =
+            PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package).expect("neutral window");
+        let (lookup, facts) = inputs(&package, &window);
+        let (source_window, _post_install) = window.split_for_pre_effect();
+        let mut resolver = FunctionSemanticResolverSessionV1::new(resolver_id).expect("resolver");
 
-    let observation = NormalScriptPreEffectSourceObservationIssuerV1::issue(
-        &package,
-        source_window,
-        lookup,
-        &facts,
-        &mut resolver,
-    )
-    .expect("complete pre-effect observation");
-    let (source_window, _invocation, _parts, _lookup) = observation.into_a_parts();
-    assert_eq!(source_window.window().entries().len(), 1);
+        let observation = NormalScriptPreEffectSourceObservationIssuerV1::issue(
+            &package,
+            source_window,
+            lookup,
+            &facts,
+            &mut resolver,
+        )
+        .expect("complete pre-effect observation");
+        let (source_window, _invocation, _parts, _lookup) = observation.into_a_parts();
+        assert_eq!(source_window.window().entries().len(), expected_entries);
+    }
 }
 
 #[test]
@@ -89,27 +107,6 @@ fn foreign_neutral_window_is_rejected_before_resolver_observation() {
         ),
         Err(NormalScriptPreEffectSourceObservationIssueV1::IntegrityInvalid { .. })
     ));
-}
-
-#[test]
-fn empty_script_window_moves_without_default_repair() {
-    let package = package("", 2606);
-    let window =
-        PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package).expect("empty window");
-    let (lookup, facts) = inputs(&package, &window);
-    let (source_window, _post_install) = window.split_for_pre_effect();
-    let mut resolver = FunctionSemanticResolverSessionV1::new(2607).expect("resolver");
-
-    let observation = NormalScriptPreEffectSourceObservationIssuerV1::issue(
-        &package,
-        source_window,
-        lookup,
-        &facts,
-        &mut resolver,
-    )
-    .expect("empty pre-effect observation");
-    let (source_window, _invocation, _parts, _lookup) = observation.into_a_parts();
-    assert!(source_window.window().entries().is_empty());
 }
 
 #[test]

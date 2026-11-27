@@ -1,74 +1,68 @@
 #[test]
-fn nested_or_statement_wrapped_this_stays_deferred() {
-    for program in [
-        ASTNode::Program {
-            statements: vec![ASTNode::UnaryOp {
+fn nested_receiver_keywords_keep_existing_deferred_diagnostics() {
+    for (case_name, unary_statements, print_statements, source_file, description, refusal) in [
+        (
+            "nested_or_statement_wrapped_this_stays_deferred",
+            vec![ASTNode::UnaryOp {
                 operator: crate::ast::UnaryOperator::Minus,
                 operand: Box::new(ASTNode::This {
                     span: Span::unknown(),
                 }),
                 span: Span::unknown(),
             }],
-            span: Span::unknown(),
-        },
-        ASTNode::Program {
-            statements: vec![ASTNode::Print {
+            vec![ASTNode::Print {
                 expression: Box::new(ASTNode::This {
                     span: Span::unknown(),
                 }),
                 span: Span::unknown(),
             }],
-            span: Span::unknown(),
-        },
-    ] {
-        let error = MirCompiler::with_options(false)
-            .compile_normal(
-                NormalCompileRequestV1::for_mir_mode(
-                    program,
-                    Some("script-nested-this.hako"),
-                    std::collections::HashMap::new(),
-                )
-                .expect("normal request"),
-            )
-            .expect_err("nested This stays Deferred");
-        assert!(error.contains("Unsupported AST node type"), "{error}");
-    }
-}
-
-#[test]
-fn recursive_or_statement_wrapped_me_stays_deferred() {
-    for program in [
-        ASTNode::Program {
-            statements: vec![ASTNode::UnaryOp {
+            "script-nested-this.hako",
+            "nested This stays Deferred",
+            "Unsupported AST node type",
+        ),
+        (
+            "recursive_or_statement_wrapped_me_stays_deferred",
+            vec![ASTNode::UnaryOp {
                 operator: crate::ast::UnaryOperator::Minus,
                 operand: Box::new(ASTNode::Me {
                     span: Span::unknown(),
                 }),
                 span: Span::unknown(),
             }],
-            span: Span::unknown(),
-        },
-        ASTNode::Program {
-            statements: vec![ASTNode::Print {
+            vec![ASTNode::Print {
                 expression: Box::new(ASTNode::Me {
                     span: Span::unknown(),
                 }),
                 span: Span::unknown(),
             }],
-            span: Span::unknown(),
-        },
+            "script-nested-me.hako",
+            "nested Me stays Deferred",
+            "MeResolverBox",
+        ),
     ] {
-        let error = MirCompiler::with_options(false)
-            .compile_normal(
-                NormalCompileRequestV1::for_mir_mode(
-                    program,
-                    Some("script-nested-me.hako"),
-                    std::collections::HashMap::new(),
+        println!("case: {case_name}");
+        for program in [
+            ASTNode::Program {
+                statements: unary_statements,
+                span: Span::unknown(),
+            },
+            ASTNode::Program {
+                statements: print_statements,
+                span: Span::unknown(),
+            },
+        ] {
+            let error = MirCompiler::with_options(false)
+                .compile_normal(
+                    NormalCompileRequestV1::for_mir_mode(
+                        program,
+                        Some(source_file),
+                        std::collections::HashMap::new(),
+                    )
+                    .expect("normal request"),
                 )
-                .expect("normal request"),
-            )
-            .expect_err("nested Me stays Deferred");
-        assert!(error.contains("MeResolverBox"), "{error}");
+                .expect_err(description);
+            assert!(error.contains(refusal), "{error}");
+        }
     }
 }
 
@@ -189,128 +183,79 @@ fn selected_normal_lexical_closure_matrix_matches_legacy() {
 }
 
 #[test]
-fn lexical_fastmem_scope_matches_legacy() {
-    let local = ASTNode::Local {
-        variables: vec!["x".to_owned()],
-        initial_values: vec![Some(Box::new(ASTNode::Literal {
-            value: LiteralValue::Integer(1),
-            span: Span::unknown(),
-        }))],
-        declared_type_names: vec![None],
-        span: Span::unknown(),
-    };
-    let print = ASTNode::Print {
-        expression: Box::new(ASTNode::Variable {
-            name: "x".to_owned(),
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
-    };
-    assert_selected_program_parity(
-        ASTNode::Program {
-            statements: vec![ASTNode::FastMemRegion {
-                contract: "PageMapV0".to_owned(),
-                body: vec![local, print],
-                span: Span::unknown(),
-            }],
-            span: Span::unknown(),
-        },
-        "script-fastmem.hako",
-    );
-}
-
-#[test]
-fn lexical_scopebox_matches_legacy() {
-    let local = ASTNode::Local {
-        variables: vec!["x".to_owned()],
-        initial_values: vec![Some(Box::new(ASTNode::Literal {
-            value: LiteralValue::Integer(1),
-            span: Span::unknown(),
-        }))],
-        declared_type_names: vec![None],
-        span: Span::unknown(),
-    };
-    let print = ASTNode::Print {
-        expression: Box::new(ASTNode::Variable {
-            name: "x".to_owned(),
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
-    };
-    assert_selected_program_parity(
-        ASTNode::Program {
-            statements: vec![ASTNode::ScopeBox {
-                body: vec![local, print],
-                span: Span::unknown(),
-            }],
-            span: Span::unknown(),
-        },
-        "script-scopebox.hako",
-    );
-}
-
-#[test]
-fn nested_lexical_scopeboxes_match_legacy() {
-    let local = ASTNode::Local {
-        variables: vec!["x".to_owned()],
-        initial_values: vec![Some(Box::new(ASTNode::Literal {
-            value: LiteralValue::Integer(1),
-            span: Span::unknown(),
-        }))],
-        declared_type_names: vec![None],
-        span: Span::unknown(),
-    };
-    let print = ASTNode::Print {
-        expression: Box::new(ASTNode::Variable {
-            name: "x".to_owned(),
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
-    };
-    assert_selected_program_parity(
-        ASTNode::Program {
-            statements: vec![ASTNode::ScopeBox {
-                body: vec![ASTNode::ScopeBox {
+fn lexical_container_scopes_preserve_canonical_body_source() {
+    for (case_name, wrap_body, source_file) in [
+        (
+            "lexical_fastmem_scope_matches_legacy",
+            (|local, print| {
+                vec![ASTNode::FastMemRegion {
+                    contract: "PageMapV0".to_owned(),
                     body: vec![local, print],
                     span: Span::unknown(),
-                }],
+                }]
+            }) as fn(ASTNode, ASTNode) -> Vec<ASTNode>,
+            "script-fastmem.hako",
+        ),
+        (
+            "lexical_scopebox_matches_legacy",
+            |local, print| {
+                vec![ASTNode::ScopeBox {
+                    body: vec![local, print],
+                    span: Span::unknown(),
+                }]
+            },
+            "script-scopebox.hako",
+        ),
+        (
+            "nested_lexical_scopeboxes_match_legacy",
+            |local, print| {
+                vec![ASTNode::ScopeBox {
+                    body: vec![ASTNode::ScopeBox {
+                        body: vec![local, print],
+                        span: Span::unknown(),
+                    }],
+                    span: Span::unknown(),
+                }]
+            },
+            "script-nested-scopebox.hako",
+        ),
+        (
+            "lexical_task_scope_matches_legacy_with_canonical_body_source",
+            |local, print| {
+                vec![ASTNode::TaskScope {
+                    body: vec![local, print],
+                    source_keyword: "co".to_owned(),
+                    span: Span::unknown(),
+                }]
+            },
+            "script-task-scope-lexical.hako",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let local = ASTNode::Local {
+            variables: vec!["x".to_owned()],
+            initial_values: vec![Some(Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
                 span: Span::unknown(),
-            }],
+            }))],
+            declared_type_names: vec![None],
             span: Span::unknown(),
-        },
-        "script-nested-scopebox.hako",
-    );
-}
-
-#[test]
-fn lexical_task_scope_matches_legacy_with_canonical_body_source() {
-    let local = ASTNode::Local {
-        variables: vec!["x".to_owned()],
-        initial_values: vec![Some(Box::new(ASTNode::Literal {
-            value: LiteralValue::Integer(1),
-            span: Span::unknown(),
-        }))],
-        declared_type_names: vec![None],
-        span: Span::unknown(),
-    };
-    let print = ASTNode::Print {
-        expression: Box::new(ASTNode::Variable {
-            name: "x".to_owned(),
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
-    };
-    assert_selected_program_parity(
-        ASTNode::Program {
-            statements: vec![ASTNode::TaskScope {
-                body: vec![local, print],
-                source_keyword: "co".to_owned(),
+        };
+        let print = ASTNode::Print {
+            expression: Box::new(ASTNode::Variable {
+                name: "x".to_owned(),
                 span: Span::unknown(),
-            }],
+            }),
             span: Span::unknown(),
-        },
-        "script-task-scope-lexical.hako",
-    );
+        };
+        assert_selected_program_parity(
+            ASTNode::Program {
+                statements: wrap_body(local, print),
+                span: Span::unknown(),
+            },
+            source_file,
+        );
+    }
 }
 
 #[test]
