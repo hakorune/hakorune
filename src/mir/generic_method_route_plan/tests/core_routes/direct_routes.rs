@@ -70,108 +70,78 @@ fn detects_mapbox_has_route() {
     assert_eq!(route.publication_policy(), None);
 }
 
-#[test]
-fn records_direct_arraybox_has_as_arrayhas_core_method_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block
-        .instructions
-        .push(method_call(Some(3), "ArrayBox", "has", 1, vec![2]));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.box_name(), "ArrayBox");
-    assert_eq!(route.method(), "has");
-    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
-    assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::UnknownAny));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayContainsAny);
-    assert_eq!(route.route_kind().helper_symbol(), "nyash.array.has_hh");
-    assert_eq!(route.proof(), GenericMethodRouteProof::HasSurfacePolicy);
-    let core_method = route.core_method().expect("ArrayBox.has core method op");
-    assert_eq!(core_method.op, CoreMethodOp::ArrayHas);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::WarmDirectAbi
-    );
-    assert_eq!(route.return_shape(), None);
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
-    assert_eq!(route.publication_policy(), None);
-}
 
 #[test]
-fn records_direct_mapbox_get_as_warm_core_method_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block
-        .instructions
-        .push(method_call(Some(3), "MapBox", "get", 1, vec![2]));
+fn direct_collection_calls_keep_warm_core_routes() {
+    for (case_name, box_name, method, route_id, kind, helper, proof, carrier, op) in [
+        (
+            "records_direct_arraybox_has_as_arrayhas_core_method_route",
+            "ArrayBox",
+            "has",
+            None,
+            GenericMethodRouteKind::ArrayContainsAny,
+            "nyash.array.has_hh",
+            GenericMethodRouteProof::HasSurfacePolicy,
+            "ArrayBox.has core method op",
+            CoreMethodOp::ArrayHas,
+        ),
+        (
+            "records_direct_mapbox_get_as_warm_core_method_route",
+            "MapBox",
+            "get",
+            Some("generic_method.get"),
+            GenericMethodRouteKind::MapLoadAny,
+            "nyash.map.slot_load_hh",
+            GenericMethodRouteProof::GetSurfacePolicy,
+            "MapBox.get core method op",
+            CoreMethodOp::MapGet,
+        ),
+        (
+            "records_direct_arraybox_get_as_warm_core_method_route",
+            "ArrayBox",
+            "get",
+            Some("generic_method.get"),
+            GenericMethodRouteKind::ArraySlotLoadAny,
+            "nyash.array.slot_load_hi",
+            GenericMethodRouteProof::GetSurfacePolicy,
+            "ArrayBox.get core method op",
+            CoreMethodOp::ArrayGet,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block
+            .instructions
+            .push(method_call(Some(3), box_name, method, 1, vec![2]));
 
-    refresh_function_generic_method_routes(&mut function);
+        refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.get");
-    assert_eq!(route.box_name(), "MapBox");
-    assert_eq!(route.method(), "get");
-    assert_eq!(route.receiver_origin_box(), Some("MapBox"));
-    assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::UnknownAny));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::MapLoadAny);
-    assert_eq!(route.route_kind().helper_symbol(), "nyash.map.slot_load_hh");
-    assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
-    let core_method = route.core_method().expect("MapBox.get core method op");
-    assert_eq!(core_method.op, CoreMethodOp::MapGet);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::WarmDirectAbi
-    );
-    assert_eq!(route.return_shape(), None);
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
-    assert_eq!(route.publication_policy(), None);
-}
-
-#[test]
-fn records_direct_arraybox_get_as_warm_core_method_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block
-        .instructions
-        .push(method_call(Some(3), "ArrayBox", "get", 1, vec![2]));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.get");
-    assert_eq!(route.box_name(), "ArrayBox");
-    assert_eq!(route.method(), "get");
-    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
-    assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::UnknownAny));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::ArraySlotLoadAny);
-    assert_eq!(
-        route.route_kind().helper_symbol(),
-        "nyash.array.slot_load_hi"
-    );
-    assert_eq!(route.proof(), GenericMethodRouteProof::GetSurfacePolicy);
-    let core_method = route.core_method().expect("ArrayBox.get core method op");
-    assert_eq!(core_method.op, CoreMethodOp::ArrayGet);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::WarmDirectAbi
-    );
-    assert_eq!(route.return_shape(), None);
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
-    assert_eq!(route.publication_policy(), None);
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        if let Some(route_id) = route_id {
+            assert_eq!(route.route_id(), route_id);
+        }
+        assert_eq!(route.box_name(), box_name);
+        assert_eq!(route.method(), method);
+        assert_eq!(route.receiver_origin_box(), Some(box_name));
+        assert_eq!(route.key_route(), Some(GenericMethodKeyRoute::UnknownAny));
+        assert_eq!(route.route_kind(), kind);
+        assert_eq!(route.route_kind().helper_symbol(), helper);
+        assert_eq!(route.proof(), proof);
+        let core_method = route.core_method().expect(carrier);
+        assert_eq!(core_method.op, op);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(route.return_shape(), None);
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ReadRef);
+        assert_eq!(route.publication_policy(), None);
+    }
 }
 
 #[test]

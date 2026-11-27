@@ -180,74 +180,89 @@ fn generic_i64_body_accepts_any_handle_live_and_array_slot_append_extern_routes(
     );
 }
 
-#[test]
-fn generic_i64_body_accepts_array_slot_len_extern_route() {
-    let mut module = MirModule::new("global_call_generic_i64_rawarray_len_test".to_string());
+fn array_slot_i64_bridge(
+    module_name: &str,
+    wrapper_name: &str,
+    pointer_name: &str,
+    extern_name: &str,
+    arity: u32,
+) -> MirModule {
+    let mut module = MirModule::new(module_name.to_string());
     let main = make_function_with_global_call_args(
-        "RawArrayLike.slot_len_i64/1",
+        wrapper_name,
         Some(ValueId::new(7)),
-        vec![ValueId::new(1)],
+        (1..1 + arity).map(ValueId::new).collect(),
     );
 
-    let mut ptr_len = MirFunction::new(
+    let mut pointer = MirFunction::new(
         FunctionSignature {
-            name: "PtrLike.slot_len_i64/1".to_string(),
-            params: vec![MirType::Integer],
+            name: pointer_name.to_string(),
+            params: vec![MirType::Integer; arity as usize],
             return_type: MirType::Integer,
             effects: EffectMask::IO,
         },
         BasicBlockId::new(0),
     );
-    ptr_len.params = vec![ValueId::new(10)];
-    let ptr_block = ptr_len.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    pointer.params = (10..10 + arity).map(ValueId::new).collect();
+    let pointer_params = pointer.params.clone();
+    let ptr_block = pointer.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     ptr_block.instructions.push(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(11)),
+        dst: Some(ValueId::new(10 + arity)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Extern("nyash.array.slot_len_h".to_string())),
-        args: vec![ValueId::new(10)],
+        callee: Some(Callee::Extern(extern_name.to_string())),
+        args: pointer_params,
         effects: EffectMask::IO,
     });
     ptr_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(11)),
+        value: Some(ValueId::new(10 + arity)),
     });
 
     let mut wrapper = MirFunction::new(
         FunctionSignature {
-            name: "RawArrayLike.slot_len_i64/1".to_string(),
-            params: vec![MirType::Integer],
+            name: wrapper_name.to_string(),
+            params: vec![MirType::Integer; arity as usize],
             return_type: MirType::Integer,
             effects: EffectMask::IO,
         },
         BasicBlockId::new(0),
     );
-    wrapper.params = vec![ValueId::new(20)];
+    wrapper.params = (20..20 + arity).map(ValueId::new).collect();
+    let wrapper_params = wrapper.params.clone();
     let wrapper_block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     wrapper_block
         .instructions
         .push(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(21)),
+            dst: Some(ValueId::new(20 + arity)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
-                "PtrLike.slot_len_i64/1".to_string(),
+                pointer_name.to_string(),
             ))),
-            args: vec![ValueId::new(20)],
+            args: wrapper_params,
             effects: EffectMask::IO,
         });
     wrapper_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(21)),
+        value: Some(ValueId::new(20 + arity)),
     });
 
     module.functions.insert("main".to_string(), main);
-    module
-        .functions
-        .insert("PtrLike.slot_len_i64/1".to_string(), ptr_len);
-    module
-        .functions
-        .insert("RawArrayLike.slot_len_i64/1".to_string(), wrapper);
+    module.functions.insert(pointer_name.to_string(), pointer);
+    module.functions.insert(wrapper_name.to_string(), wrapper);
 
     crate::mir::extern_call_route_plan::refresh_module_extern_call_routes(&mut module);
     refresh_module_global_call_routes(&mut module);
 
+    module
+}
+
+#[test]
+fn generic_i64_body_accepts_array_slot_len_extern_route() {
+    let module = array_slot_i64_bridge(
+        "global_call_generic_i64_rawarray_len_test",
+        "RawArrayLike.slot_len_i64/1",
+        "PtrLike.slot_len_i64/1",
+        "nyash.array.slot_len_h",
+        1,
+    );
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
@@ -260,85 +275,36 @@ fn generic_i64_body_accepts_array_slot_len_extern_route() {
     assert_eq!(route.proof(), "typed_global_call_generic_i64");
     assert_eq!(route.return_shape(), Some("ScalarI64"));
 
-    let ptr_routes = &module.functions["PtrLike.slot_len_i64/1"].metadata.extern_call_routes;
+    let ptr_routes = &module.functions["PtrLike.slot_len_i64/1"]
+        .metadata
+        .extern_call_routes;
     assert_eq!(ptr_routes.len(), 1);
     let ptr_extern = &ptr_routes[0];
     assert_eq!(ptr_extern.route_id(), "extern.array.slot_len_i64");
     assert_eq!(ptr_extern.core_op(), "ArraySlotLenI64");
     assert_array_slot_contract(
         ptr_extern,
-        ("ArraySlotLenI64", "nyash.array.slot_len_h", 1, "array.slot_len", 10, None, 11),
+        (
+            "ArraySlotLenI64",
+            "nyash.array.slot_len_h",
+            1,
+            "array.slot_len",
+            10,
+            None,
+            11,
+        ),
     );
 }
 
 #[test]
 fn generic_i64_body_accepts_array_slot_load_extern_route() {
-    let mut module = MirModule::new("global_call_generic_i64_rawarray_load_test".to_string());
-    let main = make_function_with_global_call_args(
+    let module = array_slot_i64_bridge(
+        "global_call_generic_i64_rawarray_load_test",
         "RawArrayLike.slot_load_i64/2",
-        Some(ValueId::new(7)),
-        vec![ValueId::new(1), ValueId::new(2)],
+        "PtrLike.slot_load_i64/2",
+        "nyash.array.slot_load_hi",
+        2,
     );
-
-    let mut ptr_load = MirFunction::new(
-        FunctionSignature {
-            name: "PtrLike.slot_load_i64/2".to_string(),
-            params: vec![MirType::Integer, MirType::Integer],
-            return_type: MirType::Integer,
-            effects: EffectMask::IO,
-        },
-        BasicBlockId::new(0),
-    );
-    ptr_load.params = vec![ValueId::new(10), ValueId::new(11)];
-    let ptr_block = ptr_load.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    ptr_block.instructions.push(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(12)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Extern("nyash.array.slot_load_hi".to_string())),
-        args: vec![ValueId::new(10), ValueId::new(11)],
-        effects: EffectMask::IO,
-    });
-    ptr_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(12)),
-    });
-
-    let mut wrapper = MirFunction::new(
-        FunctionSignature {
-            name: "RawArrayLike.slot_load_i64/2".to_string(),
-            params: vec![MirType::Integer, MirType::Integer],
-            return_type: MirType::Integer,
-            effects: EffectMask::IO,
-        },
-        BasicBlockId::new(0),
-    );
-    wrapper.params = vec![ValueId::new(20), ValueId::new(21)];
-    let wrapper_block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    wrapper_block
-        .instructions
-        .push(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(22)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global(crate::mir::test_global_target(
-                "PtrLike.slot_load_i64/2".to_string(),
-            ))),
-            args: vec![ValueId::new(20), ValueId::new(21)],
-            effects: EffectMask::IO,
-        });
-    wrapper_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(22)),
-    });
-
-    module.functions.insert("main".to_string(), main);
-    module
-        .functions
-        .insert("PtrLike.slot_load_i64/2".to_string(), ptr_load);
-    module
-        .functions
-        .insert("RawArrayLike.slot_load_i64/2".to_string(), wrapper);
-
-    crate::mir::extern_call_route_plan::refresh_module_extern_call_routes(&mut module);
-    refresh_module_global_call_routes(&mut module);
-
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
@@ -351,85 +317,36 @@ fn generic_i64_body_accepts_array_slot_load_extern_route() {
     assert_eq!(route.proof(), "typed_global_call_generic_i64");
     assert_eq!(route.return_shape(), Some("ScalarI64"));
 
-    let ptr_routes = &module.functions["PtrLike.slot_load_i64/2"].metadata.extern_call_routes;
+    let ptr_routes = &module.functions["PtrLike.slot_load_i64/2"]
+        .metadata
+        .extern_call_routes;
     assert_eq!(ptr_routes.len(), 1);
     let ptr_extern = &ptr_routes[0];
     assert_eq!(ptr_extern.route_id(), "extern.array.slot_load_i64");
     assert_eq!(ptr_extern.core_op(), "ArraySlotLoadI64");
     assert_array_slot_contract(
         ptr_extern,
-        ("ArraySlotLoadI64", "nyash.array.slot_load_hi", 2, "array.slot_load", 10, Some(11), 12),
+        (
+            "ArraySlotLoadI64",
+            "nyash.array.slot_load_hi",
+            2,
+            "array.slot_load",
+            10,
+            Some(11),
+            12,
+        ),
     );
 }
 
 #[test]
 fn generic_i64_body_accepts_array_slot_store_extern_route() {
-    let mut module = MirModule::new("global_call_generic_i64_rawarray_store_test".to_string());
-    let main = make_function_with_global_call_args(
+    let module = array_slot_i64_bridge(
+        "global_call_generic_i64_rawarray_store_test",
         "RawArrayLike.slot_store_i64/3",
-        Some(ValueId::new(7)),
-        vec![ValueId::new(1), ValueId::new(2), ValueId::new(3)],
+        "PtrLike.slot_store_i64/3",
+        "nyash.array.slot_store_hii",
+        3,
     );
-
-    let mut ptr_store = MirFunction::new(
-        FunctionSignature {
-            name: "PtrLike.slot_store_i64/3".to_string(),
-            params: vec![MirType::Integer, MirType::Integer, MirType::Integer],
-            return_type: MirType::Integer,
-            effects: EffectMask::IO,
-        },
-        BasicBlockId::new(0),
-    );
-    ptr_store.params = vec![ValueId::new(10), ValueId::new(11), ValueId::new(12)];
-    let ptr_block = ptr_store.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    ptr_block.instructions.push(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(13)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Extern("nyash.array.slot_store_hii".to_string())),
-        args: vec![ValueId::new(10), ValueId::new(11), ValueId::new(12)],
-        effects: EffectMask::IO,
-    });
-    ptr_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(13)),
-    });
-
-    let mut wrapper = MirFunction::new(
-        FunctionSignature {
-            name: "RawArrayLike.slot_store_i64/3".to_string(),
-            params: vec![MirType::Integer, MirType::Integer, MirType::Integer],
-            return_type: MirType::Integer,
-            effects: EffectMask::IO,
-        },
-        BasicBlockId::new(0),
-    );
-    wrapper.params = vec![ValueId::new(20), ValueId::new(21), ValueId::new(22)];
-    let wrapper_block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    wrapper_block
-        .instructions
-        .push(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(23)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global(crate::mir::test_global_target(
-                "PtrLike.slot_store_i64/3".to_string(),
-            ))),
-            args: vec![ValueId::new(20), ValueId::new(21), ValueId::new(22)],
-            effects: EffectMask::IO,
-        });
-    wrapper_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(23)),
-    });
-
-    module.functions.insert("main".to_string(), main);
-    module
-        .functions
-        .insert("PtrLike.slot_store_i64/3".to_string(), ptr_store);
-    module
-        .functions
-        .insert("RawArrayLike.slot_store_i64/3".to_string(), wrapper);
-
-    crate::mir::extern_call_route_plan::refresh_module_extern_call_routes(&mut module);
-    refresh_module_global_call_routes(&mut module);
-
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
         route.target_shape(),
@@ -442,13 +359,23 @@ fn generic_i64_body_accepts_array_slot_store_extern_route() {
     assert_eq!(route.proof(), "typed_global_call_generic_i64");
     assert_eq!(route.return_shape(), Some("ScalarI64"));
 
-    let ptr_routes = &module.functions["PtrLike.slot_store_i64/3"].metadata.extern_call_routes;
+    let ptr_routes = &module.functions["PtrLike.slot_store_i64/3"]
+        .metadata
+        .extern_call_routes;
     assert_eq!(ptr_routes.len(), 1);
     let ptr_extern = &ptr_routes[0];
     assert_eq!(ptr_extern.route_id(), "extern.array.slot_store_i64");
     assert_eq!(ptr_extern.core_op(), "ArraySlotStoreI64");
     assert_array_slot_contract(
         ptr_extern,
-        ("ArraySlotStoreI64", "nyash.array.slot_store_hii", 3, "array.slot_store_i64", 10, Some(12), 13),
+        (
+            "ArraySlotStoreI64",
+            "nyash.array.slot_store_hii",
+            3,
+            "array.slot_store_i64",
+            10,
+            Some(12),
+            13,
+        ),
     );
 }

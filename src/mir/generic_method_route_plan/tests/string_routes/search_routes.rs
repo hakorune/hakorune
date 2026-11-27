@@ -1,85 +1,69 @@
 use super::*;
 
-#[test]
-fn records_direct_indexof_core_method_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(method_call(Some(5), "StringBox", "indexOf", 1, vec![2]));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.indexOf");
-    assert_eq!(route.box_name(), "StringBox");
-    assert_eq!(route.method(), "indexOf");
-    assert_eq!(route.arity(), 1);
-    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
-    assert_eq!(route.key_route(), None);
-    assert_eq!(route.key_value(), None);
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::StringIndexOf);
-    assert_eq!(route.proof(), GenericMethodRouteProof::IndexOfSurfacePolicy);
-    let core_method = route.core_method().expect("StringIndexOf carrier");
-    assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::WarmDirectAbi
-    );
-    assert_eq!(
-        route.return_shape(),
-        Some(GenericMethodReturnShape::ScalarI64)
-    );
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
-    assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
-    );
-}
 
 #[test]
-fn records_direct_lastindexof_core_method_route() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(method_call(Some(5), "StringBox", "lastIndexOf", 1, vec![2]));
+fn direct_string_search_records_core_method_route() {
+    for (case_name, method, route_id, kind, proof, carrier, op, check_no_key) in [
+        (
+            "records_direct_indexof_core_method_route",
+            "indexOf",
+            "generic_method.indexOf",
+            GenericMethodRouteKind::StringIndexOf,
+            GenericMethodRouteProof::IndexOfSurfacePolicy,
+            "StringIndexOf carrier",
+            CoreMethodOp::StringIndexOf,
+            true,
+        ),
+        (
+            "records_direct_lastindexof_core_method_route",
+            "lastIndexOf",
+            "generic_method.lastIndexOf",
+            GenericMethodRouteKind::StringLastIndexOf,
+            GenericMethodRouteProof::LastIndexOfSurfacePolicy,
+            "StringLastIndexOf carrier",
+            CoreMethodOp::StringLastIndexOf,
+            false,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(method_call(Some(5), "StringBox", method, 1, vec![2]));
 
-    refresh_function_generic_method_routes(&mut function);
+        refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.lastIndexOf");
-    assert_eq!(route.box_name(), "StringBox");
-    assert_eq!(route.method(), "lastIndexOf");
-    assert_eq!(route.arity(), 1);
-    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
-    assert_eq!(
-        route.route_kind(),
-        GenericMethodRouteKind::StringLastIndexOf
-    );
-    assert_eq!(
-        route.proof(),
-        GenericMethodRouteProof::LastIndexOfSurfacePolicy
-    );
-    let core_method = route.core_method().expect("StringLastIndexOf carrier");
-    assert_eq!(core_method.op, CoreMethodOp::StringLastIndexOf);
-    assert_eq!(
-        core_method.lowering_tier,
-        CoreMethodLoweringTier::WarmDirectAbi
-    );
-    assert_eq!(
-        route.return_shape(),
-        Some(GenericMethodReturnShape::ScalarI64)
-    );
-    assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
-    assert_eq!(
-        route.publication_policy(),
-        Some(GenericMethodPublicationPolicy::NoPublication)
-    );
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), route_id);
+        assert_eq!(route.box_name(), "StringBox");
+        assert_eq!(route.method(), method);
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+        if check_no_key {
+            assert_eq!(route.key_route(), None);
+            assert_eq!(route.key_value(), None);
+        }
+        assert_eq!(route.route_kind(), kind);
+        assert_eq!(route.proof(), proof);
+        let core_method = route.core_method().expect(carrier);
+        assert_eq!(core_method.op, op);
+        assert_eq!(
+            core_method.lowering_tier,
+            CoreMethodLoweringTier::WarmDirectAbi
+        );
+        assert_eq!(
+            route.return_shape(),
+            Some(GenericMethodReturnShape::ScalarI64)
+        );
+        assert_eq!(route.value_demand(), GenericMethodValueDemand::ScalarI64);
+        assert_eq!(
+            route.publication_policy(),
+            Some(GenericMethodPublicationPolicy::NoPublication)
+        );
+    }
 }
 
 #[test]
@@ -191,86 +175,55 @@ fn records_runtime_data_contains_from_param_text_copy_phi_flow() {
 }
 
 #[test]
-fn records_runtime_data_indexof_from_string_origin() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(MirInstruction::NewBox {
-        dst: ValueId::new(1),
-        target: crate::mir::ConstructionTarget::Named("StringBox".to_string()),
-        args: vec![],
-    });
-    block.add_instruction(MirInstruction::Copy {
-        dst: ValueId::new(2),
-        src: ValueId::new(1),
-    });
-    block.add_instruction(method_call(
-        Some(5),
-        "RuntimeDataBox",
-        "indexOf",
-        2,
-        vec![3],
-    ));
+fn runtime_data_string_search_preserves_core_origin() {
+    for (case_name, method, expected_route, expected_kind, description, expected_core) in [
+        (
+            "records_runtime_data_indexof_from_string_origin",
+            "indexOf",
+            "generic_method.indexOf",
+            GenericMethodRouteKind::StringIndexOf,
+            "RuntimeData StringIndexOf carrier",
+            CoreMethodOp::StringIndexOf,
+        ),
+        (
+            "records_runtime_data_lastindexof_from_string_origin",
+            "lastIndexOf",
+            "generic_method.lastIndexOf",
+            GenericMethodRouteKind::StringLastIndexOf,
+            "RuntimeData StringLastIndexOf carrier",
+            CoreMethodOp::StringLastIndexOf,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = make_function();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.add_instruction(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            target: crate::mir::ConstructionTarget::Named("StringBox".to_string()),
+            args: vec![],
+        });
+        block.add_instruction(MirInstruction::Copy {
+            dst: ValueId::new(2),
+            src: ValueId::new(1),
+        });
+        block.add_instruction(method_call(Some(5), "RuntimeDataBox", method, 2, vec![3]));
 
-    refresh_function_generic_method_routes(&mut function);
+        refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.indexOf");
-    assert_eq!(route.box_name(), "RuntimeDataBox");
-    assert_eq!(route.method(), "indexOf");
-    assert_eq!(route.arity(), 1);
-    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
-    assert_eq!(route.route_kind(), GenericMethodRouteKind::StringIndexOf);
-    let core_method = route
-        .core_method()
-        .expect("RuntimeData StringIndexOf carrier");
-    assert_eq!(core_method.op, CoreMethodOp::StringIndexOf);
-}
-
-#[test]
-fn records_runtime_data_lastindexof_from_string_origin() {
-    let mut function = make_function();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    block.add_instruction(MirInstruction::NewBox {
-        dst: ValueId::new(1),
-        target: crate::mir::ConstructionTarget::Named("StringBox".to_string()),
-        args: vec![],
-    });
-    block.add_instruction(MirInstruction::Copy {
-        dst: ValueId::new(2),
-        src: ValueId::new(1),
-    });
-    block.add_instruction(method_call(
-        Some(5),
-        "RuntimeDataBox",
-        "lastIndexOf",
-        2,
-        vec![3],
-    ));
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), 1);
-    let route = &function.metadata.generic_method_routes[0];
-    assert_eq!(route.route_id(), "generic_method.lastIndexOf");
-    assert_eq!(route.box_name(), "RuntimeDataBox");
-    assert_eq!(route.method(), "lastIndexOf");
-    assert_eq!(route.arity(), 1);
-    assert_eq!(route.receiver_origin_box(), Some("StringBox"));
-    assert_eq!(
-        route.route_kind(),
-        GenericMethodRouteKind::StringLastIndexOf
-    );
-    let core_method = route
-        .core_method()
-        .expect("RuntimeData StringLastIndexOf carrier");
-    assert_eq!(core_method.op, CoreMethodOp::StringLastIndexOf);
+        assert_eq!(function.metadata.generic_method_routes.len(), 1);
+        let route = &function.metadata.generic_method_routes[0];
+        assert_eq!(route.route_id(), expected_route);
+        assert_eq!(route.box_name(), "RuntimeDataBox");
+        assert_eq!(route.method(), method);
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.receiver_origin_box(), Some("StringBox"));
+        assert_eq!(route.route_kind(), expected_kind);
+        let core_method = route.core_method().expect(description);
+        assert_eq!(core_method.op, expected_core);
+    }
 }
 
 #[test]

@@ -1,16 +1,22 @@
 use super::*;
 
+
 #[test]
-fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_string_body() {
-    let mut module = MirModule::new("global_call_string_indexof_test".to_string());
+fn generic_pure_string_bodies_admit_search_metadata() {
+    for (case_name, module_name, symbol, method, route_id, route_tag, start) in [
+                ("refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_string_body", "global_call_string_indexof_test", "Helper.has_token/1", "indexOf", "generic_method.indexOf", "string_indexof", Some(1)),
+("refresh_module_semantic_metadata_accepts_string_lastindexof_in_generic_pure_string_body", "global_call_string_lastindexof_test", "Helper.has_last_token/1", "lastIndexOf", "generic_method.lastIndexOf", "string_last_indexof", None),
+            ] {
+                println!("case: {case_name}");
+                    let mut module = MirModule::new(module_name.to_string());
     let caller = make_function_with_global_call_args(
-        "Helper.has_token/1",
+        symbol,
         Some(ValueId::new(7)),
         vec![ValueId::new(1)],
     );
     let mut callee = MirFunction::new(
         FunctionSignature {
-            name: "Helper.has_token/1".to_string(),
+            name: symbol.to_string(),
             params: vec![MirType::String],
             return_type: MirType::String,
             effects: EffectMask::PURE,
@@ -19,109 +25,54 @@ fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_strin
     );
     callee.params = vec![ValueId::new(1)];
     let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    block.instructions.extend([
+    block.instructions.push(
         MirInstruction::Const {
             dst: ValueId::new(2),
             value: ConstValue::String("\"token\"".to_string()),
-        },
-        MirInstruction::Const {
-            dst: ValueId::new(4),
-            value: ConstValue::Integer(1),
-        },
-        MirInstruction::LegacyCallV0 {
+        });
+    let mut args = vec![ValueId::new(2)];
+    if let Some(start) = start {
+        let dst = ValueId::new(4);
+        block.instructions.push(MirInstruction::Const {
+            dst,
+            value: ConstValue::Integer(start),
+        });
+        args.push(dst);
+    }
+    block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
                 box_name: "RuntimeDataBox".to_string(),
-                method: "indexOf".to_string(),
+                method: method.to_string(),
                 receiver: Some(ValueId::new(1)),
                 certainty: TypeCertainty::Union,
                 box_kind: CalleeBoxKind::RuntimeData,
             }),
-            args: vec![ValueId::new(2), ValueId::new(4)],
+            args,
             effects: EffectMask::PURE,
-        },
-    ]);
+    });
     block.set_terminator(MirInstruction::Return {
         value: Some(ValueId::new(1)),
     });
     module.functions.insert("main".to_string(), caller);
     module
         .functions
-        .insert("Helper.has_token/1".to_string(), callee);
+        .insert(symbol.to_string(), callee);
 
     refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
     assert_eq!(route.target_shape_reason(), None);
-    let callee = &module.functions["Helper.has_token/1"];
+    let callee = &module.functions[symbol];
     assert!(callee.metadata.generic_method_routes.iter().any(|route| {
-        route.route_id() == "generic_method.indexOf"
-            && route.method() == "indexOf"
+        route.route_id() == route_id
+            && route.method() == method
             && route.receiver_origin_box() == Some("StringBox")
-            && route.route_kind_tag() == "string_indexof"
+            && route.route_kind_tag() == route_tag
     }));
-}
-
-#[test]
-fn refresh_module_semantic_metadata_accepts_string_lastindexof_in_generic_pure_string_body() {
-    let mut module = MirModule::new("global_call_string_lastindexof_test".to_string());
-    let caller = make_function_with_global_call_args(
-        "Helper.has_last_token/1",
-        Some(ValueId::new(7)),
-        vec![ValueId::new(1)],
-    );
-    let mut callee = MirFunction::new(
-        FunctionSignature {
-            name: "Helper.has_last_token/1".to_string(),
-            params: vec![MirType::String],
-            return_type: MirType::String,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    callee.params = vec![ValueId::new(1)];
-    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    block.instructions.extend([
-        MirInstruction::Const {
-            dst: ValueId::new(2),
-            value: ConstValue::String("\"token\"".to_string()),
-        },
-        MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(3)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Method {
-                box_name: "RuntimeDataBox".to_string(),
-                method: "lastIndexOf".to_string(),
-                receiver: Some(ValueId::new(1)),
-                certainty: TypeCertainty::Union,
-                box_kind: CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![ValueId::new(2)],
-            effects: EffectMask::PURE,
-        },
-    ]);
-    block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(1)),
-    });
-    module.functions.insert("main".to_string(), caller);
-    module
-        .functions
-        .insert("Helper.has_last_token/1".to_string(), callee);
-
-    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
-
-    let route = &module.functions["main"].metadata.global_call_routes[0];
-    assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
-    assert_eq!(route.target_shape_reason(), None);
-    let callee = &module.functions["Helper.has_last_token/1"];
-    assert!(callee.metadata.generic_method_routes.iter().any(|route| {
-        route.route_id() == "generic_method.lastIndexOf"
-            && route.method() == "lastIndexOf"
-            && route.receiver_origin_box() == Some("StringBox")
-            && route.route_kind_tag() == "string_last_indexof"
-    }));
+            }
 }
 
 #[test]

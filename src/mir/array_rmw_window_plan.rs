@@ -394,48 +394,50 @@ mod tests {
         assert_eq!(route.skip_instruction_indices, vec![3, 4, 5, 6]);
     }
 
-    #[test]
-    fn rejects_non_one_increment() {
-        let mut function = test_function(MirType::Box("ArrayBox".to_string()));
-        let block = entry_block(&mut function);
-        block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-        block.add_instruction(const_i(11, 2));
-        block.add_instruction(binop(12, BinaryOp::Add, 10, 11));
-        block.add_instruction(array_set("RuntimeDataBox", 1, 2, 12));
-
-        refresh_function_array_rmw_window_routes(&mut function);
-
-        assert!(function.metadata.array_rmw_window_routes.is_empty());
-    }
 
     #[test]
-    fn rejects_unproven_runtime_data_receiver() {
-        let mut function = test_function(MirType::Box("MapBox".to_string()));
-        let block = entry_block(&mut function);
-        block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-        block.add_instruction(const_i(11, 1));
-        block.add_instruction(binop(12, BinaryOp::Add, 10, 11));
-        block.add_instruction(array_set("RuntimeDataBox", 1, 2, 12));
+    fn array_rmw_rejects_unproven_update_windows() {
+        for (case_name, receiver_type, rest) in [
+            (
+                "rejects_non_one_increment",
+                "ArrayBox",
+                vec![
+                    const_i(11, 2),
+                    binop(12, BinaryOp::Add, 10, 11),
+                    array_set("RuntimeDataBox", 1, 2, 12),
+                ],
+            ),
+            (
+                "rejects_unproven_runtime_data_receiver",
+                "MapBox",
+                vec![
+                    const_i(11, 1),
+                    binop(12, BinaryOp::Add, 10, 11),
+                    array_set("RuntimeDataBox", 1, 2, 12),
+                ],
+            ),
+            (
+                "rejects_post_set_get_value_use",
+                "ArrayBox",
+                vec![
+                    copy(11, 10),
+                    const_i(12, 1),
+                    binop(13, BinaryOp::Add, 11, 12),
+                    array_set("RuntimeDataBox", 1, 2, 13),
+                    copy(14, 10),
+                ],
+            ),
+        ] {
+            println!("case: {case_name}");
+            let mut function = test_function(MirType::Box(receiver_type.to_string()));
+            let block = entry_block(&mut function);
+            block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
+            block.instructions.extend(rest);
 
-        refresh_function_array_rmw_window_routes(&mut function);
+            refresh_function_array_rmw_window_routes(&mut function);
 
-        assert!(function.metadata.array_rmw_window_routes.is_empty());
-    }
-
-    #[test]
-    fn rejects_post_set_get_value_use() {
-        let mut function = test_function(MirType::Box("ArrayBox".to_string()));
-        let block = entry_block(&mut function);
-        block.add_instruction(array_get(10, "RuntimeDataBox", 1, 2));
-        block.add_instruction(copy(11, 10));
-        block.add_instruction(const_i(12, 1));
-        block.add_instruction(binop(13, BinaryOp::Add, 11, 12));
-        block.add_instruction(array_set("RuntimeDataBox", 1, 2, 13));
-        block.add_instruction(copy(14, 10));
-
-        refresh_function_array_rmw_window_routes(&mut function);
-
-        assert!(function.metadata.array_rmw_window_routes.is_empty());
+            assert!(function.metadata.array_rmw_window_routes.is_empty());
+        }
     }
 
     fn test_function(array_param_type: MirType) -> MirFunction {

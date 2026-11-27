@@ -413,79 +413,55 @@ fn route_decision_reports_typed_object_exact_slot_native_direct_when_direct_stat
 }
 
 #[test]
-fn required_fastpath_region_marks_route_decision_required() {
-    let mut function = MirFunction::new(
-        FunctionSignature {
-            name: "main".to_string(),
-            params: vec![],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    function
-        .metadata
-        .required_fastpath_regions
-        .push(RequiredFastPathRegion {
-            region_id: 0,
-            source_kind: "diagnostic_mode",
-            relevant_access_policy: "direct_memory",
-            route_requirement: "fastpath_plan_required",
-            bounds_requirement: "checked_allowed",
-            fallback_policy: "fail_fast",
-        });
-    let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
-    block.set_terminator(MirInstruction::Return { value: None });
-    function.add_block(block);
+fn fastpath_route_decision_retains_fallback_policy() {
+    for (case_name, fallback_policy, expected_fallback) in [
+        (
+            "required_fastpath_region_marks_route_decision_required",
+            "fail_fast",
+            "require_fastpath",
+        ),
+        (
+            "diagnostic_region_marks_route_decision_report_if_slow",
+            "report_if_slow",
+            "report_if_slow",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .required_fastpath_regions
+            .push(RequiredFastPathRegion {
+                region_id: 0,
+                source_kind: "diagnostic_mode",
+                relevant_access_policy: "direct_memory",
+                route_requirement: "fastpath_plan_required",
+                bounds_requirement: "checked_allowed",
+                fallback_policy: fallback_policy,
+            });
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
+        block.set_terminator(MirInstruction::Return { value: None });
+        function.add_block(block);
 
-    refresh_function_generic_method_routes(&mut function);
-    refresh_function_direct_array_access_plans(&mut function);
-    refresh_function_route_decisions(&mut function);
+        refresh_function_generic_method_routes(&mut function);
+        refresh_function_direct_array_access_plans(&mut function);
+        refresh_function_route_decisions(&mut function);
 
-    assert_eq!(function.metadata.route_decisions.len(), 1);
-    assert_eq!(
-        function.metadata.route_decisions[0].fallback_policy,
-        "require_fastpath"
-    );
-}
-
-#[test]
-fn diagnostic_region_marks_route_decision_report_if_slow() {
-    let mut function = MirFunction::new(
-        FunctionSignature {
-            name: "main".to_string(),
-            params: vec![],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    function
-        .metadata
-        .required_fastpath_regions
-        .push(RequiredFastPathRegion {
-            region_id: 0,
-            source_kind: "diagnostic_mode",
-            relevant_access_policy: "direct_memory",
-            route_requirement: "fastpath_plan_required",
-            bounds_requirement: "checked_allowed",
-            fallback_policy: "report_if_slow",
-        });
-    let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
-    block.set_terminator(MirInstruction::Return { value: None });
-    function.add_block(block);
-
-    refresh_function_generic_method_routes(&mut function);
-    refresh_function_direct_array_access_plans(&mut function);
-    refresh_function_route_decisions(&mut function);
-
-    assert_eq!(function.metadata.route_decisions.len(), 1);
-    assert_eq!(
-        function.metadata.route_decisions[0].fallback_policy,
-        "report_if_slow"
-    );
+        assert_eq!(function.metadata.route_decisions.len(), 1);
+        assert_eq!(
+            function.metadata.route_decisions[0].fallback_policy,
+            expected_fallback
+        );
+    }
 }
 
 #[test]

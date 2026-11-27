@@ -1,113 +1,87 @@
 use super::*;
 
-#[test]
-fn proves_mir_json_block_field_runtime_data_get() {
-    let mut function = make_function();
-    function.signature.name = "MirJsonEmitBox._emit_block/1".to_string();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    let keys = ["instructions", "id"];
-    for (index, key) in keys.iter().enumerate() {
-        let key_value = ValueId::new(10 + (index as u32 * 2));
-        let result_value = 11 + (index as u32 * 2);
-        block.add_instruction(MirInstruction::Const {
-            dst: key_value,
-            value: crate::mir::ConstValue::String((*key).to_string()),
-        });
-        block.add_instruction(method_call(
-            Some(result_value),
-            "RuntimeDataBox",
-            "get",
-            1,
-            vec![key_value.0],
-        ));
-    }
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), keys.len());
-    for (index, key) in keys.iter().enumerate() {
-        let result_value = 11 + (index as u32 * 2);
-        let route = route_for(&function, "RuntimeDataBox", "get", Some(result_value));
-        assert_eq!(route.key_const_text(), Some(*key));
-        assert_eq!(route.proof(), GenericMethodRouteProof::MirJsonBlockField);
-        assert_eq!(
-            route.route_kind(),
-            GenericMethodRouteKind::RuntimeDataLoadAny
-        );
-        assert_eq!(
-            route.return_shape(),
-            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
-        );
-        assert_eq!(
-            route.value_demand(),
-            GenericMethodValueDemand::RuntimeI64OrHandle
-        );
-        assert_eq!(
-            route.publication_policy(),
-            Some(GenericMethodPublicationPolicy::NoPublication)
-        );
-    }
-}
 
 #[test]
-fn proves_mir_json_function_field_runtime_data_get() {
-    let mut function = make_function();
-    function.signature.name = "MirJsonEmitBox._emit_function/1".to_string();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    let keys = ["name", "params", "flags", "blocks"];
-    for (index, key) in keys.iter().enumerate() {
-        let key_value = ValueId::new(10 + (index as u32 * 2));
-        let result_value = 11 + (index as u32 * 2);
-        block.add_instruction(MirInstruction::Const {
-            dst: key_value,
-            value: crate::mir::ConstValue::String((*key).to_string()),
-        });
-        block.add_instruction(method_call(
-            Some(result_value),
-            "RuntimeDataBox",
-            "get",
-            1,
-            vec![key_value.0],
-        ));
-    }
+fn mir_json_runtime_data_get_uses_schema_field_proofs() {
+    for (case_name, symbol, proof, keys) in [
+        (
+            "proves_mir_json_block_field_runtime_data_get",
+            "MirJsonEmitBox._emit_block/1",
+            GenericMethodRouteProof::MirJsonBlockField,
+            &[("instructions", None), ("id", None)][..],
+        ),
+        (
+            "proves_mir_json_function_field_runtime_data_get",
+            "MirJsonEmitBox._emit_function/1",
+            GenericMethodRouteProof::MirJsonFunctionField,
+            &[
+                ("name", Some("StringBox")),
+                ("params", Some("ArrayBox")),
+                ("flags", Some("MapBox")),
+                ("blocks", Some("ArrayBox")),
+            ][..],
+        ),
+        (
+            "proves_mir_json_module_field_runtime_data_get",
+            "MirJsonEmitBox.to_json/1",
+            GenericMethodRouteProof::MirJsonModuleField,
+            &[
+                ("functions", Some("ArrayBox")),
+                ("functions_0", Some("MapBox")),
+            ][..],
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut function = make_function();
+        function.signature.name = symbol.to_string();
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        for (index, &(key, _)) in keys.iter().enumerate() {
+            let key_value = ValueId::new(10 + (index as u32 * 2));
+            let result_value = 11 + (index as u32 * 2);
+            block.add_instruction(MirInstruction::Const {
+                dst: key_value,
+                value: crate::mir::ConstValue::String(key.to_string()),
+            });
+            block.add_instruction(method_call(
+                Some(result_value),
+                "RuntimeDataBox",
+                "get",
+                1,
+                vec![key_value.0],
+            ));
+        }
 
-    refresh_function_generic_method_routes(&mut function);
+        refresh_function_generic_method_routes(&mut function);
 
-    assert_eq!(function.metadata.generic_method_routes.len(), keys.len());
-    for (index, key) in keys.iter().enumerate() {
-        let result_value = 11 + (index as u32 * 2);
-        let route = route_for(&function, "RuntimeDataBox", "get", Some(result_value));
-        let expected_origin = match *key {
-            "name" => Some("StringBox"),
-            "params" | "blocks" => Some("ArrayBox"),
-            "flags" => Some("MapBox"),
-            _ => None,
-        };
-        assert_eq!(route.key_const_text(), Some(*key));
-        assert_eq!(route.result_origin_box(), expected_origin);
-        assert_eq!(route.proof(), GenericMethodRouteProof::MirJsonFunctionField);
-        assert_eq!(
-            route.route_kind(),
-            GenericMethodRouteKind::RuntimeDataLoadAny
-        );
-        assert_eq!(
-            route.return_shape(),
-            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
-        );
-        assert_eq!(
-            route.value_demand(),
-            GenericMethodValueDemand::RuntimeI64OrHandle
-        );
-        assert_eq!(
-            route.publication_policy(),
-            Some(GenericMethodPublicationPolicy::NoPublication)
-        );
+        assert_eq!(function.metadata.generic_method_routes.len(), keys.len());
+        for (index, &(key, result_origin)) in keys.iter().enumerate() {
+            let result_value = 11 + (index as u32 * 2);
+            let route = route_for(&function, "RuntimeDataBox", "get", Some(result_value));
+            assert_eq!(route.key_const_text(), Some(key));
+            assert_eq!(route.proof(), proof);
+            if let Some(origin) = result_origin {
+                assert_eq!(route.result_origin_box(), Some(origin));
+            }
+            assert_eq!(
+                route.route_kind(),
+                GenericMethodRouteKind::RuntimeDataLoadAny
+            );
+            assert_eq!(
+                route.return_shape(),
+                Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
+            );
+            assert_eq!(
+                route.value_demand(),
+                GenericMethodValueDemand::RuntimeI64OrHandle
+            );
+            assert_eq!(
+                route.publication_policy(),
+                Some(GenericMethodPublicationPolicy::NoPublication)
+            );
+        }
     }
 }
 
@@ -159,62 +133,4 @@ fn proves_mir_json_function_blocks_field_length_routes_as_array_len() {
         core_method.lowering_tier,
         CoreMethodLoweringTier::WarmDirectAbi
     );
-}
-
-#[test]
-fn proves_mir_json_module_field_runtime_data_get() {
-    let mut function = make_function();
-    function.signature.name = "MirJsonEmitBox.to_json/1".to_string();
-    let block = function
-        .blocks
-        .get_mut(&BasicBlockId::new(0))
-        .expect("entry");
-    let keys = ["functions", "functions_0"];
-    for (index, key) in keys.iter().enumerate() {
-        let key_value = ValueId::new(10 + (index as u32 * 2));
-        let result_value = 11 + (index as u32 * 2);
-        block.add_instruction(MirInstruction::Const {
-            dst: key_value,
-            value: crate::mir::ConstValue::String((*key).to_string()),
-        });
-        block.add_instruction(method_call(
-            Some(result_value),
-            "RuntimeDataBox",
-            "get",
-            1,
-            vec![key_value.0],
-        ));
-    }
-
-    refresh_function_generic_method_routes(&mut function);
-
-    assert_eq!(function.metadata.generic_method_routes.len(), keys.len());
-    for (index, key) in keys.iter().enumerate() {
-        let result_value = 11 + (index as u32 * 2);
-        let route = route_for(&function, "RuntimeDataBox", "get", Some(result_value));
-        let expected_origin = match *key {
-            "functions" => Some("ArrayBox"),
-            "functions_0" => Some("MapBox"),
-            _ => None,
-        };
-        assert_eq!(route.key_const_text(), Some(*key));
-        assert_eq!(route.result_origin_box(), expected_origin);
-        assert_eq!(route.proof(), GenericMethodRouteProof::MirJsonModuleField);
-        assert_eq!(
-            route.route_kind(),
-            GenericMethodRouteKind::RuntimeDataLoadAny
-        );
-        assert_eq!(
-            route.return_shape(),
-            Some(GenericMethodReturnShape::MixedRuntimeI64OrHandle)
-        );
-        assert_eq!(
-            route.value_demand(),
-            GenericMethodValueDemand::RuntimeI64OrHandle
-        );
-        assert_eq!(
-            route.publication_policy(),
-            Some(GenericMethodPublicationPolicy::NoPublication)
-        );
-    }
 }

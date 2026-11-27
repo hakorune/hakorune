@@ -1,234 +1,117 @@
 use super::*;
 
-#[test]
-fn refresh_module_user_box_method_routes_accepts_scalar_instance_method_target() {
-    let mut module = MirModule::new("user_box_method_route_test".to_string());
-    module
-        .metadata
-        .user_box_decls
-        .insert("Pair".to_string(), vec!["left".to_string()]);
-    module.metadata.typed_object_plans.push(TypedObjectPlan {
-        box_name: "Pair".to_string(),
-        type_id: 7,
-        layout_kind: "runtime_slot_object_v0".to_string(),
-        field_count: 0,
-        fields: Vec::new(),
-    });
-
-    let mut sum = MirFunction::new(
-        FunctionSignature {
-            name: "Pair.sum/0".to_string(),
-            params: vec![MirType::Box("Pair".to_string())],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    sum.params = vec![ValueId::new(0)];
-    let mut sum_block = BasicBlock::new(BasicBlockId::new(0));
-    sum_block.add_instruction(MirInstruction::Const {
-        dst: ValueId::new(1),
-        value: ConstValue::Integer(30),
-    });
-    sum_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(1)),
-    });
-    sum.add_block(sum_block);
-
-    let mut main = MirFunction::new(
-        FunctionSignature {
-            name: "main".to_string(),
-            params: vec![],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(2)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "Pair".to_string(),
-            method: "sum".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: TypeCertainty::Known,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
-        }),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
-    main.add_block(block);
-
-    module.add_function(sum);
-    module.add_function(main);
-
-    refresh_module_user_box_method_routes(&mut module);
-
-    let main = module.get_function("main").expect("main function");
-    let route = &main.metadata.user_box_method_routes[0];
-    assert_eq!(route.route_id(), "user_box.method_call");
-    assert_eq!(route.route_kind(), "user_box.method");
-    assert_eq!(route.proof(), "typed_user_box_method_same_module");
-    assert_eq!(route.target_symbol(), "Pair.sum/0");
-    assert_eq!(route.target_arity(), Some(1));
-    assert_eq!(route.arity_matches(), Some(true));
-    assert!(route.target_body_supported());
-    assert_eq!(route.return_shape(), Some("scalar_i64"));
-    assert_eq!(route.type_id(), Some(7));
-    assert_eq!(route.definition_owner(), "typed_object_method");
-}
 
 #[test]
-fn refresh_module_user_box_method_routes_strips_duplicate_receiver_arg_for_target_symbol() {
-    let mut module = MirModule::new("user_box_method_duplicate_receiver_test".to_string());
-    module
-        .metadata
-        .user_box_decls
-        .insert("Pair".to_string(), vec!["left".to_string()]);
-    module.metadata.typed_object_plans.push(TypedObjectPlan {
-        box_name: "Pair".to_string(),
-        type_id: 7,
-        layout_kind: "runtime_slot_object_v0".to_string(),
-        field_count: 0,
-        fields: Vec::new(),
-    });
-
-    let mut sum = MirFunction::new(
-        FunctionSignature {
-            name: "Pair.sum/0".to_string(),
-            params: vec![MirType::Box("Pair".to_string())],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    sum.params = vec![ValueId::new(0)];
-    let mut sum_block = BasicBlock::new(BasicBlockId::new(0));
-    sum_block.add_instruction(MirInstruction::Const {
-        dst: ValueId::new(1),
-        value: ConstValue::Integer(30),
-    });
-    sum_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(1)),
-    });
-    sum.add_block(sum_block);
-
-    let mut main = MirFunction::new(
-        FunctionSignature {
-            name: "main".to_string(),
-            params: vec![],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(2)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
+fn scalar_user_method_resolves_with_or_without_duplicate_receiver() {
+    for (case_name, module_name, receiver, duplicate_receiver) in [
+        (
+            "refresh_module_user_box_method_routes_accepts_scalar_instance_method_target",
+            "user_box_method_route_test",
+            1,
+            None,
+        ),
+        (
+            "refresh_module_user_box_method_routes_strips_duplicate_receiver_arg_for_target_symbol",
+            "user_box_method_duplicate_receiver_test",
+            1,
+            Some(1),
+        ),
+        (
+            "refresh_module_user_box_method_routes_strips_duplicate_receiver_arg_by_origin",
+            "user_box_method_duplicate_receiver_origin_test",
+            2,
+            Some(1),
+        ),
+    ] {
+        println!("case: {case_name}");
+        let mut module = MirModule::new(module_name.to_string());
+        module
+            .metadata
+            .user_box_decls
+            .insert("Pair".to_string(), vec!["left".to_string()]);
+        module.metadata.typed_object_plans.push(TypedObjectPlan {
             box_name: "Pair".to_string(),
-            method: "sum".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: TypeCertainty::Known,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
-        }),
-        args: vec![ValueId::new(1)],
-        effects: EffectMask::PURE,
-    });
-    main.add_block(block);
+            type_id: 7,
+            layout_kind: "runtime_slot_object_v0".to_string(),
+            field_count: 0,
+            fields: Vec::new(),
+        });
 
-    module.add_function(sum);
-    module.add_function(main);
+        let mut sum = MirFunction::new(
+            FunctionSignature {
+                name: "Pair.sum/0".to_string(),
+                params: vec![MirType::Box("Pair".to_string())],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        sum.params = vec![ValueId::new(0)];
+        let mut sum_block = BasicBlock::new(BasicBlockId::new(0));
+        sum_block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::Integer(30),
+        });
+        sum_block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        sum.add_block(sum_block);
 
-    refresh_module_user_box_method_routes(&mut module);
-
-    let main = module.get_function("main").expect("main function");
-    let route = &main.metadata.user_box_method_routes[0];
-    assert_eq!(route.target_symbol(), "Pair.sum/0");
-    assert_eq!(route.arity(), 0);
-    assert_eq!(route.target_arity(), Some(1));
-    assert_eq!(route.arity_matches(), Some(true));
-    assert_eq!(route.proof(), "typed_user_box_method_same_module");
-}
-
-#[test]
-fn refresh_module_user_box_method_routes_strips_duplicate_receiver_arg_by_origin() {
-    let mut module = MirModule::new("user_box_method_duplicate_receiver_origin_test".to_string());
-    module
-        .metadata
-        .user_box_decls
-        .insert("Pair".to_string(), vec!["left".to_string()]);
-    module.metadata.typed_object_plans.push(TypedObjectPlan {
-        box_name: "Pair".to_string(),
-        type_id: 7,
-        layout_kind: "runtime_slot_object_v0".to_string(),
-        field_count: 0,
-        fields: Vec::new(),
-    });
-
-    let mut sum = MirFunction::new(
-        FunctionSignature {
-            name: "Pair.sum/0".to_string(),
-            params: vec![MirType::Box("Pair".to_string())],
-            return_type: MirType::Integer,
+        let mut main = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        if receiver != 1 {
+            block.add_instruction(MirInstruction::Copy {
+                dst: ValueId::new(receiver),
+                src: ValueId::new(1),
+            });
+        }
+        block.add_instruction(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(receiver + 1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "Pair".to_string(),
+                method: "sum".to_string(),
+                receiver: Some(ValueId::new(receiver)),
+                certainty: TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
+            }),
+            args: duplicate_receiver.into_iter().map(ValueId::new).collect(),
             effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    sum.params = vec![ValueId::new(0)];
-    let mut sum_block = BasicBlock::new(BasicBlockId::new(0));
-    sum_block.add_instruction(MirInstruction::Const {
-        dst: ValueId::new(1),
-        value: ConstValue::Integer(30),
-    });
-    sum_block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(1)),
-    });
-    sum.add_block(sum_block);
+        });
+        main.add_block(block);
 
-    let mut main = MirFunction::new(
-        FunctionSignature {
-            name: "main".to_string(),
-            params: vec![],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    );
-    let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Copy {
-        dst: ValueId::new(2),
-        src: ValueId::new(1),
-    });
-    block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(ValueId::new(3)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "Pair".to_string(),
-            method: "sum".to_string(),
-            receiver: Some(ValueId::new(2)),
-            certainty: TypeCertainty::Known,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,
-        }),
-        args: vec![ValueId::new(1)],
-        effects: EffectMask::PURE,
-    });
-    main.add_block(block);
+        module.add_function(sum);
+        module.add_function(main);
 
-    module.add_function(sum);
-    module.add_function(main);
+        refresh_module_user_box_method_routes(&mut module);
 
-    refresh_module_user_box_method_routes(&mut module);
-
-    let main = module.get_function("main").expect("main function");
-    let route = &main.metadata.user_box_method_routes[0];
-    assert_eq!(route.target_symbol(), "Pair.sum/0");
-    assert_eq!(route.arity(), 0);
-    assert_eq!(route.target_arity(), Some(1));
-    assert_eq!(route.arity_matches(), Some(true));
-    assert_eq!(route.proof(), "typed_user_box_method_same_module");
+        let main = module.get_function("main").expect("main function");
+        let route = &main.metadata.user_box_method_routes[0];
+        if duplicate_receiver.is_some() {
+            assert_eq!(route.arity(), 0);
+        } else {
+            assert_eq!(route.route_id(), "user_box.method_call");
+            assert_eq!(route.route_kind(), "user_box.method");
+        }
+        assert_eq!(route.proof(), "typed_user_box_method_same_module");
+        assert_eq!(route.target_symbol(), "Pair.sum/0");
+        assert_eq!(route.target_arity(), Some(1));
+        assert_eq!(route.arity_matches(), Some(true));
+        if duplicate_receiver.is_none() {
+            assert!(route.target_body_supported());
+            assert_eq!(route.return_shape(), Some("scalar_i64"));
+            assert_eq!(route.type_id(), Some(7));
+            assert_eq!(route.definition_owner(), "typed_object_method");
+        }
+    }
 }
 
 #[test]

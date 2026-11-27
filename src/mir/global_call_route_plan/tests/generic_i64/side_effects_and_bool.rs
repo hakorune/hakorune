@@ -1,8 +1,11 @@
 use super::*;
 
-#[test]
-fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
-    let mut module = MirModule::new("global_call_generic_i64_print_test".to_string());
+fn module_with_print_destination(
+    module_name: &str,
+    print_destination: Option<ValueId>,
+    returned: ValueId,
+) -> MirModule {
+    let mut module = MirModule::new(module_name.to_string());
     let caller =
         make_function_with_global_call_args("Helper.debug_flag/0", Some(ValueId::new(7)), vec![]);
     let mut callee = MirFunction::new(
@@ -21,7 +24,7 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
             value: ConstValue::Integer(1),
         },
         MirInstruction::LegacyCallV0 {
-            dst: None,
+            dst: print_destination,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
                 "print".to_string(),
@@ -31,7 +34,7 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
         },
     ]);
     block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(1)),
+        value: Some(returned),
     });
     module.functions.insert("main".to_string(), caller);
     module
@@ -40,6 +43,13 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
 
     refresh_module_global_call_routes(&mut module);
 
+    module
+}
+
+#[test]
+fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
+    let module =
+        module_with_print_destination("global_call_generic_i64_print_test", None, ValueId::new(1));
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_i64_body"));
     assert_eq!(route.target_shape_reason(), None);
@@ -49,44 +59,11 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
 
 #[test]
 fn refresh_module_global_call_routes_accepts_print_dead_dst_in_generic_i64_body() {
-    let mut module = MirModule::new("global_call_generic_i64_print_dead_dst_test".to_string());
-    let caller =
-        make_function_with_global_call_args("Helper.debug_flag/0", Some(ValueId::new(7)), vec![]);
-    let mut callee = MirFunction::new(
-        FunctionSignature {
-            name: "Helper.debug_flag/0".to_string(),
-            params: vec![],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
+    let module = module_with_print_destination(
+        "global_call_generic_i64_print_dead_dst_test",
+        Some(ValueId::new(2)),
+        ValueId::new(1),
     );
-    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    block.instructions.extend([
-        MirInstruction::Const {
-            dst: ValueId::new(1),
-            value: ConstValue::Integer(1),
-        },
-        MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(2)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global(crate::mir::test_global_target(
-                "print".to_string(),
-            ))),
-            args: vec![ValueId::new(1)],
-            effects: EffectMask::IO,
-        },
-    ]);
-    block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(1)),
-    });
-    module.functions.insert("main".to_string(), caller);
-    module
-        .functions
-        .insert("Helper.debug_flag/0".to_string(), callee);
-
-    refresh_module_global_call_routes(&mut module);
-
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_i64_body"));
     assert_eq!(route.target_shape_reason(), None);
@@ -96,44 +73,11 @@ fn refresh_module_global_call_routes_accepts_print_dead_dst_in_generic_i64_body(
 
 #[test]
 fn refresh_module_global_call_routes_rejects_print_used_dst_in_generic_i64_body() {
-    let mut module = MirModule::new("global_call_generic_i64_print_used_dst_test".to_string());
-    let caller =
-        make_function_with_global_call_args("Helper.debug_flag/0", Some(ValueId::new(7)), vec![]);
-    let mut callee = MirFunction::new(
-        FunctionSignature {
-            name: "Helper.debug_flag/0".to_string(),
-            params: vec![],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
+    let module = module_with_print_destination(
+        "global_call_generic_i64_print_used_dst_test",
+        Some(ValueId::new(2)),
+        ValueId::new(2),
     );
-    let block = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    block.instructions.extend([
-        MirInstruction::Const {
-            dst: ValueId::new(1),
-            value: ConstValue::Integer(1),
-        },
-        MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(2)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global(crate::mir::test_global_target(
-                "print".to_string(),
-            ))),
-            args: vec![ValueId::new(1)],
-            effects: EffectMask::IO,
-        },
-    ]);
-    block.set_terminator(MirInstruction::Return {
-        value: Some(ValueId::new(2)),
-    });
-    module.functions.insert("main".to_string(), caller);
-    module
-        .functions
-        .insert("Helper.debug_flag/0".to_string(), callee);
-
-    refresh_module_global_call_routes(&mut module);
-
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), None);
     assert_ne!(route.proof(), "typed_global_call_generic_i64");
