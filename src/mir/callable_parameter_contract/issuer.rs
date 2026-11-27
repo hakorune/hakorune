@@ -86,9 +86,17 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                 let mut parameters = Vec::with_capacity(source_parameters.len());
                 for source_parameter in source_parameters {
                     let parameter = source_parameter.ordinal();
-                    let kind = match source_parameter.declared_type_name() {
-                        None => CallableParameterContractKindV1::OpaqueHandle,
-                        Some(source_type) => {
+                    let nullable_class = match source_parameter.type_reference() {
+                        Some(crate::ast::TypeReferenceV1::Nullable(inner)) => inner.name().filter(|name| {
+                            matches!(batch.ordinary_box_coverage().row_for(name), Ok(Some(_)))
+                                && crate::mir::exact_trivial_scalar_abi::DeclaredResultKindV1::classify(name).is_none()
+                        }),
+                        _ => None,
+                    };
+                    let kind = match (source_parameter.declared_type_name(), nullable_class) {
+                        (Some(_), Some(class)) => CallableParameterContractKindV1::DeclaredObject(class.into()),
+                        (None, _) => CallableParameterContractKindV1::OpaqueHandle,
+                        (Some(source_type), None) => {
                             if source_parameter.type_reference().and_then(crate::ast::TypeReferenceV1::name) != Some(source_type) {
                                 return Err(CallableParameterContractIssueV1::UnsupportedDeclaredType { declaration, parameter });
                             }
@@ -132,6 +140,7 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                         }
                     };
                     let demand = kind.home_demand_for_transfer_v1(source_parameter.transfer())
+                        .filter(|demand| nullable_class.is_none() || *demand != crate::mir::resolved_semantics::HomeDemandV1::Home)
                         .ok_or(CallableParameterContractIssueV1::UnsupportedTransfer {
                             _declaration: declaration, _parameter: parameter,
                         })?;
@@ -172,7 +181,7 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                         );
                     }
                     parameters.push(VerifiedCallableParameterContractV1::new(
-                        parameter, binding, kind, demand,
+                        parameter, binding, kind, demand, nullable_class.is_some(),
                     ));
                 }
                 declarations.push(VerifiedCallableParameterContractDeclarationV1::new(

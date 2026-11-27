@@ -157,6 +157,7 @@ pub(super) struct OwnedCallableParameterContractV1 {
     pub(super) ordinal: u32,
     pub(super) binding: BindingRefV1,
     pub(super) kind: CallableParameterContractKindV1,
+    pub(super) nullable_object: bool,
     pub(super) demand: crate::mir::resolved_semantics::HomeDemandV1,
 }
 
@@ -675,6 +676,7 @@ pub(super) fn parameter_catalog_for_drift_test(
                     ordinal: formal.ordinal,
                     binding: formal.binding,
                     kind: formal.kind.clone(),
+                    nullable_object: formal.nullable_object,
                     demand: formal.demand,
                 })
                 .collect::<Vec<_>>()

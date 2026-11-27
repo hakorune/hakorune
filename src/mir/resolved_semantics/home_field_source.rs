@@ -30,6 +30,15 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
         _home: BindingRefV1,
         _field: &str,
     ) -> Result<bool, E> { Ok(false) }
+    fn comparison_i64_field(
+        &mut self,
+        _site: &OwnedExprSiteV1,
+        _receiver: BindingRefV1,
+        _field: &str,
+    ) -> Result<bool, E> {
+        Ok(false)
+    }
+
     fn argument_i64_field(&mut self, _site: &OwnedExprSiteV1, _receiver_site: &SourceExprSiteV1,
         _receiver: BindingRefV1, _home: BindingRefV1, _field: &str,
     ) -> Result<bool, E> { Ok(false) }

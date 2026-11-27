@@ -397,10 +397,11 @@ impl OriginalFormalSeedProductV1 {
                 }
                 if let CallableParameterContractKindV1::DeclaredObject(class) = &formal.kind {
                     declared.insert(formal.binding);
-                    seeds
-                        .entry(formal.binding)
-                        .or_default()
-                        .push(FormalActualSeedV1::Class(class.clone()));
+                    let values = seeds.entry(formal.binding).or_default();
+                    values.push(FormalActualSeedV1::Class(class.clone()));
+                    if formal.nullable_object {
+                        values.push(FormalActualSeedV1::Null);
+                    }
                 }
             }
         }

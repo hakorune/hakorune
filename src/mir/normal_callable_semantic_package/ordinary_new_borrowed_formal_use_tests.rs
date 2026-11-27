@@ -65,6 +65,7 @@ pub(super) fn try_with_source_product<R>(
                 ordinal: row.ordinal,
                 binding: row.binding,
                 kind: row.kind.clone(),
+                nullable_object: row.nullable_object,
                 demand: row.demand,
             }
         }).collect(),
@@ -424,6 +425,7 @@ fn draft_with_fields(
                             ordinal: row.ordinal,
                             binding: row.binding,
                             kind: row.kind.clone(),
+                            nullable_object: row.nullable_object,
                             demand: row.demand,
                         }
                     }).collect(),
@@ -498,6 +500,7 @@ fn draft_with_child(
                             ordinal: row.ordinal,
                             binding: row.binding,
                             kind: row.kind.clone(),
+                            nullable_object: row.nullable_object,
                             demand: row.demand,
                         }
                     }).collect(),

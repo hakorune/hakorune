@@ -11,6 +11,8 @@ pub(crate) enum ComparisonExecutionKindV1 {
     DynamicScalarEquality { dynamic_left: bool },
     Null,
     Text,
+    /// The recursive comparison writer checks the original borrowed formal.
+    BorrowedInteger,
     /// An opaque integer extraction needs the original carrier orientation;
     /// otherwise the existing checked Text operation supplies the Bool directly.
     Checked {
@@ -200,6 +202,15 @@ impl CheckedExpressionEvaluationV1 {
             } else {
                 (right, left)
             };
+            if let Some(CheckedExpressionReferenceV1::DynamicEntry(read)) = self.references.get(&carrier) {
+                if read.integer_order().is_some_and(|proof| {
+                    proof.site().site() == self.source.nodes()[node].site()
+                        && proof.tagged_on_left() == carrier_left
+                        && proof.matches_order_read(&self.source, self.source.nodes()[carrier].site(), read.requirement().formal().1)
+                }) {
+                    return Ok(plan(Kind::BorrowedInteger));
+                }
+            }
             return Ok(self
                 .checked_integer_carrier_home_v1(carrier, integer)
                 .is_some()

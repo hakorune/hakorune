@@ -233,7 +233,7 @@ pub(super) fn observe<E>(
                 if let Some(BorrowedCallArgumentsV1::DynamicEntryRead(read)) = port(
                     call_site,
                     BorrowedCallActualRequestV1::DynamicEntryRead {
-                        input, plan: loan.plan(), read: node.site(), binding, root,
+                        input, plan: loan.plan(), read: node.site(), binding, root, integer_order: None,
                     },
                 )? {
                     dynamic_reads.push(read);
@@ -327,7 +327,7 @@ pub(super) fn observe<E>(
                         plan: loan.plan(),
                         read: node.site(),
                         binding,
-                        root,
+                        root, integer_order: None,
                     },
                 )?
                 else {

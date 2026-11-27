@@ -205,7 +205,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         values: &Result<EntryValues, String>,
-    ) -> Result<BTreeMap<BindingRefV1, &str>, String> {
+    ) -> Result<BTreeMap<BindingRefV1, (&str, bool)>, String> {
         self.validate_borrowed_ordinary_entry_values_v1(owner, values)?;
         let rows = values.as_ref().map_err(Clone::clone)?;
         let source = self
@@ -216,6 +216,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let original_declared_source = self.checked_source_instance_input_entry_v1(source, owner)?.is_some();
         let takes = self.take_ordinary_entry_bindings_v1(owner)?;
+        let reject = || freeze("borrowed-entry/declared-source-drift");
+        let contract = self.original_parameter_contracts.unique_for_owner(owner, reject, reject)?;
         let mut classes = BTreeMap::new();
         for (_, binding, _) in rows {
             let view = if original_declared_source || takes.contains(binding) {
@@ -224,7 +226,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 source.formal_object_view(*binding)
             };
             if let Some(view) = view.filter(|view| view.is_declared()) {
-                classes.insert(*binding, view.class());
+                let formal = contract.parameters.iter().find(|formal| formal.binding == *binding)
+                    .ok_or_else(reject)?;
+                if !matches!(&formal.kind, CallableParameterContractKindV1::DeclaredObject(class)
+                    if class.as_ref() == view.class()) {
+                    return Err(reject());
+                }
+                classes.insert(*binding, (view.class(), formal.nullable_object));
             }
         }
         Ok(classes)

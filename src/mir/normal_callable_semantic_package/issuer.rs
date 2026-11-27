@@ -390,6 +390,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                         ordinal: parameter.ordinal(),
                         binding: parameter.binding(),
                         kind: parameter.kind(),
+                        nullable_object: parameter.nullable_object(),
                         demand: parameter.home_demand(),
                     })
                     .collect::<Vec<_>>()

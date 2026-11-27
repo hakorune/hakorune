@@ -314,6 +314,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         read,
         binding,
         root,
+        integer_order,
     } = request
     {
         return source
@@ -321,7 +322,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map_err(Clone::clone)
             .and_then(|source| {
                 super::super::lexical_instance_call::lend_dynamic_entry_read_v1(
-                    input, source, contracts, site, plan, read, binding, root,
+                    input, source, contracts, site, plan, read, binding, root, integer_order,
                 )
             })
             .map(|row| row.map(BorrowedCallArgumentsV1::DynamicEntryRead))

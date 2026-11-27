@@ -29,7 +29,12 @@ impl FinalizedRootSourceHandoffV1 {
             { return Err(freeze("borrowed-parameter/entry-binding")); }
             let object = match (&parameter.kind, declared_type) {
                 (Kind::OpaqueHandle, None) => Ok(None),
-                (Kind::DeclaredObject(class), Some(name)) if class.as_ref() == name => {
+                (Kind::DeclaredObject(class), Some(name)) if
+                    if parameter.nullable_object {
+                        name.strip_suffix('?') == Some(class.as_ref())
+                    } else {
+                        name == class.as_ref()
+                    } => {
                     let view = entry.formal_object_view(parameter.binding)?
                         .ok_or_else(|| freeze("borrowed-parameter/declared-view-missing"))?;
                     if !view.is_declared() || view.class() != class.as_ref() {

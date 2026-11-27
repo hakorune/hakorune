@@ -119,6 +119,7 @@ pub(crate) struct DynamicEntryReadV1 {
     requirement: super::BorrowedFormalEntryReadRequirementV1,
     flow: std::sync::Arc<VerifiedSourceValueFlowV1>,
     value: SourceValueRefV1,
+    integer_order: Option<crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1>,
 }
 impl PartialEq for DynamicEntryReadV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -129,10 +130,14 @@ impl PartialEq for DynamicEntryReadV1 {
             )
             && std::sync::Arc::ptr_eq(&self.flow, &other.flow)
             && self.value == other.value
+            && self.integer_order == other.integer_order
     }
 }
 impl Eq for DynamicEntryReadV1 {}
 impl DynamicEntryReadV1 {
+    pub(crate) fn integer_order(&self) -> Option<&crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1> {
+        self.integer_order.as_ref()
+    }
     pub(crate) fn requirement(&self) -> &super::BorrowedFormalEntryReadRequirementV1 {
         &self.requirement
     }
@@ -178,11 +183,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
     read: &SourceExprSiteV1,
     binding: BindingRefV1,
     root: BindingRefV1,
+    integer_order: Option<&crate::mir::resolved_semantics::borrowed_integer_comparison::BorrowedIntegerComparisonSourceV1>,
 ) -> Result<Option<DynamicEntryReadV1>, String> {
     let reject = || freeze("borrowed-formal-entry/dynamic-source-identity");
     use crate::mir::resolved_semantics::borrowed_integer_comparison::{
         dynamic_scalar_comparison_demand_v1, scalar_comparison_class_v1,
     };
+    if integer_order.is_some_and(|proof| !proof.matches_order_read(plan, read, root)) {
+        return Err(reject());
+    }
     let provider = prepared.dynamic_provider_owners.contains(&input.owner());
     let scalar_equality = !provider && dynamic_scalar_comparison_demand_v1(input, read, true, |other| {
         scalar_comparison_class_v1(input, other)
@@ -206,7 +215,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
             call.site() == site.site() && original.as_ref() == plan.as_ref()
         }
         ExpressionPlanRootV1::IfCondition { statement, condition, .. } => {
-            if !provider && !scalar_equality {
+            if !provider && !scalar_equality && integer_order.is_none() {
                 return Ok(None);
             }
             let original = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
@@ -255,6 +264,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
         requirement,
         flow: std::sync::Arc::clone(flow),
         value,
+        integer_order: integer_order.cloned(),
     }))
 }
 

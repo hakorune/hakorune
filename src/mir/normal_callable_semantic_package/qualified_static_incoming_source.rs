@@ -365,6 +365,7 @@ impl<'a> StaticIncomingSourceLoanV1<'a> {
                         ordinal: formal.ordinal,
                         binding: formal.binding,
                         kind: formal.kind.clone(),
+                        nullable_object: formal.nullable_object,
                         demand: formal.demand,
                     },
                 )

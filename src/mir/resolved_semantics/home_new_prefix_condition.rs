@@ -702,7 +702,9 @@ fn install_source<E>(
             }
             continue;
         };
-        let prefer_tagged = super::argument_expression::scalar_dynamic_demand_v1(input, locals, local_calls, node.site(), true);
+        let integer_order = locals.borrowed_integer_order_read(&source, node.site(), root);
+        let prefer_tagged = integer_order.is_some()
+            || super::argument_expression::scalar_dynamic_demand_v1(input, locals, local_calls, node.site(), true);
         if !prefer_tagged {
             if let Some(BorrowedCallArgumentsV1::FiniteEntryRead(read)) = actuals(
                 &owned,
@@ -723,6 +725,7 @@ fn install_source<E>(
                 &owned,
                 BorrowedCallActualRequestV1::DynamicEntryRead {
                     input, plan: &source, read: node.site(), binding, root,
+                    integer_order: integer_order.as_ref(),
                 },
             )? {
                 initial_references.push((index, CheckedExpressionReferenceV1::DynamicEntry(read)));
