@@ -67,6 +67,10 @@ impl<'module> VerifiedLocalSlotWrites<'module> {
         proofs
     }
 
+    pub(in crate::mir) fn has_writes(&self) -> bool {
+        !self.functions.is_empty()
+    }
+
     pub(crate) fn copy_operands(
         &self,
         function: &MirFunction,
@@ -74,16 +78,16 @@ impl<'module> VerifiedLocalSlotWrites<'module> {
         index: usize,
         row: &MirInstruction,
     ) -> Option<(ValueId, ValueId)> {
+        let MirInstruction::LocalContractWrite { dst, src, .. } = row else {
+            return None;
+        };
         let proof = self.functions.get(function.signature.name.as_str())?;
         if !std::ptr::eq(proof.function, function)
             || !std::ptr::eq(*proof.rows.get(&(block, index))?, row)
         {
             return None;
         }
-        match row {
-            MirInstruction::LocalContractWrite { dst, src, .. } => Some((*dst, *src)),
-            _ => None,
-        }
+        Some((*dst, *src))
     }
 }
 

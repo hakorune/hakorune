@@ -617,16 +617,16 @@ impl MirCompiler {
                         if direct_requested {
                             return Err("[freeze:contract][direct-placement] canonical lifecycle route required".into());
                         }
-                        crate::mir::named_array_obligation::reject_unretained_module(
-                            &result.module,
-                        )?;
-                        let prepared = session
-                            .prepare_external_commit()
-                            .map_err(|error| error.to_string())?;
-                        return Ok((
-                            prepared,
-                            NormalPublishedCompileOutcome::ExplicitCompatibility(result),
-                        ));
+                        let has_local_write_candidate = result.module.functions.values().any(|f| {
+                            f.metadata.local_slot_contracts.iter().any(|c| c.proof_elision_allowed)
+                        });
+                        if !has_local_write_candidate {
+                            crate::mir::named_array_obligation::reject_unretained_module(&result.module)?;
+                            let prepared = session
+                                .prepare_external_commit()
+                                .map_err(|error| error.to_string())?;
+                            return Ok((prepared, NormalPublishedCompileOutcome::ExplicitCompatibility(result)));
+                        }
                     }
                 }
                 // The artifact callback consumes the same source-bound final
@@ -657,7 +657,12 @@ impl MirCompiler {
                     published_backend_view::PublishedMirBackendView::try_new_selected_normal(&result.module)
                 } else { published_backend_view::PublishedMirBackendView::try_new(&result.module) }
                     .map_err(|error| error.to_string())?
-                    .bind_finalized_root_handoff(retained_root.as_ref())?;
+                    .bind_finalized_root_handoff(retained_root.as_ref())?
+                    .bind_verified_local_slot_writes();
+                if view.route() == PublishedStaticMethodRouteV1::ExplicitCompatibility {
+                    crate::mir::named_array_obligation::reject_unretained_module(&result.module)?;
+                    return Ok((prepared, NormalPublishedCompileOutcome::ExplicitCompatibility(result)));
+                }
                 let view = match selected_profile.as_ref() {
                     Some(profile) => lifecycle_admission::admit_lifecycle(view, profile)?,
                     None => view,

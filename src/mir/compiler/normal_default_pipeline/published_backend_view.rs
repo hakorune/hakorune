@@ -10,6 +10,7 @@ use hakorune_mir_defs::{
     CanonicalBuiltinGlobalV1, CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1,
 };
 
+use crate::mir::verification::local_slot_writes::VerifiedLocalSlotWrites;
 use crate::mir::ssot::callable_key::{
     expected_physical_arity, free_function_key, static_method_key,
 };
@@ -170,6 +171,7 @@ impl std::error::Error for PublishedMirBackendViewErrorV1 {}
 pub(crate) struct PublishedMirBackendView<'module> {
     module: &'module MirModule,
     retained_root: Option<&'module MirFunction>,
+    local_slot_writes: Option<VerifiedLocalSlotWrites<'module>>,
     retained_handoff: Option<&'module crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     route: PublishedStaticMethodRouteV1,
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
@@ -413,6 +415,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 module,
                 retained_root: None,
                 retained_handoff: None,
+                local_slot_writes: None,
                 route: PublishedStaticMethodRouteV1::UnsupportedBeforeObject,
                 static_method_calls,
                 free_function_calls,
@@ -438,6 +441,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 module,
                 retained_root: None,
                 retained_handoff: None,
+                local_slot_writes: None,
                 route: PublishedStaticMethodRouteV1::ExplicitCompatibility,
                 static_method_calls,
                 free_function_calls,
@@ -455,6 +459,7 @@ impl<'module> PublishedMirBackendView<'module> {
             module,
             retained_root: None,
             retained_handoff: None,
+            local_slot_writes: None,
             route: PublishedStaticMethodRouteV1::CanonicalTyped,
             static_method_calls,
             free_function_calls,
@@ -467,6 +472,31 @@ impl<'module> PublishedMirBackendView<'module> {
             lifecycle_storage_profile: None,
             program_dispatch: None,
         })
+    }
+
+    /// Source artifact selection calls this only after strict verification of
+    /// the final module. The borrowed proofs cannot outlive that module.
+    pub(super) fn bind_verified_local_slot_writes(mut self) -> Self {
+        let proofs = VerifiedLocalSlotWrites::verify(self.module);
+        if !proofs.has_writes() {
+            return self;
+        }
+        if self.route == PublishedStaticMethodRouteV1::ExplicitCompatibility
+            && crate::mir::local_slot_backend_capability::enforce_local_slot_backend_supported(
+                self.module,
+                "ny-llvmc-obj",
+                Some(&proofs),
+            )
+            .is_ok()
+        {
+            self.route = PublishedStaticMethodRouteV1::CanonicalTyped;
+        }
+        self.local_slot_writes = Some(proofs);
+        self
+    }
+
+    pub(crate) fn local_slot_writes(&self) -> Option<&VerifiedLocalSlotWrites<'module>> {
+        self.local_slot_writes.as_ref()
     }
 
     /// Admit the selected normal Static/Free/Print corridor.  The generic

@@ -52,6 +52,7 @@ pub(crate) struct PublishedLifecyclePhysicalInstructionRefV1<'module> {
     index: u32,
     instruction: &'module MirInstruction,
     field_ref: Option<CanonicalFieldRefV1>,
+    local_slot_copy: Option<(ValueId, ValueId)>,
 }
 
 impl<'module> PublishedLifecyclePhysicalInstructionRefV1<'module> {
@@ -61,6 +62,10 @@ impl<'module> PublishedLifecyclePhysicalInstructionRefV1<'module> {
 
     pub(crate) fn instruction(self) -> &'module MirInstruction {
         self.instruction
+    }
+
+    pub(super) const fn local_slot_copy(self) -> Option<(ValueId, ValueId)> {
+        self.local_slot_copy
     }
 
     pub(crate) const fn field_ref(self) -> Option<CanonicalFieldRefV1> {
@@ -511,7 +516,10 @@ fn issue_function_with_module<'module>(
                 }
             }
             let field_ref = prepare_field_ref(module, function, block.id, index, instruction, &source_field_reads)?;
-            if !source_count_binding(id, instruction) && !source_initializer_install(id, instruction) && !source_shared_binding(id, instruction) && !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
+            let local_slot_copy = selected_view
+                .and_then(|view| view.local_slot_writes())
+                .and_then(|proofs| proofs.copy_operands(function, id, index, instruction));
+            if local_slot_copy.is_none() && !source_count_binding(id, instruction) && !source_initializer_install(id, instruction) && !source_shared_binding(id, instruction) && !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
                 .iter()
                 .any(|(bound_block, bound)| *bound_block == id && bound == instruction)
             {
@@ -525,6 +533,7 @@ fn issue_function_with_module<'module>(
                 index: as_u32(index, "instruction-index")?,
                 instruction,
                 field_ref,
+                local_slot_copy,
             });
         }
         let terminator_index = block.instructions.len();
@@ -561,6 +570,7 @@ fn issue_function_with_module<'module>(
                 index: terminator_index,
                 instruction: terminator,
                 field_ref: terminator_field_ref,
+                local_slot_copy: None,
             },
             edges,
         });

@@ -1,3 +1,4 @@
+use crate::mir::verification::local_slot_writes::VerifiedLocalSlotWrites;
 use crate::mir::MirModule;
 
 /// Selected published callers validate the borrowed final image, never a repair clone.
@@ -9,7 +10,7 @@ pub(crate) fn enforce_published_backend_supported(
     if backend != "ny-llvmc-obj" {
         crate::mir::named_array_obligation::reject_unretained_module(view.module())?;
     }
-    enforce_refreshed_mir_backend_supported(view.module(), backend)
+    enforce_refreshed_mir_backend_supported(view.module(), backend, view.local_slot_writes())
 }
 
 /// The lifecycle consumer proves numeric coverage using the exact input it emits.
@@ -26,6 +27,7 @@ pub(crate) fn enforce_published_lifecycle_backend_supported(
     enforce_before_typed_array_backend_supported_without_parameter_entry_or_return_exit(
         view.module(),
         "ny-llvmc-obj",
+        view.local_slot_writes(),
     )?;
     crate::mir::return_exit_backend_capability::enforce_lifecycle_return_exit_backend_supported(
         view.module(),
@@ -178,18 +180,19 @@ pub(crate) fn enforce_mir_backend_supported(
         module,
         crate::mir::ContractRefreshBoundary::BackendPreflight,
     )?;
-    enforce_refreshed_mir_backend_supported(refreshed.module(), backend)
+    enforce_refreshed_mir_backend_supported(refreshed.module(), backend, None)
 }
 
 fn enforce_refreshed_mir_backend_supported(
     module: &MirModule,
     backend: &str,
+    local_slot_writes: Option<&VerifiedLocalSlotWrites<'_>>,
 ) -> Result<(), String> {
     crate::mir::ownership_backend_capability::enforce(module, backend)?;
     crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module, backend,
     )?;
-    enforce_before_typed_array_backend_supported(module, backend)?;
+    enforce_before_typed_array_backend_supported(module, backend, local_slot_writes)?;
     crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
         module, backend,
     )?;
@@ -199,9 +202,10 @@ fn enforce_refreshed_mir_backend_supported(
 fn enforce_before_typed_array_backend_supported(
     module: &MirModule,
     backend: &str,
+    local_slot_writes: Option<&VerifiedLocalSlotWrites<'_>>,
 ) -> Result<(), String> {
     enforce_before_typed_array_backend_supported_without_parameter_entry_or_return_exit(
-        module, backend,
+        module, backend, local_slot_writes,
     )?;
     crate::mir::return_exit_backend_capability::enforce_return_exit_backend_supported(
         module, backend,
@@ -214,12 +218,13 @@ fn enforce_before_typed_array_backend_supported(
 fn enforce_before_typed_array_backend_supported_without_parameter_entry_or_return_exit(
     module: &MirModule,
     backend: &str,
+    local_slot_writes: Option<&VerifiedLocalSlotWrites<'_>>,
 ) -> Result<(), String> {
     crate::mir::array_record_backend_capability::enforce_array_record_backend_supported(
         module, backend,
     )?;
     crate::mir::local_slot_backend_capability::enforce_local_slot_backend_supported(
-        module, backend,
+        module, backend, local_slot_writes,
     )?;
     crate::mir::record_value_backend_capability::enforce_record_value_backend_supported(
         module, backend,
