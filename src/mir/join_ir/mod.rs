@@ -26,9 +26,6 @@ use crate::mir::ValueId;
 // Phase 63-3: 型ヒント用
 use crate::mir::MirType;
 
-// Phase 27.9: Lowering submodule
-pub mod lowering;
-
 // Phase 200-3: Contract verification functions are in merge/mod.rs (private module access)
 
 /// JoinIR 関数ID（MIR 関数とは別 ID でもよい）

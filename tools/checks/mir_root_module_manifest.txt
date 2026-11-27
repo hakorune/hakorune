@@ -106,7 +106,6 @@ loop_api	pub	none
 loop_canonicalizer	pub	none
 loop_form	pub	none
 loop_recipe_contract	pub(crate)	none
-loop_route_detection	pub	none
 loop_route_policy	pub(crate)	none
 loop_structural_facts	pub(crate)	none
 map_lookup_fusion_plan	pub	none
