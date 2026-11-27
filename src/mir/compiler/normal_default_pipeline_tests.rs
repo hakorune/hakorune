@@ -721,3 +721,48 @@ fn explicit_bare_return_retains_unit_source_before_physical_stop() {
         }).unwrap();
     });
 }
+
+#[test]
+fn exact_i64_return_selects_verified_publication() {
+    let result = MirCompiler::with_options(false)
+        .compile_normal(published_request("static box Main { main(): i64 { return 42 } }"))
+        .expect("exact i64 return lowers");
+    result.verification_result.expect("valid completed MIR");
+    let root = &result.module.functions["main"];
+    assert_eq!(root.signature.return_type, crate::mir::MirType::Integer);
+    assert!(root.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| {
+        matches!(instruction, crate::mir::MirInstruction::Const {
+            value: crate::mir::ConstValue::Integer(42), ..
+        })
+    }));
+}
+
+#[test]
+fn exact_parameter_profile_selects_verified_publication() {
+    let result = MirCompiler::with_options(false)
+        .compile_normal(published_request(
+            "static box Main { main() { return me.echo(42) } echo(value: i64): i64 { return value } }",
+        ))
+        .expect("exact parameter lowers");
+    result.verification_result.expect("valid completed MIR");
+    let function = &result.module.functions["Main.echo/1"];
+    assert_eq!(function.signature.params, [crate::mir::MirType::Integer]);
+    assert_eq!(function.signature.return_type, crate::mir::MirType::Integer);
+    assert!(function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| {
+        matches!(instruction, crate::mir::MirInstruction::Return { value: Some(_) })
+    }));
+}
+
+#[test]
+fn current_outbox_acceptance_reaches_verified_mir() {
+    let result = MirCompiler::with_options(false)
+        .compile_normal(published_request("static box Main { main() { outbox result return 7 } }"))
+        .expect("outbox acceptance");
+    result.verification_result.expect("valid completed MIR");
+    let root = &result.module.functions["main"];
+    assert!(root.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| {
+        matches!(instruction, crate::mir::MirInstruction::Const {
+            value: crate::mir::ConstValue::Integer(7), ..
+        })
+    }));
+}

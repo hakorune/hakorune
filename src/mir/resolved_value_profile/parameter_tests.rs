@@ -1,5 +1,4 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
-use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_v1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
@@ -217,19 +216,4 @@ fn parameter_rebind_and_if_merge_reuse_the_existing_profile_environment() {
         .definitions()
         .iter()
         .all(|row| row.representation() == TrivialRepresentationV1::InlineI64));
-}
-
-
-#[test]
-fn exact_parameter_profile_selects_production_binding_ssa_route() {
-    let root = typed_function(&[Some("i64")], vec![return_value(variable("p0"))]);
-    assert!(matches!(
-        analyze(root.clone()),
-        TrivialCanonicalOwnerAnalysisV1::Admitted(_)
-    ));
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    assert!(matches!(
-        CanonicalLoweringPreflightV1::verify(&unit).unwrap(),
-        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_)
-    ));
 }

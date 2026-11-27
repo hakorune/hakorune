@@ -442,20 +442,3 @@ fn duplicate_coverage_and_foreign_if_control_cannot_seal() {
         Err(TrivialProfileContractErrorV1::IfControlOwnerMismatch)
     ));
 }
-
-#[test]
-fn current_a_plus_acceptance_is_not_narrowed_by_disconnected_profile() {
-    let ast = function_with_params(
-        vec!["arg".into()],
-        vec![
-            ASTNode::Outbox {
-                variables: vec!["result".into()],
-                initial_values: vec![None],
-                span: Span::unknown(),
-            },
-            return_(Some(variable("arg"))),
-        ],
-    );
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(ast).unwrap();
-    assert!(CanonicalLoweringPreflightV1::verify(&unit).is_ok());
-}
