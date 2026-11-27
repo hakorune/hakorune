@@ -1,6 +1,8 @@
 //! Same-definition queries over one completed, immutable MIR function.
 //! Source sites and producer loans are deliberately not evidence here.
 use super::{cfg, geometry::FunctionVerificationGeometry, invoke};
+use crate::mir::function::LocalContractWriteKind;
+use crate::mir::type_contracts::local_slot::{is_exact_numeric_local_type, local_slot_contract};
 use crate::mir::verification_types::VerificationError;
 #[cfg(test)]
 use crate::mir::{BasicBlockId, MirFunction};
@@ -166,7 +168,7 @@ impl OriginQuery<'_, '_> {
     }
 
     /// A temporary value-dependency closure, not another CFG or proof ledger.
-    /// Every Copy/Phi node must reach a real base; a closed cycle has none.
+    /// Every forwarding node must reach a real base; a closed cycle has none.
     fn origin(&self, value: ValueId) -> Result<SameI64Definition, Vec<VerificationError>> {
         let mut pending = vec![value];
         let mut nodes = HashSet::new();
@@ -199,6 +201,19 @@ impl OriginQuery<'_, '_> {
             }
             let inputs = match row {
                 MirInstruction::Copy { src, .. } => vec![*src],
+                // A checked initialization publishes its source unchanged.
+                // Reassignments use the reaching-write proof.
+                MirInstruction::LocalContractWrite {
+                    src,
+                    local_slot_id,
+                    write_kind: LocalContractWriteKind::Init,
+                    ..
+                } if local_slot_contract(self.geometry.as_function(), *local_slot_id).is_some_and(
+                    |contract| is_exact_numeric_local_type(Some(&contract.declared_type_name)),
+                ) =>
+                {
+                    vec![*src]
+                }
                 MirInstruction::Phi {
                     inputs, type_hint, ..
                 } => {

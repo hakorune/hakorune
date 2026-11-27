@@ -86,8 +86,8 @@ fn copy_receipt_rejects_wrong_source_destination_and_instruction() {
         },
     ] {
         let error = super::super::CompletedLocalBindingV1::new(0, source, destination)
-            .with_copy(Some((BasicBlockId::new(0), instruction)))
+            .with_materialization(Some((BasicBlockId::new(0), instruction)))
             .unwrap_err();
-        assert!(error.contains("copy-receipt-drift"));
+        assert!(error.contains("materialization-receipt-drift"));
     }
 }

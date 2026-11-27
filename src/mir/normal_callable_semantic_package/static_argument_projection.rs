@@ -135,7 +135,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
     });
     let has_expression_source = pending.get(site).is_some_and(|rows| matches!(rows,
         Ok(rows) if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(identity)
-            if !identity.core_arguments.is_empty()
+            if prepared.has_signed_static_expression_input_v1(identity.source.callee_owner())
+                || !identity.core_arguments.is_empty()
                 || rows.has_qualified_static_argument_source_v1()
                 || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))))));
     let retained = original_static_source_v1(prepared, site)?;

@@ -1,6 +1,7 @@
 //! Source-only forwarding and the stronger selected-loop caller witness.
 //! Neither source identity nor a forwarded root grants physical entry permission.
 
+use super::super::borrowed_formal_source::StaticInputParticipationV1;
 use super::static_input_finish::{StaticInputEvidenceV1, StaticInputFinishV1, StaticInputRowsV1};
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
@@ -198,9 +199,24 @@ impl OrdinaryNewClaimLedgerV1 {
 
 impl PreparedBorrowedFormalIngressV1 {
     /// Resolve the source origin before Home walks can demand a borrowed entry.
-    pub(in crate::mir::normal_callable_semantic_package) fn select_static_tagged_sources_v1(&mut self) {
-        let owners = self.static_tagged_forward_owners_v1();
-        *self.tagged_static_owners.get_mut() = (self.source_incoming.revision_v1(), owners);
+    pub(in crate::mir::normal_callable_semantic_package) fn select_static_input_sources_v1(&mut self) {
+        let owners = self.static_input_source_owners_v1();
+        *self.static_input_owners.get_mut() = (self.source_incoming.revision_v1(), owners);
+    }
+
+    fn static_input_source_owners_v1(&self) -> BTreeMap<FunctionOwnerIdV1, StaticInputParticipationV1> {
+        let mut owners = BTreeMap::<_, StaticInputParticipationV1>::new();
+        for owner in self.static_tagged_forward_owners_v1() {
+            owners.entry(owner).or_default().tagged = true;
+        }
+        for owner in self.signed_static_expression_owners_v1() {
+            owners.entry(owner).or_default().signed_expression = true;
+        }
+        owners
+    }
+
+    pub(super) fn has_signed_static_expression_input_v1(&self, owner: FunctionOwnerIdV1) -> bool {
+        self.static_input_owner_v1(owner).signed_expression
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn has_tagged_static_input_v1(
@@ -290,15 +306,22 @@ impl PreparedBorrowedFormalIngressV1 {
     /// A tagged argument requires a borrowed entry at both ends. Reuse the
     /// participation query until the original inventory is changed.
     fn static_tagged_forward_owner_v1(&self, owner: FunctionOwnerIdV1) -> bool {
+        self.static_input_owner_v1(owner).tagged
+    }
+
+    fn static_input_owner_v1(&self, owner: FunctionOwnerIdV1) -> StaticInputParticipationV1 {
         if !self.corroborated_original_v1() {
-            return false;
+            return StaticInputParticipationV1::default();
         }
         let revision = self.source_incoming.revision_v1();
-        let mut participation = self.tagged_static_owners.borrow_mut();
+        let mut participation = self.static_input_owners.borrow_mut();
         if participation.0 == 0 {
-            *participation = (revision, self.static_tagged_forward_owners_v1());
+            *participation = (revision, self.static_input_source_owners_v1());
         }
-        participation.0 == revision && participation.1.contains(&owner)
+        if participation.0 != revision {
+            return StaticInputParticipationV1::default();
+        }
+        participation.1.get(&owner).copied().unwrap_or_default()
     }
 
     fn static_tagged_forward_owners_v1(&self) -> BTreeSet<FunctionOwnerIdV1> {

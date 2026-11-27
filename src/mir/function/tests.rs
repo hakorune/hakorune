@@ -1,5 +1,5 @@
 use super::*;
-use crate::mir::{BasicBlockId, EffectMask, MirType, ValueId};
+use crate::mir::{BasicBlockId, EffectMask, MirType};
 
 #[test]
 fn test_function_creation() {
@@ -176,46 +176,4 @@ fn atomic_function_batch_preserves_existing_module_on_late_collision() {
         module.get_function("existing/0").unwrap().entry_block,
         BasicBlockId::new(1)
     );
-}
-
-// Legacy ValueId 割り当て仕様（LoopForm v2 導入前の想定）.
-#[test]
-#[ignore]
-fn test_value_id_generation() {
-    let signature = FunctionSignature {
-        name: "test".to_string(),
-        params: vec![],
-        return_type: MirType::Void,
-        effects: EffectMask::PURE,
-    };
-
-    let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-
-    let val1 = function.next_value_id();
-    let val2 = function.next_value_id();
-    let val3 = function.next_value_id();
-
-    assert_eq!(val1, ValueId::new(0));
-    assert_eq!(val2, ValueId::new(1));
-    assert_eq!(val3, ValueId::new(2));
-}
-
-// Legacy stats API の想定（現行の拡張とはズレるためアーカイブ扱い）.
-#[test]
-#[ignore]
-fn test_function_stats() {
-    let signature = FunctionSignature {
-        name: "test".to_string(),
-        params: vec![],
-        return_type: MirType::Void,
-        effects: EffectMask::PURE,
-    };
-
-    let function = MirFunction::new(signature, BasicBlockId::new(0));
-    let stats = function.stats();
-
-    assert_eq!(stats.block_count, 1);
-    assert_eq!(stats.instruction_count, 0);
-    assert_eq!(stats.value_count, 0);
-    assert!(stats.is_pure);
 }

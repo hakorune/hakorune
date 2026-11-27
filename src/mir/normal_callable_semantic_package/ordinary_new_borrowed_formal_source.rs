@@ -101,6 +101,12 @@ impl BorrowedFormalObjectViewV1 {
     }
 }
 
+#[derive(Clone, Copy, Debug, Default)]
+pub(super) struct StaticInputParticipationV1 {
+    pub(super) tagged: bool,
+    pub(super) signed_expression: bool,
+}
+
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedFormalIngressV1 {
     pub(super) dynamic_provider_owners: BTreeSet<FunctionOwnerIdV1>,
@@ -143,7 +149,8 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     original_corroboration: std::cell::Cell<Option<(u64, bool)>>,
     /// Derived participation only; the original inventory and reaching reads
     /// remain the authorities used when issuing an argument.
-    pub(super) tagged_static_owners: std::cell::RefCell<(u64, BTreeSet<FunctionOwnerIdV1>)>,
+    pub(super) static_input_owners:
+        std::cell::RefCell<(u64, BTreeMap<FunctionOwnerIdV1, StaticInputParticipationV1>)>,
     /// Source-only, least-fixed-point proof that the tagged formal is checked
     /// before numeric payload use, including exact Static forward chains.
     pub(super) checked_static_inputs: BTreeSet<BindingRefV1>,
@@ -152,6 +159,12 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    pub(super) fn signed_static_expression_owners_v1(
+        &self,
+    ) -> impl Iterator<Item = FunctionOwnerIdV1> + '_ {
+        self.original_formal_seeds.signed_static_expression_owners_v1()
+    }
+
     /// Refine passive candidates only where the original callee demands take.
     /// Normal borrowed actuals retain the passive observer's result.
     pub(in crate::mir::normal_callable_semantic_package) fn refine_fresh_take_actuals_v1<'a>(

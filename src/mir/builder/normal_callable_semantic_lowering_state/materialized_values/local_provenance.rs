@@ -132,15 +132,15 @@ impl LocalProvenanceV1 {
         let mut source_position = (current == source_value).then_some(0usize);
         let mut initializer_position = (current == initializer).then_some(0usize);
         for (index, (_, row)) in self.copies.iter().enumerate() {
-            let MirInstruction::Copy { src, dst } = row else {
+            let Some((src, dst)) = local_initializer_operands(row) else {
                 return Err(
                     "[freeze:contract][local-read/forwarded-initializer-instruction]".into(),
                 );
             };
-            if *src != current {
+            if src != current {
                 return Err("[freeze:contract][local-read/forwarded-initializer-chain]".into());
             }
-            current = *dst;
+            current = dst;
             let position = index + 1;
             if current == source_value && source_position.is_none() {
                 source_position = Some(position);
@@ -271,13 +271,13 @@ impl LocalProvenanceV1 {
         }
         let mut current = value;
         for (index, copy) in self.copies.iter().enumerate() {
-            let MirInstruction::Copy { dst, src } = &copy.1 else {
+            let Some((src, dst)) = local_initializer_operands(&copy.1) else {
                 return Err("[freeze:contract][forwarded-copy/instruction]".into());
             };
-            if *src != current || self.copies[..index].contains(copy) {
+            if src != current || self.copies[..index].contains(copy) {
                 return Err("[freeze:contract][forwarded-copy/chain]".into());
             }
-            current = *dst;
+            current = dst;
         }
         if current != result {
             return Err("[freeze:contract][forwarded-copy/result]".into());

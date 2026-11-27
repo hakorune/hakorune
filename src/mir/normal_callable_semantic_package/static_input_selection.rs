@@ -103,6 +103,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         allow_tagged: bool,
     ) -> bool {
+        let signed_expression = source.has_signed_static_expression_input_v1(owner);
         source.source_incoming.source_rows_v1().filter(|row| row.callee == owner).any(|row| {
             let source_input = match &row.source {
                 super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) => {
@@ -118,38 +119,6 @@ impl OrdinaryNewClaimLedgerV1 {
                                     )
                                 })
                     });
-                    let scalar_expression_source = self
-                        .borrowed_formal_actuals
-                        .get(&row.call)
-                        .and_then(|rows| rows.as_ref().ok())
-                        .and_then(PreparedBorrowedCallActualsV1::source_static_snapshot_v1)
-                        .is_some_and(|snapshot| {
-                            let opaque = original.parameters().iter().filter(|formal| {
-                                matches!(
-                                    formal.kind,
-                                    CallableParameterContractKindV1::OpaqueHandle
-                                )
-                            });
-                            let all_signed = opaque.clone().all(|formal| {
-                                source
-                                    .source_value_sum_v1(formal.binding)
-                                    .is_some_and(|sum| sum.signed_only())
-                            });
-                            let has_expression = opaque.into_iter().any(|formal| {
-                                matches!(
-                                    snapshot
-                                        .ordered_arguments
-                                        .get(formal.ordinal as usize),
-                                    Some(LocalCallArgumentV1::Expression { ordinal, site })
-                                        if *ordinal == formal.ordinal
-                                            && original
-                                                .argument_sites()
-                                                .get(formal.ordinal as usize)
-                                                == Some(site)
-                                )
-                            });
-                            all_signed && has_expression
-                        });
                     let exact_input_text = original.is_i64_input_text_v1()
                         || original.has_exact_i64_inputs_v1()
                             && self.observes_static_result_v1(original,
@@ -157,7 +126,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     // A call with no input and an I64 result also closes here once its
                     // original row exists; no separate zero-input protocol remains.
                     (allow_tagged && source.has_tagged_static_input_v1(owner, original.parameters()))
-                        || finite_forward || text_source || scalar_expression_source || exact_input_text
+                        || finite_forward || text_source || signed_expression || exact_input_text
                         || original.is_zeroarg_i64_v1()
                         || original.parameters().iter().any(|formal| formal.takes_declared_object_v1())
                 }
