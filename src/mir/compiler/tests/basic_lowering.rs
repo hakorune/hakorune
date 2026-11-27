@@ -29,25 +29,10 @@ fn test_mir_dump() {
     );
 }
 
-#[test]
-fn test_lowering_is_type_function_call_in_print() {
-    // Build AST: print(isType(42, "Integer"))
+fn assert_print_lowers_typeop(expression: ASTNode, expectation: &str) {
     let ast = ASTNode::Program {
         statements: vec![ASTNode::Print {
-            expression: Box::new(ASTNode::FunctionCall {
-                name: "isType".to_string(),
-                arguments: vec![
-                    ASTNode::Literal {
-                        value: LiteralValue::Integer(42),
-                        span: crate::ast::Span::unknown(),
-                    },
-                    ASTNode::Literal {
-                        value: LiteralValue::String("Integer".to_string()),
-                        span: crate::ast::Span::unknown(),
-                    },
-                ],
-                span: crate::ast::Span::unknown(),
-            }),
+            expression: Box::new(expression),
             span: crate::ast::Span::unknown(),
         }],
         span: crate::ast::Span::unknown(),
@@ -56,7 +41,8 @@ fn test_lowering_is_type_function_call_in_print() {
     let mut compiler = MirCompiler::new();
     let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
         compiler.compile(ast)
-    }).expect("compile should succeed");
+    })
+    .expect("compile should succeed");
 
     // Ensure TypeOp exists in the resulting MIR
     let has_typeop = result.module.functions.values().any(|f| {
@@ -65,49 +51,48 @@ fn test_lowering_is_type_function_call_in_print() {
                 .any(|sp| matches!(sp.inst, MirInstruction::TypeOp { .. }))
         })
     });
-    assert!(
-        has_typeop,
-        "Expected TypeOp lowering for print(isType(...))"
+    assert!(has_typeop, "{expectation}");
+}
+
+#[test]
+fn test_lowering_is_type_function_call_in_print() {
+    let expression = ASTNode::FunctionCall {
+        name: "isType".to_string(),
+        arguments: vec![
+            ASTNode::Literal {
+                value: LiteralValue::Integer(42),
+                span: crate::ast::Span::unknown(),
+            },
+            ASTNode::Literal {
+                value: LiteralValue::String("Integer".to_string()),
+                span: crate::ast::Span::unknown(),
+            },
+        ],
+        span: crate::ast::Span::unknown(),
+    };
+    assert_print_lowers_typeop(
+        expression,
+        "Expected TypeOp lowering for print(isType(...))",
     );
 }
 
 #[test]
 fn test_lowering_is_method_call_in_print() {
-    // Build AST: print( (42).is("Integer") )
-    let ast = ASTNode::Program {
-        statements: vec![ASTNode::Print {
-            expression: Box::new(ASTNode::MethodCall {
-                object: Box::new(ASTNode::Literal {
-                    value: LiteralValue::Integer(42),
-                    span: crate::ast::Span::unknown(),
-                }),
-                method: "is".to_string(),
-                arguments: vec![ASTNode::Literal {
-                    value: LiteralValue::String("Integer".to_string()),
-                    span: crate::ast::Span::unknown(),
-                }],
-                span: crate::ast::Span::unknown(),
-            }),
+    let expression = ASTNode::MethodCall {
+        object: Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(42),
+            span: crate::ast::Span::unknown(),
+        }),
+        method: "is".to_string(),
+        arguments: vec![ASTNode::Literal {
+            value: LiteralValue::String("Integer".to_string()),
             span: crate::ast::Span::unknown(),
         }],
         span: crate::ast::Span::unknown(),
     };
-
-    let mut compiler = MirCompiler::new();
-    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
-        compiler.compile(ast)
-    }).expect("compile should succeed");
-
-    // Ensure TypeOp exists in the resulting MIR
-    let has_typeop = result.module.functions.values().any(|f| {
-        f.blocks.values().any(|b| {
-            b.all_spanned_instructions()
-                .any(|sp| matches!(sp.inst, MirInstruction::TypeOp { .. }))
-        })
-    });
-    assert!(
-        has_typeop,
-        "Expected TypeOp lowering for print(obj.is(...))"
+    assert_print_lowers_typeop(
+        expression,
+        "Expected TypeOp lowering for print(obj.is(...))",
     );
 }
 
