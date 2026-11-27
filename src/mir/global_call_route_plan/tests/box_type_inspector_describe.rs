@@ -383,8 +383,10 @@ fn refresh_module_global_call_routes_rejects_arbitrary_unknown_map_return_as_box
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), None);
-    assert_eq!(
-        route.target_shape_reason(),
-        Some("generic_string_return_object_abi_not_handle_compatible")
-    );
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.reason(), None);
+    assert_eq!(route.return_shape(), Some("map_handle"));
+    assert_eq!(route.target_result_box_name(), None);
+    assert_eq!(route.proof(), "typed_global_call_same_module_object_handle");
+    assert_eq!(route.definition_owner(), "uniform_mir");
 }

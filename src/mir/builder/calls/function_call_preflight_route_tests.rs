@@ -365,12 +365,17 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
 
     let malformed_typeop =
         raw_root_main_preflight(&builder, "isType", vec![integer(1), integer(2)]);
-    let _ = lower_prepared_raw_function_preflight_with_port_v1(
+    let error = lower_prepared_raw_function_preflight_with_port_v1(
         &mut builder,
         &mut port,
         malformed_typeop,
+    )
+    .unwrap_err();
+    assert!(
+        error.contains("[raw-compat/raw-root-main-ordinary-retired]"),
+        "{error}"
     );
-    assert_eq!(port.expression_count, 3);
+    assert_eq!(port.expression_count, 1);
 
     let inactive_fastmem = raw_root_main_preflight(&builder, "mem.addr", vec![integer(1)]);
     let _ = lower_prepared_raw_function_preflight_with_port_v1(
@@ -378,7 +383,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         &mut port,
         inactive_fastmem,
     );
-    assert_eq!(port.expression_count, 3);
+    assert_eq!(port.expression_count, 1);
 
     builder.push_fastmem_region(FastMemRegionId::new(8));
     let unknown_fastmem = PreparedRawFunctionPreflightV1::prepare(
@@ -393,7 +398,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
     )
     .unwrap_err();
     assert!(error.contains("[fastmem/forbidden_call]"));
-    assert_eq!(port.expression_count, 3);
+    assert_eq!(port.expression_count, 1);
 
     let wrong_arity = PreparedRawFunctionPreflightV1::prepare(
         &builder,
@@ -404,7 +409,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, wrong_arity)
             .unwrap_err();
     assert!(error.contains("[fastmem/arity] call=mem.addr expected=1 actual=2"));
-    assert_eq!(port.expression_count, 3);
+    assert_eq!(port.expression_count, 1);
 }
 
 #[test]

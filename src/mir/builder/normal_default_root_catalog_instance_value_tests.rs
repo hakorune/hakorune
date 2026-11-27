@@ -107,7 +107,7 @@ fn nullable_receiver_call_rejects_concrete_non_i64_local_argument() {
     let source = callable_source(
         r#"
 box Probe {
-    init { v }
+    v: i64
     birth(v) { me.v = v }
     fetch(flag) {
         if flag == 0 {
@@ -137,14 +137,9 @@ static box Main {
             NormalRuntimeInputSnapshotV1::empty(),
         )
         .expect_err("a Bool actual must not establish an integer comparison domain");
-    assert!(
-        rejected
-            .error()
-            .to_string()
-            .contains("ordinary-new/borrowed-compare/integer-source-unproved"),
-        "unexpected rejection: {}",
-        rejected.error()
-    );
+    let error = rejected.error().to_string();
+    assert!(error.contains("[ordinary-new/borrowed-instance/opaque-source-unsupported]"), "{error}");
+    assert!(error.contains("ordinal=0 actual=Scalar(") && error.contains("Bool"), "{error}");
     rejected.discard();
 }
 
@@ -155,41 +150,30 @@ static box Main {
 #[test]
 fn nullable_result_into_unsupported_new_stays_unavailable() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source(
-        r#"
-box OwMoveHolder {
-    v: i64
-    birth(v) {
-        me.v = v
-        me.v = v
+    let text = r#"
+box Token {}
+box Holder {
+    child: Token?
+    birth(t) { me.child = t me.child = t }
+}
+box Maker {
+    birth() {}
+    make(flag: i64) {
+        if flag == 0 { return null }
+        return new Token()
     }
 }
-box OwMoveProbe {
-    v: i64
-    birth(v) { me.v = v }
-    fetch(flag) {
-        if flag == 0 {
-            return null
-        }
-        return new OwMoveProbe(7)
-    }
-    run(flag: i64) {
-        local h = me.fetch(flag)
-        if h == null {
-            return new OwMoveHolder(0)
-        }
-        return new OwMoveHolder(h)
-    }
-}
-static box OwMoveMain {
+static box Main {
     main() {
-        local p = new OwMoveProbe(1)
-        return p.run(0)
+        local m = new Maker()
+        local h = m.make(1)
+        if h == null { return 0 }
+        local w = new Holder(h)
+        return 0
     }
 }
-"#,
-        ParserBuildConfig::default(),
-    );
+"#;
+    let source = callable_source(text, ParserBuildConfig::default());
     let rejected = session()
         .complete_normal_default_program_root_catalog_lifecycle(
             source,
@@ -201,11 +185,29 @@ static box OwMoveMain {
         rejected
             .error()
             .to_string()
-            .contains("IncompleteOrdinaryNewCoverage"),
+            .contains("[nullable-field-initialization/duplicate-write] field=child"),
         "unexpected rejection: {}",
         rejected.error()
     );
     rejected.discard();
+
+    // The raw path can retain the ordinary-store refusal. It must not
+    // become a physical constructor contract when publishing the artifact.
+    let source = callable_source(
+        &text.replace("child: Token?", "child: Token"),
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("ordinary store diagnostic remains available on the raw module");
+    let (_, module, validate) = completed.into_artifact_parts();
+    let refusal = validate(&module).unwrap_err();
+    assert!(refusal.contains("[ordinary-new/local-commit/artifact-source-unavailable]")
+        && refusal.contains("Unavailable(NewEmissionUnavailable)"), "{refusal}");
 }
 
 /// `local r = pool.allocate(8)` — a claim-local lexical receiver call

@@ -317,27 +317,33 @@ fn borrowed_nullable_result_lexical_call_publishes_checked_release() {
 fn borrowed_nullable_result_rejects_mixed_and_unproved_returns() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (label, callee, token) in [
+        for (label, callee, consumer, token, cause) in [
             (
                 "mixed",
                 "check(p) { if p > me.limit { return null } return 1 }",
-                "source-class-mixed",
+                "return 0",
+                "[ordinary-new/local-commit/artifact-source-unavailable]",
+                "PrefixNotCovered",
             ),
             (
                 "string-return",
                 "check(p) { return \"s\" }",
-                "source-not-i64",
+                "if h == null { return 1 } return 0",
+                "[mir/callable-semantic-package/port]",
+                "IncompleteOrdinaryNewCoverage",
             ),
             (
                 "bool-return",
                 "check(p) { return true }",
-                "artifact-source-unavailable",
+                "return 0",
+                "[ordinary-new/local-commit/artifact-source-unavailable]",
+                "TerminalHomesUnavailable",
             ),
         ] {
             let text = format!(
                 "box Item {{ id: i64 serial: i64 birth(id, serial) {{ me.id = id me.serial = serial }} }} \
                 box Store {{ limit: i64 birth() {{ me.limit = 10 }} {callee} }} \
-                static box Main {{ main() {{ local s = new Store() local h = s.check(5) return 0 }} }}",
+                static box Main {{ main() {{ local s = new Store() local h = s.check(5) {consumer} }} }}",
             );
             let error = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
@@ -347,7 +353,7 @@ fn borrowed_nullable_result_rejects_mixed_and_unproved_returns() {
                 })
                 .err()
                 .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
-            assert!(error.contains(token), "{label}: {error}");
+            assert!(error.contains(token) && error.contains(cause), "{label}: {error}");
         }
     });
 }

@@ -287,18 +287,14 @@ mod tests {
             dst: ValueId::new(12),
             value: ConstValue::Integer(0),
         });
-        body.add_instruction(MirInstruction::LegacyCallV0 {
+        body.add_instruction(MirInstruction::ArrayElementWrite {
+            site_id: crate::mir::ArrayWriteSiteId(0),
             dst: Some(ValueId::new(20)),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Method {
-                box_name: "ArrayBox".to_string(),
-                method: "set".to_string(),
-                receiver: Some(ValueId::new(10)),
-                certainty: TypeCertainty::Known,
-                box_kind: CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![ValueId::new(12), ValueId::new(12)],
-            effects: EffectMask::PURE,
+            kind: crate::mir::ArrayElementWriteKind::Set,
+            producer: crate::mir::ArrayWriteProducerKind::MethodCall,
+            receiver: ValueId::new(10),
+            index: Some(ValueId::new(12)),
+            value: ValueId::new(12),
         });
         function.add_block(body);
         function

@@ -513,8 +513,25 @@ fn unified_array_get_success_retains_collection_annotation() {
     )
     .unwrap();
 
-    assert_eq!(call_count(&builder), 1);
-    assert_eq!(transient_type(&builder, dst), Some(MirType::Integer));
+    assert_eq!(call_count(&builder), 0);
+    let reads: Vec<_> = all_instructions(&builder)
+        .filter_map(|row| match row {
+            MirInstruction::ArrayRead {
+                dst,
+                receiver,
+                operation: crate::mir::instruction::ArrayReadOperationV1::Element { index },
+                ..
+            } => Some((*dst, *receiver, *index)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(reads, [(Some(dst), receiver, index)]);
+    assert_eq!(
+        transient_type(&builder, receiver),
+        Some(MirType::Array(Box::new(MirType::Integer)))
+    );
+    assert_eq!(transient_type(&builder, dst), Some(MirType::Unknown));
+    assert_eq!(metadata_type(&builder, dst), Some(MirType::Unknown));
 }
 
 #[test]

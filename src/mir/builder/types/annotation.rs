@@ -213,7 +213,11 @@ mod tests {
             infer_return_type("StringBox.startsWith/1"),
             Some(MirType::Bool)
         );
-        assert_eq!(infer_return_type("StringBox.substring/1"), None);
+        assert_eq!(
+            infer_return_type("StringBox.substring/1"),
+            Some(MirType::String)
+        );
+        assert_eq!(infer_return_type("StringBox.substring/3"), None);
         assert_eq!(
             infer_return_type("ArrayBox.length/0"),
             Some(MirType::Integer)

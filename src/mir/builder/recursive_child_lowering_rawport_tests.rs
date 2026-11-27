@@ -377,10 +377,26 @@ fn raw_invocation_port_preserves_call_and_from_children() {
             arguments: vec![add(int(5), int(6))],
             span: Span::unknown(),
         };
-        drive_rooted(builder, &mut port, from).unwrap();
-        assert!(instructions(builder)
+        let result = drive_rooted(builder, &mut port, from).unwrap();
+        let rows = instructions(builder);
+        let call = rows
             .iter()
-            .any(|row| matches!(row, MirInstruction::LegacyCallV0 { .. })));
+            .find_map(|row| match row {
+                MirInstruction::Call(call) if call.dst == Some(result) => Some(call),
+                _ => None,
+            })
+            .expect("the from expression emits its call");
+        let crate::mir::Callee::Method { method, .. } = &call.callee else {
+            panic!("expected a method call, got {:?}", call.callee);
+        };
+        assert_eq!(method, "build");
+        let [argument] = call.args.as_slice() else {
+            panic!("expected one argument, got {:?}", call.args);
+        };
+        assert!(rows.iter().any(|row| matches!(
+            row,
+            MirInstruction::BinOp { dst, op: crate::mir::BinaryOp::Add, .. } if dst == argument
+        )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }

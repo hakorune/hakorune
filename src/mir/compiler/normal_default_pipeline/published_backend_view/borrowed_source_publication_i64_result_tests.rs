@@ -35,8 +35,7 @@ fn unannotated_borrowed_i64_result_publishes_call_forms() {
                     // boundary, independent of an app's unused import closure.
                     let refusal = crate::runner::mir_json_emit::emit_published_view_body(view)
                         .expect_err("object lifecycle is outside the generic JSON profile");
-                    assert!(refusal.contains("[mir-json/canonical-transport/")
-                        && refusal.contains("outside-profile"), "{refusal}");
+                    assert_eq!(refusal, "unsupported terminator Invoke");
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                     let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
