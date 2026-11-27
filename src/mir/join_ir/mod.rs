@@ -16,10 +16,6 @@
 //! - 最小限の命令セット
 //! - Debug 出力で妥当性確認
 //!
-//! Phase 27.9: Modular Structure
-//! - Type definitions and common utilities in this file
-//! - Lowering functions in `lowering/` submodule
-
 use std::collections::BTreeMap;
 
 use crate::mir::ValueId;

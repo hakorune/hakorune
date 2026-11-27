@@ -123,9 +123,7 @@ pub fn with_env_vars<R>(updates: &[(&'static str, Option<&str>)], f: impl FnOnce
 pub const METHODIZE_SELECTOR_UNSET: [(&'static str, Option<&'static str>); 1] =
     [("HAKO_MIR_BUILDER_METHODIZE", None)];
 
-/// JoinIR mode keys read by GenericLoop facts extraction and loop lowering
-/// paths.  This is the single owner of the key list; the mode presets below
-/// are derived from it so separate pin lists cannot drift.
+/// JoinIR environment keys pinned by source-lowering tests.
 pub const JOINIR_MODE_KEYS: [&'static str; 6] = [
     "NYASH_JOINIR_DEV",
     "HAKO_JOINIR_PLANNER_REQUIRED",
@@ -136,25 +134,13 @@ pub const JOINIR_MODE_KEYS: [&'static str; 6] = [
 ];
 
 /// `JOINIR_MODE_KEYS` cleared for a default-mode pin.  Tests that drive a
-/// lowering path pin all six keys so a concurrent strict/planner_required
-/// window (e.g. `with_default_and_strict_modes`) cannot flip the observed
-/// route mid-run.
+/// lowering path pin all six keys so a concurrent strict configuration
+/// cannot change the observed result mid-run.
 pub const JOINIR_DEFAULT_MODE: [(&'static str, Option<&'static str>); 6] = [
     (JOINIR_MODE_KEYS[0], None),
     (JOINIR_MODE_KEYS[1], None),
     (JOINIR_MODE_KEYS[2], None),
     (JOINIR_MODE_KEYS[3], None),
-    (JOINIR_MODE_KEYS[4], None),
-    (JOINIR_MODE_KEYS[5], None),
-];
-
-/// `JOINIR_MODE_KEYS` pinned to strict + planner_required with debug keys
-/// cleared.
-pub const JOINIR_STRICT_PLANNER_MODE: [(&'static str, Option<&'static str>); 6] = [
-    (JOINIR_MODE_KEYS[0], Some("1")),
-    (JOINIR_MODE_KEYS[1], Some("1")),
-    (JOINIR_MODE_KEYS[2], Some("1")),
-    (JOINIR_MODE_KEYS[3], Some("1")),
     (JOINIR_MODE_KEYS[4], None),
     (JOINIR_MODE_KEYS[5], None),
 ];
