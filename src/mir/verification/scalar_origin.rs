@@ -70,7 +70,7 @@ impl<'geometry, 'module> FinishedI64OriginsV1<'geometry, 'module> {
         }
         query.origin(value)
     }
-    fn check_function(&self) -> Result<(), Vec<VerificationError>> {
+    pub(super) fn check_function(&self) -> Result<(), Vec<VerificationError>> {
         let geometry = self.geometry;
         let function = geometry.as_function();
         if !function.blocks.contains_key(&function.entry_block) {

@@ -19,13 +19,16 @@ of `x: T`; normative type semantics remain in `docs/reference/language/types.md`
 | Box field write | verifier proof or runtime guard | `ExactNumericBoxFieldContract` | dynamic guard capability required |
 | parameter entry | runtime checked | `FunctionEntryContractOwner` | final callee, before binding/effects |
 | return exit | runtime checked | `FunctionReturnContractOwner` | final outcome, before caller publication |
-| local init/reassignment | runtime checked | `LocalSlotContractOwner` | `LocalContractWrite`, before publication |
+| local init/reassignment | per-write verified `i64` or runtime checked | `LocalSlotContractOwner` | `LocalContractWrite`, before publication |
 | record construction/update | exact-numeric fields runtime checked | `RecordValueContractOwner` | field check before `RecordValuePublish` |
 
 All five families are rebuilt and validated by
 `semantic_refresh::refresh_and_validate_for_boundary`. Runtime-check elision is
-not active for parameter, return, or local contracts. Unsupported backends
-must reject before effects.
+not active for parameter or return contracts. Selected static and lifecycle
+artifacts may elide an individual `i64` local write's check with a fresh
+proof over its source producers in the finished MIR. The canonical write
+still carries the runtime check. Unsupported backends must reject before
+effects.
 
 ## Check Timing and Scope
 
