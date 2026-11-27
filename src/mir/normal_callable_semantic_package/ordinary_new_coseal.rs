@@ -18,6 +18,17 @@ use std::{
     rc::Rc,
 };
 
+// The source projection is extended while input cohorts are finishing, then
+// replaced by the checked result at the same exact source sites.
+#[derive(Debug)]
+enum StaticLocalSourceSelectionV1 {
+    Pending(BTreeSet<OwnedExprSiteV1>),
+    Sealed {
+        sites: BTreeMap<OwnedExprSiteV1, Result<Option<Rc<super::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1>>, String>>,
+        root_routes: BTreeMap<FunctionOwnerIdV1, Result<(), String>>,
+    },
+}
+
 pub(crate) use self::birth_abi_handoff::BirthAbiHandoffV1;
 use super::instance_constructor_semantic::{
     InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
@@ -389,7 +400,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // cannot consume it until their separate verified loan slices.
     selected_loop_products: coseal_issue::SelectedLoopProductV1,
     // The existing source dispatch projection retains per-site error scope.
-    borrowed_static_source_sites: Option<Result<BTreeSet<OwnedExprSiteV1>, String>>,
+    borrowed_static_source_sites: Option<Result<StaticLocalSourceSelectionV1, String>>,
     borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,
     // Existing formal values joined to the borrowed source projection. This
     // correspondence does not install a carrier or authorize a backend.

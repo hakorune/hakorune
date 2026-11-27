@@ -1,5 +1,16 @@
 //! Packet selection is final incoming + actuals + original Completion, not inventory alone.
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StaticLocalSourceSelectionV1;
+
+fn reseal(ledger: &mut OrdinaryNewClaimLedgerV1) {
+    if let Some(Ok(StaticLocalSourceSelectionV1::Sealed { sites: rows, .. })) = &ledger.borrowed_static_source_sites {
+        ledger.borrowed_static_source_sites = Some(Ok(StaticLocalSourceSelectionV1::Pending(
+            rows.keys().cloned().collect(),
+        )));
+    }
+    ledger.seal_static_local_sources_v1();
+}
+
 const TEXT: &str = "static box Layout { pick(p) { return 0 } } box Heap { lookup(size) { local k = Layout.pick(size) return 0 } } static box Main { main() { local heap = new Heap() local k = heap.lookup(7) local a = Layout.pick(8) return 0 } }";
 fn package() -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1
 {
@@ -183,6 +194,7 @@ fn current_owner_one_input_packet_requires_original_completed_cohort() {
     let actuals = ledger.borrowed_formal_actuals.get_mut(original.call_site()).unwrap().as_mut().unwrap();
     let ordered = actuals.ordered_arguments[0].clone();
     actuals.ordered_arguments[0] = crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(10);
+    reseal(ledger);
     assert!(ledger.checked_completed_static_forwarded_actuals_v1(&original).is_err());
     assert!(ledger.borrowed_static_packet_actuals_v1(&original).is_err());
     ledger.borrowed_formal_actuals.get_mut(original.call_site()).unwrap().as_mut().unwrap().ordered_arguments[0] = ordered;
@@ -322,6 +334,7 @@ fn static_packet_selection_refuses_missing_and_rejected_callee_completion() {
         } else {
             ledger.completion_index.remove(&owner);
         }
+        reseal(ledger);
         assert!(ledger
             .selected_static_local_source_v1(&site)
             .unwrap_err()
@@ -333,16 +346,10 @@ fn static_packet_selection_refuses_missing_and_rejected_callee_completion() {
 fn static_packet_physical_selector_preserves_original_error_demand_scope() {
     let mut package = package();
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-    let selected = ledger
-        .borrowed_static_source_sites
-        .as_ref()
-        .unwrap()
-        .as_ref()
-        .unwrap()
-        .iter()
-        .next()
-        .unwrap()
-        .clone();
+    let Some(Ok(StaticLocalSourceSelectionV1::Sealed { sites: rows, .. })) = &ledger.borrowed_static_source_sites else {
+        panic!("sealed source selection");
+    };
+    let selected = rows.keys().next().unwrap().clone();
     let sibling = ledger
         .borrowed_formal_source
         .as_ref()
@@ -359,6 +366,7 @@ fn static_packet_physical_selector_preserves_original_error_demand_scope() {
         .call
         .clone();
     ledger.borrowed_formal_source = Some(Err("physical-ingress-sentinel".into()));
+    reseal(ledger);
     assert!(ledger
         .selected_static_local_source_v1(&sibling)
         .unwrap()
@@ -373,7 +381,7 @@ fn static_packet_physical_selector_preserves_original_error_demand_scope() {
     assert!(!ledger
         .has_routed_static_local_for_owner_v1(selected.owner())
         .unwrap());
-    ledger.borrowed_static_source_sites = Some(Ok(std::collections::BTreeSet::new()));
+    ledger.borrowed_static_source_sites = Some(Ok(StaticLocalSourceSelectionV1::Sealed { sites: BTreeMap::new(), root_routes: BTreeMap::new() }));
     assert!(ledger
         .selected_static_local_source_v1(&selected)
         .unwrap()
@@ -415,6 +423,7 @@ fn static_packet_lender_rejects_same_shape_scalar_actual_drift() {
     ));
     actuals.ordered_arguments[1] =
         crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(10);
+    reseal(ledger);
     assert!(ledger
         .selected_static_local_source_v1(&site)
         .unwrap_err()
@@ -444,6 +453,7 @@ fn static_packet_route_preflight_refuses_partial_marking_on_missing_completion()
         .callee;
     ledger.lifecycle_local_call_sites.borrow_mut().clear();
     ledger.completion_index.remove(&owner);
+    reseal(ledger);
     assert!(ledger
         .co_seal_static_local_routes_v1()
         .unwrap_err()

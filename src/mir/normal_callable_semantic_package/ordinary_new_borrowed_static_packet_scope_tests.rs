@@ -341,6 +341,7 @@ fn static_execution_scope_preserves_unrelated_object_source_integrity() {
             };
             assert!(error.contains(expected), "mutation {mutation}: {error}");
             ledger.lifecycle_local_call_sites.borrow_mut().clear();
+            super::reseal(ledger);
             assert!(ledger.co_seal_static_local_routes_v1().is_err());
             assert!(
                 ledger.lifecycle_local_call_sites.borrow().is_empty(),

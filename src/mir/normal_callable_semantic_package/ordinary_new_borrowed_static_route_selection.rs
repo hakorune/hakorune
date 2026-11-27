@@ -1,5 +1,6 @@
 //! Route selection for Static local calls: which original Static sites take the local route,
 //! and the co-seal that registers their lifecycle sites. Membership grants no executable packet.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StaticLocalSourceSelectionV1;
 use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalRouteWriterV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
@@ -39,24 +40,42 @@ impl OrdinaryNewClaimLedgerV1 {
                 sites.push(row.call.clone());
             }
         }
-        if let Some(Ok(selected)) = self.borrowed_static_source_sites.as_mut() {
+        if let Some(Ok(StaticLocalSourceSelectionV1::Pending(selected))) = self.borrowed_static_source_sites.as_mut() {
             selected.extend(sites);
         }
         Ok(())
     }
 
-    /// Final borrowed incoming or a completed original input cohort selects
-    /// this protocol. Membership alone grants no executable packet.
+    /// Check each selected source once, after input closure and before any
+    /// root or builder consumer. A pending source's refusal stays scoped to
+    /// its site until a consumer demands it.
+    pub(in crate::mir::normal_callable_semantic_package) fn seal_static_local_sources_v1(&mut self) {
+        let Some(Ok(StaticLocalSourceSelectionV1::Pending(sites))) = self.borrowed_static_source_sites.as_ref() else {
+            return;
+        };
+        let sealed = sites.iter().map(|site| (site.clone(), self.check_static_local_source_v1(site))).collect();
+        self.borrowed_static_source_sites = Some(Ok(StaticLocalSourceSelectionV1::Sealed { sites: sealed, root_routes: BTreeMap::new() }));
+    }
+
     pub(crate) fn selected_static_local_source_v1(
         &self,
         site: &OwnedExprSiteV1,
     ) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
-        let Some(selection) = self.borrowed_static_source_sites.as_ref() else {
-            return Ok(None);
-        };
-        if !selection.as_ref().map_err(Clone::clone)?.contains(site) {
-            return Ok(None);
+        match self.borrowed_static_source_sites.as_ref() {
+            None => Ok(None),
+            Some(Err(error)) => Err(error.clone()),
+            Some(Ok(StaticLocalSourceSelectionV1::Sealed { sites, .. })) => {
+                sites.get(site).cloned().unwrap_or(Ok(None))
+            }
+            Some(Ok(StaticLocalSourceSelectionV1::Pending(sites))) if !sites.contains(site) => Ok(None),
+            Some(Ok(StaticLocalSourceSelectionV1::Pending(_))) => Err(freeze("borrowed-static/local-route-not-sealed")),
         }
+    }
+
+    fn check_static_local_source_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
         let source = self
             .borrowed_formal_source
             .as_ref()
@@ -137,7 +156,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Co-seal the original selected Static local edges before emission.
     /// Validate ready cohorts before marking.
     pub(in crate::mir::normal_callable_semantic_package) fn co_seal_static_local_routes_v1(
-        &self,
+        &mut self,
     ) -> Result<(), String> {
         let Some(source) = self.borrowed_formal_source.as_ref() else {
             return Ok(());
@@ -161,6 +180,8 @@ impl OrdinaryNewClaimLedgerV1 {
             )?.ok_or_else(|| freeze("borrowed-static/source-unavailable"))?;
             Ok(true)
         };
+        let mut root_routes = BTreeMap::new();
+        let mut deferred_root_checks = Vec::new();
         let mut routed = std::collections::BTreeSet::new(); // a call can sit in several rows: route it once
         for row in &source.incoming {
             let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
@@ -168,7 +189,10 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 continue;
             };
-            if passive_arguments(original)? { continue; }
+            if passive_arguments(original)? {
+                deferred_root_checks.push(&row.call);
+                continue;
+            }
             if original.qualified_scalar_result_v1().is_none()
                 && self
                     .checked_completed_static_forwarded_actuals_v1(original)?
@@ -183,7 +207,10 @@ impl OrdinaryNewClaimLedgerV1 {
         for cohort in source.target_static.values() {
             for row in &cohort.incoming {
                 if let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source {
-                    if passive_arguments(original)? { continue; }
+                    if passive_arguments(original)? {
+                        deferred_root_checks.push(&row.call);
+                        continue;
+                    }
                 }
                 self.selected_static_local_source_v1(&row.call)?
                     .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
@@ -213,69 +240,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 routed.insert(row.call.clone());
             }
         }
-        for site in routed {
-            self.record_lifecycle_local_call_site(site, LocalRouteWriterV1::StaticPacket)?;
+        for site in &routed {
+            root_routes.insert(site.owner(), Ok(()));
         }
-        Ok(())
-    }
-
-    /// Select the existing ordinary root route only from original final
-    /// Static incoming membership and the already co-sealed lifecycle sites.
-    pub(crate) fn has_routed_static_local_for_owner_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> Result<bool, String> {
-        let Some(source) = self.borrowed_formal_source.as_ref() else {
-            return Ok(false);
-        };
-        let Ok(source) = source.as_ref() else {
-            return Ok(false);
-        };
-        let routed = self.lifecycle_local_call_sites.borrow();
-        let mut found = false;
-        for row in source
-            .incoming
-            .iter()
-            .filter(|row| row.call.owner() == owner)
-        {
-            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
-                &row.source
-            else {
-                continue;
-            };
-            if original.qualified_scalar_result_v1().is_none()
-                && self
-                    .checked_completed_static_forwarded_actuals_v1(original)?
-                    .is_none()
-            {
-                continue;
-            }
-            self.selected_static_local_source_v1(&row.call)?
-                .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
-            if !routed.is_local(&row.call) {
-                return Err(freeze("borrowed-static/local-route-not-sealed"));
-            }
-            found = true;
-        }
-        for cohort in source.target_static.values() {
-            for row in cohort
-                .incoming
-                .iter()
-                .filter(|row| row.call.owner() == owner)
-            {
-                self.selected_static_local_source_v1(&row.call)?
-                    .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
-                if !routed.is_local(&row.call) {
-                    return Err(freeze("borrowed-static/local-route-not-sealed"));
-                }
-                found = true;
-            }
-        }
-        // An exact-i64 Static call standing as an expression value (argument,
-        // operand, condition, printed or returned value) is realized by its
-        // checked argument frame and needs no local route row; its owner still
-        // selects the ordinary root route.
-        for row in source.source_incoming.source_rows_v1().filter(|row| row.call.owner() == owner) {
+        // A qualified scalar expression is owned by its argument frame, so
+        // selecting the ordinary root does not require a local packet.
+        for row in source.source_incoming.source_rows_v1() {
             if let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source {
                 if original.qualified_scalar_result_v1().is_some()
                     && crate::mir::resolved_value_profile::expression_position::CallExecutorV1::at(row.call.site()).is_argument_frame()
@@ -283,38 +253,41 @@ impl OrdinaryNewClaimLedgerV1 {
                         == CallableParameterContractKindV1::ExactTrivial(
                             crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64))
                 {
-                    found = true;
+                    root_routes.insert(row.call.owner(), Ok(()));
                 }
             }
         }
-        for (row, legacy) in source
-            .source_incoming
-            .exact_rows().map(|row| (row, true))
-            .chain(source.source_incoming.source_rows_with_legacy_v1().filter(|(_, legacy)| !legacy))
-            .filter(|(row, _)| row.call.owner() == owner)
-        {
-            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
-                &row.source
-            else {
-                continue;
-            };
-            let applies = self.is_static_expression_input_owner_v1(source, original.callee_owner());
-            if !legacy && !applies {
-                continue;
-            }
-            let completed_input = applies && self.checked_completed_static_expression_input_v1(original)?.is_some();
-            if (completed_input
-                || self
-                    .checked_static_scalar_packet_actuals_v1(original)?
-                    .is_some())
-                && routed.is_local(&row.call)
-            {
-                self.selected_static_local_source_v1(&row.call)?
-                    .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
-                found = true;
+        for site in deferred_root_checks {
+            let check = self.selected_static_local_source_v1(site)
+                .and_then(|source| source.ok_or_else(|| freeze("borrowed-static/local-route-source-missing")))
+                .and_then(|_| {
+                    (routed.contains(site) || self.lifecycle_local_call_sites.borrow().is_local(site))
+                        .then_some(())
+                        .ok_or_else(|| freeze("borrowed-static/local-route-not-sealed"))
+                });
+            if let Err(error) = check {
+                let row = root_routes.entry(site.owner()).or_insert(Ok(()));
+                if row.is_ok() { *row = Err(error); }
             }
         }
-        Ok(found)
+        let mut routes = self.lifecycle_local_call_sites.borrow().clone();
+        for site in routed {
+            routes.route_local(site, LocalRouteWriterV1::StaticPacket)?;
+        }
+        *self.lifecycle_local_call_sites.get_mut() = routes;
+        if let Some(Ok(StaticLocalSourceSelectionV1::Sealed { root_routes: target, .. })) = &mut self.borrowed_static_source_sites {
+            *target = root_routes;
+        }
+        Ok(())
     }
 
+    pub(crate) fn has_routed_static_local_for_owner_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<bool, String> {
+        let Some(Ok(StaticLocalSourceSelectionV1::Sealed { root_routes, .. })) = &self.borrowed_static_source_sites else {
+            return Ok(false);
+        };
+        root_routes.get(&owner).cloned().transpose().map(|route| route.is_some())
+    }
 }

@@ -5,6 +5,7 @@
 //! ledger and completion-seed cohort.  No admission shape is decided here
 //! beyond what the sealed inputs already carry.
 
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::StaticLocalSourceSelectionV1;
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
@@ -679,7 +680,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .retain_source_dynamic_member_calls_v1(dynamic_source_calls)
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
     ledger.lexical_source_targets = Some(lexical_source_targets);
-    ledger.borrowed_static_source_sites = Some(static_source_sites);
+    ledger.borrowed_static_source_sites = Some(static_source_sites.map(
+        StaticLocalSourceSelectionV1::Pending,
+    ));
     ledger.selected_loop_products = selected_loop_products;
     ledger.install_borrowed_formal_preparation_v1(
         borrowed_formal_source,
