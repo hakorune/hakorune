@@ -667,7 +667,6 @@ pub(crate) use lexical_instance_call::{
 };
 
 pub(crate) use lexical_instance_call::BorrowedFormalEntryReadRequirementV1;
-pub(crate) use lexical_instance_call::BorrowedTextEntryReadRequirementV1;
 
 pub(crate) use local_commit::{
     displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,

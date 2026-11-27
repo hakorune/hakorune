@@ -13,7 +13,7 @@ pub(crate) enum CheckedExpressionReferenceV1 {
     StaticText(super::super::StaticTextReadV1),
     Residence(super::initializer_expression::TextResidenceReadV1),
     LoopText(super::super::LoopTextReadV1),
-    ArgumentEntry(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
+    ArgumentEntry(crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1),
     DynamicEntry(crate::mir::normal_callable_semantic_package::DynamicEntryReadV1),
     LoopDynamic(super::super::LoopDynamicReadV1),
     FiniteEntry {

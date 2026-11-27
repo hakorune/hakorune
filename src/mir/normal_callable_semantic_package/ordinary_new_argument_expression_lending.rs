@@ -543,7 +543,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
     read: &crate::mir::resolved_semantics::SourceExprSiteV1,
     binding: BindingRefV1,
     root: BindingRefV1,
-) -> Result<crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1, String>
+) -> Result<crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1, String>
 {
     let ExpressionPlanRootV1::CallArgument { ordinal, call, .. } = loan.plan().root() else {
         return Err(freeze("borrowed-text-entry/source-identity"));
@@ -587,7 +587,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_field_array_text_en
     read: &crate::mir::resolved_semantics::SourceExprSiteV1,
     binding: BindingRefV1,
     root: BindingRefV1,
-) -> Result<crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1, String>
+) -> Result<crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1, String>
 {
     let reject = || freeze("borrowed-text-entry/source-identity");
     let Some(method) = source.append_method() else {
@@ -673,7 +673,7 @@ fn lend_core_text_entry_receiver_read_v1(
         crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1,
     >,
 ) -> Result<
-    Option<crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1>,
+    Option<crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1>,
     String,
 > {
     use crate::mir::resolved_semantics::{

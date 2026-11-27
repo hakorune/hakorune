@@ -684,5 +684,4 @@ pub(super) use borrowed_formal_entry::original_borrowed_instance_input_completio
 
 pub(crate) use borrowed_formal_actuals::{ArgumentExpressionSourceLoanV1, DynamicEntryReadV1, FiniteEntryReadV1};
 
-pub(crate) use borrowed_formal_entry::BorrowedTextEntryReadRequirementV1;
 pub(crate) use borrowed_formal_entry::BorrowedFormalEntryReadRequirementV1;

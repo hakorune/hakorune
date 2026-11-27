@@ -29,9 +29,6 @@ impl BorrowedFormalEntryReadRequirementV1 {
     pub(crate) fn formal(&self) -> (u32, BindingRefV1) { (self.ordinal, self.formal) }
 }
 
-/// Compatibility name for the existing Text-only consumer. The underlying
-/// loan proves original formal identity; each consumer applies its own domain.
-pub(crate) type BorrowedTextEntryReadRequirementV1 = BorrowedFormalEntryReadRequirementV1;
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn issue_formal_entry_read_requirement_v1(
     contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
@@ -64,7 +61,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, read: &SourceExprSiteV1,
     binding: BindingRefV1, root: BindingRefV1,
     original: super::super::borrowed_formal_uses::OriginalFormalReadLoanV1,
-) -> Result<BorrowedTextEntryReadRequirementV1, String> {
+) -> Result<BorrowedFormalEntryReadRequirementV1, String> {
     issue_formal_entry_read_requirement_v1(contracts, plan, read, binding, root, original)
 }
 
@@ -138,7 +135,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// This lends only a ValueId correspondence, not a String operand, entry
     /// completion, backend marker or original-use coverage/publication proof.
     pub(in crate::mir) fn validate_prepared_text_entry_read_v1(
-        &self, requirement: &BorrowedTextEntryReadRequirementV1,
+        &self, requirement: &BorrowedFormalEntryReadRequirementV1,
         function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<crate::mir::ValueId, String> {
         let (_, value, domain) = self.validate_prepared_finite_entry_read_v1(requirement, function, read)?;
@@ -149,7 +146,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Original finite domain is preserved independently of a purpose's view.
     /// Keep formal and current values distinct: an alias may have a real Copy.
     pub(in crate::mir) fn validate_prepared_finite_entry_read_v1(
-        &self, requirement: &BorrowedTextEntryReadRequirementV1,
+        &self, requirement: &BorrowedFormalEntryReadRequirementV1,
         function: &crate::mir::MirFunction, read: &crate::mir::builder::ExactLexicalReadV1,
     ) -> Result<(crate::mir::ValueId, crate::mir::ValueId, Rc<super::super::borrowed_formal_source::SourceValueSumV1>), String> {
         use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;

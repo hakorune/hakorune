@@ -316,7 +316,6 @@ pub(crate) use ordinary_new_coseal::{
 };
 
 pub(crate) use ordinary_new_coseal::BorrowedFormalEntryReadRequirementV1;
-pub(crate) use ordinary_new_coseal::BorrowedTextEntryReadRequirementV1;
 
 pub(crate) use ordinary_new_coseal::{
     displaced_replacement_fault_sequences_v2, fault_indices_after_normal_step_v2,

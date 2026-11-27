@@ -140,7 +140,7 @@ pub(crate) enum BorrowedCallArgumentsV1 {
     },
     FiniteEntryRead(crate::mir::normal_callable_semantic_package::FiniteEntryReadV1),
     DynamicEntryRead(crate::mir::normal_callable_semantic_package::DynamicEntryReadV1),
-    TextEntryRead(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
+    TextEntryRead(crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1),
     ArgumentExpressionSource(
         crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1,
     ),

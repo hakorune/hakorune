@@ -410,7 +410,7 @@ pub(super) fn reference_operand(
     }
 }
 pub(super) fn prepare_entry(
-    required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
+    required: &crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1,
     initializer: Option<&crate::mir::normal_callable_semantic_package::FiniteEntryReadV1>,
     read: &ExactLexicalReadV1,
     context: CallValidationContextV1<'_>,
@@ -471,7 +471,7 @@ pub(super) fn prepare_dynamic_entry(
     Ok(entry)
 }
 pub(super) fn text_entry_operand(
-    required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
+    required: &crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1,
     read: &ExactLexicalReadV1,
     producer: &ReferenceProducerV1,
     context: CallValidationContextV1<'_>,
@@ -479,7 +479,7 @@ pub(super) fn text_entry_operand(
     entry_value(required, read, producer, context).map(Operand::BorrowedText)
 }
 pub(super) fn entry_value(
-    required: &crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1,
+    required: &crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1,
     read: &ExactLexicalReadV1,
     producer: &ReferenceProducerV1,
     context: CallValidationContextV1<'_>,

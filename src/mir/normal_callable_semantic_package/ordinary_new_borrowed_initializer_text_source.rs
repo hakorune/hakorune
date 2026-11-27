@@ -3,7 +3,7 @@ use super::super::super::borrowed_formal_source::{SourceValueAlternativeV1, Sour
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1;
+use crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1;
 use crate::mir::resolved_semantics::source_value_flow::{
     SourceValueRefV1, VerifiedSourceValueFlowV1,
 };
@@ -14,7 +14,7 @@ use crate::mir::resolved_value_profile::expression_plan::{
 
 #[derive(Debug, Clone)]
 pub(crate) struct FiniteEntryReadV1 {
-    requirement: BorrowedTextEntryReadRequirementV1,
+    requirement: BorrowedFormalEntryReadRequirementV1,
     sum: Rc<SourceValueSumV1>,
     flow: std::sync::Arc<VerifiedSourceValueFlowV1>,
     value: SourceValueRefV1,
@@ -37,7 +37,7 @@ impl PartialEq for FiniteEntryReadV1 {
 }
 impl Eq for FiniteEntryReadV1 {}
 impl FiniteEntryReadV1 {
-    pub(crate) fn requirement(&self) -> &BorrowedTextEntryReadRequirementV1 {
+    pub(crate) fn requirement(&self) -> &BorrowedFormalEntryReadRequirementV1 {
         &self.requirement
     }
     pub(crate) fn null_compare_v1(&self) -> Option<&OwnedExprSiteV1> {
