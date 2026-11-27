@@ -335,7 +335,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("implicit-exit/producer-actual-drift"));
             }
             for group in local_bindings {
-                group.validate_recorded_in_context(context, function, projection)?;
+                if projection.is_none() || context.is_finalized() || group.is_rebound() {
+                    group.validate_recorded_in_context(context, function, projection)?;
+                }
                 group.check_physical_bindings_v1(function, projection)?;
             }
         }

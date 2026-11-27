@@ -320,7 +320,7 @@ impl FinalizedRootSourceHandoffV1 {
                             entry,
                         )?;
                     }
-                    for group in entry.local_call_groups() {
+                    for group in entry.local_call_groups().iter().filter(|group| group.is_rebound()) {
                         group.validate_recorded_in_context(
                             CallValidationContextV1::Finalized(self),
                             function,

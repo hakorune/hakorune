@@ -33,7 +33,6 @@ impl ExpressionEmissionV1<Rc<CheckedPrintExpressionFrameV1>> {
         packet.root_fault = None; // Print has no borrowed Return-root boundary.
         let context = CallValidationContextV1::Lowering(ledger);
         packet.validate_source(context)?;
-        packet.validate_recorded(&packet.original, None)?;
         let covered = packet.validate_paths_after_source(context, function, None)?;
         packet.validate_original_scope(ledger, function, &covered)?;
         Ok(packet)

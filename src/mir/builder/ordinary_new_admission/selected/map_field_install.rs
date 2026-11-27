@@ -61,11 +61,6 @@ pub(in crate::mir::builder) fn emit(
         continuation.ok_or_else(|| freeze("expression/fault-frame-required"))?,
         body.bindings,
         ledger,
-        builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or_else(|| freeze("no-function"))?,
     )?;
     let operation = prepared.operation(
         CallValidationContextV1::Lowering(ledger),

@@ -49,7 +49,14 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         self.seal_physical_observations_v1(owner)?;
         self.main_arguments_bindings_v1(function)?;
-        self.validate_owner_body(owner, function, None, false)?;
+        {
+            let _source_scope = self.branch_source_scope_v1(owner);
+            let _physical_scope = self.physical_validation_scope_v1(function, None, false);
+            self.validate_terminal_unit_return(owner, function)?;
+            self.validate_root_home_exit(owner, function, None)?;
+            self.validate_field_reads(owner, function)?;
+            self.validate_terminal_scalar_literal_return_projected(owner, function, None)?;
+        }
         let observation = self.finalized_root_observation(owner);
         self.validate_root_cleanup_shape(owner, function)?;
         let bindings = self.lifecycle_bindings(owner)?;
@@ -114,7 +121,7 @@ impl OrdinaryNewClaimLedgerV1 {
             boundary.validate_complete(function, &mut projection, &bindings)?;
             let _physical_scope =
                 self.physical_validation_scope_v1(function, Some(&projection), false);
-            self.validate_owner_body(owner, function, Some(&projection), true)?;
+            self.validate_owner_body(owner, function, &projection, true)?;
             self.validate_finished_operations_v1(owner, function, &projection, true)?;
             if artifact {
                 // Children share the root's inadmissibility contract: a
@@ -165,49 +172,27 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
-        projection: Option<&super::physical_boundary::FinishedBindings>,
+        projection: &super::physical_boundary::FinishedBindings,
         child: bool,
     ) -> Result<(), String> {
         let _source_scope = self.branch_source_scope_v1(owner);
-        let _physical_scope = self.physical_validation_scope_v1(function, projection, false);
-        self.validate_new_emissions(owner, function, projection)?;
+        self.validate_new_emissions(owner, function, Some(projection))?;
         if !child {
             self.validate_terminal_unit_return(owner, function)?;
-            self.validate_root_home_exit(owner, function, projection)?;
+            self.validate_root_home_exit(owner, function, Some(projection))?;
         }
         self.validate_field_reads_with_projection_v1(
             owner,
             function,
             CallValidationContextV1::Lowering(self),
-            projection,
-            |binding| match projection {
-                Some(projection) => projection.binding(binding.0, &binding.1),
-                None => Ok(Some(binding.clone())),
-            },
-            |copy| match projection {
-                Some(projection) => projection
-                    .borrowed_copy_coordinate(function, copy)
-                    .map(|_| ()),
-                None => {
-                    if function
-                        .blocks
-                        .values()
-                        .flat_map(|block| block.all_instructions())
-                        .filter(|i| *i == &copy.1)
-                        .count()
-                        == 1
-                    {
-                        Ok(())
-                    } else {
-                        Err(freeze("alias/finished-copy-missing-or-duplicate"))
-                    }
-                }
-            },
+            Some(projection),
+            |binding| projection.binding(binding.0, &binding.1),
+            |copy| projection.borrowed_copy_coordinate(function, copy).map(|_| ()),
         )?;
 
-        self.validate_terminal_scalar_literal_return_projected(owner, function, projection)?;
+        self.validate_terminal_scalar_literal_return_projected(owner, function, Some(projection))?;
         if child {
-            self.validate_root_home_exit(owner, function, projection)?;
+            self.validate_root_home_exit(owner, function, Some(projection))?;
         }
 
         Ok(())
@@ -271,7 +256,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut projection = boundary.project(function)?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
         let _physical_scope = self.physical_validation_scope_v1(function, Some(&projection), false);
-        self.validate_owner_body(owner, function, Some(&projection), false)?;
+        self.validate_owner_body(owner, function, &projection, false)?;
         self.main_arguments_projected_bindings_v1(function, |original| {
             projection.required_recorded_binding(original, "main-arguments")
         })?;

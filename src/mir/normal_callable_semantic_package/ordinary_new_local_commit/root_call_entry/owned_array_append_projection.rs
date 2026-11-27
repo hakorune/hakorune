@@ -82,7 +82,6 @@ impl EmittedOwnedArrayAppendV1 {
             continuation,
             original,
         };
-        packet.validate_recorded(&packet.original, None)?;
         packet.check_raw_v1(ledger, function)?;
         Ok(packet)
     }
@@ -302,7 +301,6 @@ impl EmittedOwnedArrayAppendV1 {
                     Some(projection) => projection.bindings(&self.original)?,
                     None => self.original.clone(),
                 };
-                packet.validate_expression_recorded_v1(&inventory, projection)?;
                 packet.validate_expression_physical_v1(
                     context, function, projection, &inventory, projection,
                 )?;

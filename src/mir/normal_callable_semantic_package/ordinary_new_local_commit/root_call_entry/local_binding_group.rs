@@ -614,17 +614,14 @@ impl RootLifecyclePrefixBindingGroupV1 {
         }
         Ok(())
     }
-    pub(super) fn new_bool_pending(
-        packet: Rc<EmittedBoolConditionProjectionV1>,
-    ) -> Result<Self, String> {
-        packet.validate_prefix_recorded(packet.prefix())?;
+    pub(super) fn new_bool_pending(packet: Rc<EmittedBoolConditionProjectionV1>) -> Self {
         let source = packet.frame().source();
-        Ok(Self {
+        Self {
             site: OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone()),
             bindings: Rc::from(packet.prefix()),
             proof: PrefixPhysicalProofV1::BoolCondition(packet),
             projected: false,
-        })
+        }
     }
 
     pub(in crate::mir) fn owned_array_append(
@@ -682,6 +679,15 @@ impl RootLifecyclePrefixBindingGroupV1 {
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         let coordinates = if self.projected { finishing } else { None };
+        // The original list is checked before the affine move. Finalized
+        // consumes its independent path proof and checks new rebound lists.
+        let check_record = |validate: &dyn Fn() -> Result<(), String>| {
+            if self.projected || !context.is_finalized() {
+                validate()
+            } else {
+                Ok(())
+            }
+        };
         if let Some(home) = self.text_residence_v1() {
             context
                 .ledger()
@@ -703,7 +709,9 @@ impl RootLifecyclePrefixBindingGroupV1 {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Rebind(
                 packet,
             )) => {
-                packet.validate_recorded(&self.bindings, coordinates)?;
+                if self.projected {
+                    packet.validate_recorded(&self.bindings, coordinates)?;
+                }
                 packet
                     .validate_paths(context, function, finishing)
                     .map(drop)
@@ -711,17 +719,19 @@ impl RootLifecyclePrefixBindingGroupV1 {
             PrefixPhysicalProofV1::EvaluatedBinding(EvaluatedBindingProjectionV1::Initializer(
                 packet,
             )) => {
-                packet.validate_recorded(&self.bindings, coordinates)?;
+                if self.projected {
+                    packet.validate_recorded(&self.bindings, coordinates)?;
+                }
                 packet
                     .validate_paths(context, function, finishing)
                     .map(drop)
             }
             PrefixPhysicalProofV1::BorrowedFieldWrite(packet) => {
-                packet.validate_recorded(&self.bindings, coordinates)?;
+                check_record(&|| packet.validate_recorded(&self.bindings, coordinates))?;
                 packet.validate_paths(context, function, finishing)
             }
             PrefixPhysicalProofV1::Call(Some(packet)) => {
-                packet.validate_recorded_projected(&self.bindings, coordinates)?;
+                check_record(&|| packet.validate_recorded_projected(&self.bindings, coordinates))?;
                 packet
                     .validate_expression_arguments_v1(
                         context,
@@ -734,11 +744,11 @@ impl RootLifecyclePrefixBindingGroupV1 {
             }
             PrefixPhysicalProofV1::Call(None) => Ok(()),
             PrefixPhysicalProofV1::FieldMapInstall(packet) => {
-                packet.validate_recorded(&self.bindings, coordinates)?;
+                check_record(&|| packet.validate_recorded(&self.bindings, coordinates))?;
                 packet.validate_paths(context, function, finishing)
             }
             PrefixPhysicalProofV1::StoredMapGet(packet) => {
-                packet.validate_recorded(&self.bindings, coordinates)?;
+                check_record(&|| packet.validate_recorded(&self.bindings, coordinates))?;
                 packet.validate_paths(context, function, finishing)
             }
             PrefixPhysicalProofV1::DirectScalar(packet) => {
@@ -748,20 +758,24 @@ impl RootLifecyclePrefixBindingGroupV1 {
                 packet.validate_recorded(&self.bindings, context, function, coordinates, finishing)
             }
             PrefixPhysicalProofV1::PrintExpression(packet) => {
-                packet.validate_recorded(&self.bindings, coordinates)?;
+                check_record(&|| packet.validate_recorded(&self.bindings, coordinates))?;
                 packet
                     .validate_paths_in_context(context, function, finishing)
                     .map(drop)
             }
             PrefixPhysicalProofV1::FieldArrayAppend(packet) => {
-                packet.validate_recorded(self.bindings(), coordinates)?;
+                check_record(&|| packet.validate_recorded(self.bindings(), coordinates))?;
                 packet.validate_paths(context, function, finishing)
             }
             PrefixPhysicalProofV1::OwnedArrayAppend(packet) => {
-                packet.validate_recorded(&self.bindings, coordinates)?;
+                check_record(&|| packet.validate_recorded(&self.bindings, coordinates))?;
                 packet.validate_paths_in_context(context, function, finishing)
             }
         }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn is_rebound(&self) -> bool {
+        self.projected
     }
 
     // Only flat bindings are rebound. The shared original packet remains
