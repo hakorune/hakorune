@@ -5,6 +5,25 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 use std::rc::Rc;
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// A borrowed Return extends only a complete finite source cohort.
+    /// Existing scalar and tagged input protocols keep their original uses.
+    pub(in crate::mir::normal_callable_semantic_package) fn can_extend_static_return_v1(
+        &self,
+        original: &StaticIncomingSourceV1,
+    ) -> bool {
+        let owner = original.callee_owner();
+        let parameters = original.parameters();
+        parameters.iter().any(|formal| formal.kind == CallableParameterContractKindV1::OpaqueHandle)
+            && !self.has_tagged_static_input_v1(owner, parameters)
+            && !self.is_scalar_only_static_input_v1(owner)
+            && original.required_i64_arguments().iter().all(|ordinal| {
+                parameters.get(*ordinal as usize).is_some_and(|formal| formal.kind.is_i64_actual_v1())
+            })
+            && self.lend_original_input_sums_v1(parameters).is_some_and(|sums| {
+                sums.iter().all(|sum| sum.finite_input())
+            })
+    }
+
     /// A source forwarding purpose into the existing finite Text input family.
     /// The caller keeps its own SUM; this lends no Text view or executable input.
     pub(in crate::mir::normal_callable_semantic_package) fn original_finite_forward_input_request_v1(
