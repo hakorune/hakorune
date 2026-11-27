@@ -269,15 +269,10 @@ impl FinalizedRootSourceHandoffV1 {
                                 return Err(freeze("finished-initializer-home/source-owner"));
                             }
                             group.validate_recorded_in_context(CallValidationContextV1::Finalized(self), function, Some(projection))?;
-                            self.ledger.validate_dynamic_carrier_residence_home_v1(
-                                &packet,
-                                CallValidationContextV1::Finalized(self),
-                            )?;
                         }
                         let Some(packet) = group.text_residence_v1() else { continue };
                         if packet.owner() != owner { return Err(freeze("finished-initializer-home/source-owner")); }
                         group.validate_recorded_in_context(CallValidationContextV1::Finalized(self), function, Some(projection))?;
-                        self.ledger.validate_text_residence_home_v1(&packet, CallValidationContextV1::Finalized(self))?;
                         let original = packet.install_binding().ok_or_else(|| freeze("finished-initializer-home/install-missing"))?;
                         let finished = projection.binding(original.0, &original.1)?
                             .ok_or_else(|| freeze("finished-initializer-home/install-removed"))?;

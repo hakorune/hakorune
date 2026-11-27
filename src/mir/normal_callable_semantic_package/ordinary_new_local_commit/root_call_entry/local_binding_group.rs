@@ -686,6 +686,8 @@ impl RootLifecyclePrefixBindingGroupV1 {
             context
                 .ledger()
                 .validate_text_residence_home_v1(&home, context)?;
+        } else if let Some(home) = self.dynamic_carrier_residence_v1() {
+            context.ledger().validate_dynamic_carrier_residence_home_v1(&home, context)?;
         }
         match &self.proof {
             PrefixPhysicalProofV1::SharedInitializer(packet) => {

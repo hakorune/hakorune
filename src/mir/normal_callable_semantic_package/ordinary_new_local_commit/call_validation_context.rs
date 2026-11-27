@@ -374,14 +374,11 @@ impl<'a> CallValidationContextV1<'a> {
         let rows = self.ledger().local_commits.borrow();
         let home =
             crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1::Text(acquisition.clone());
-        let LocalCommitV1::TextResidence(packet) = installed_source_home(&rows, &home)
-            .map_err(|_| freeze("expression/residence-published-home"))?
-        else {
-            return Err(freeze("expression/residence-published-home"));
-        };
-        self.ledger()
-            .validate_text_residence_home_v1(packet, self)?;
-        Ok(packet.clone())
+        installed_source_home(&rows, &home)
+            .map_err(|_| freeze("expression/residence-published-home"))?;
+        let source = acquisition.source();
+        let site = OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone());
+        self.ledger().published_text_residence_v1(&site, self)
     }
 
     pub(in crate::mir) fn ledger(self) -> &'a OrdinaryNewClaimLedgerV1 {

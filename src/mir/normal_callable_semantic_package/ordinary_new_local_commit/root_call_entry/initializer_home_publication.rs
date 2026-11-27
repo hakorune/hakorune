@@ -112,13 +112,13 @@ pub(super) fn commit(prepared: PreparedLifecyclePrefixBindingGroupV1<'_>) -> Res
     if let (Some(packet), Some(homes)) = (home, &mut homes) {
         homes.insert(
             prepared.group.site().clone(),
-            LocalCommitV1::TextResidence(packet),
+            LocalCommitV1::TextResidence(packet.published_home_v1()),
         );
     }
     if let (Some(packet), Some(homes)) = (dynamic_carrier, &mut homes) {
         homes.insert(
             prepared.group.site().clone(),
-            LocalCommitV1::DynamicCarrierResidence(packet),
+            LocalCommitV1::DynamicCarrierResidence(packet.published_home_v1()),
         );
     }
     if let (Some(packet), Some(homes)) = (shared, &mut homes) {
@@ -152,66 +152,72 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(operations.into_iter().next())
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn validate_text_residence_home_v1(
+    fn published_expression_home_v1<T>(
         &self,
-        packet: &TextResidencePacketV1,
+        site: &OwnedExprSiteV1,
         context: CallValidationContextV1<'_>,
-    ) -> Result<(), String> {
+        project: impl Fn(&RootLifecyclePrefixBindingGroupV1) -> Option<T>,
+        matches_home: impl Fn(&LocalCommitV1, &T) -> bool,
+        home_error: &str,
+        prefix_error: &str,
+    ) -> Result<T, String> {
         context.require_ledger(self)?;
-        let site = packet.site();
         let rows = self.local_commits.borrow();
-        if !packet.has_text_home()
-            || !matches!(rows.get(&site), Some(LocalCommitV1::TextResidence(original))
-            if original.same_packet(packet))
-        {
-            return Err(freeze("text-residence/published-home-identity"));
-        }
+        let installed = rows.get(site).ok_or_else(|| freeze(home_error))?;
         context.with_local_call_group_tree_v2(site.owner(), |groups| {
-            if groups
-                .iter()
-                .filter_map(|group| group.text_residence_v1())
-                .filter(|original| original.same_packet(packet))
-                .count()
-                != 1
-            {
-                return Err(freeze("text-residence/published-prefix-identity"));
-            }
-            Ok(())
-        })?;
+            let mut matches = groups.iter().filter(|group| group.site() == site).filter_map(project);
+            let packet = matches.next().ok_or_else(|| freeze(prefix_error))?;
+            if matches.next().is_some() { return Err(freeze(prefix_error)); }
+            if !matches_home(installed, &packet) { return Err(freeze(home_error)); }
+            Ok(packet)
+        })
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn published_text_residence_v1(
+        &self, site: &OwnedExprSiteV1, context: CallValidationContextV1<'_>,
+    ) -> Result<TextResidencePacketV1, String> {
+        self.published_expression_home_v1(
+            site, context, RootLifecyclePrefixBindingGroupV1::text_residence_v1,
+            |row, packet| matches!(row, LocalCommitV1::TextResidence(home)
+                if packet.has_text_home() && *home == packet.published_home_v1()),
+            "text-residence/published-home-identity",
+            "text-residence/published-prefix-identity",
+        )
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn published_dynamic_residence_v1(
+        &self, site: &OwnedExprSiteV1, context: CallValidationContextV1<'_>,
+    ) -> Result<DynamicCarrierResidencePacketV1, String> {
+        self.published_expression_home_v1(
+            site, context, RootLifecyclePrefixBindingGroupV1::dynamic_carrier_residence_v1,
+            |row, packet| matches!(row, LocalCommitV1::DynamicCarrierResidence(home)
+                if packet.has_dynamic_carrier() && *home == packet.published_home_v1()),
+            "dynamic-carrier-residence/published-home-identity",
+            "dynamic-carrier-residence/published-prefix-identity",
+        )
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_text_residence_home_v1(
+        &self, packet: &TextResidencePacketV1, context: CallValidationContextV1<'_>,
+    ) -> Result<(), String> {
+        if !self.published_text_residence_v1(&packet.site(), context)?.same_packet(packet) {
+            return Err(freeze("text-residence/published-prefix-identity"));
+        }
         Ok(())
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn validate_dynamic_carrier_residence_home_v1(
-        &self,
-        packet: &DynamicCarrierResidencePacketV1,
-        context: CallValidationContextV1<'_>,
+        &self, packet: &DynamicCarrierResidencePacketV1, context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
-        context.require_ledger(self)?;
         if !packet.has_dynamic_carrier() {
             return Err(freeze("dynamic-carrier-residence/source-unavailable"));
         }
-        let rows = self.local_commits.borrow();
-        if !matches!(rows.get(&packet.site()), Some(LocalCommitV1::DynamicCarrierResidence(original))
-            if original.same_packet(packet))
-        {
-            return Err(freeze("dynamic-carrier-residence/published-home-identity"));
+        if !self.published_dynamic_residence_v1(&packet.site(), context)?.same_packet(packet) {
+            return Err(freeze("dynamic-carrier-residence/published-prefix-identity"));
         }
-        context.with_local_call_group_tree_v2(packet.owner(), |groups| {
-            if groups
-                .iter()
-                .filter_map(|group| group.dynamic_carrier_residence_v1())
-                .filter(|original| original.same_packet(packet))
-                .count()
-                != 1
-            {
-                return Err(freeze(
-                    "dynamic-carrier-residence/published-prefix-identity",
-                ));
-            }
-            Ok(())
-        })?;
         Ok(())
     }
+
 }
 
 impl OrdinaryNewClaimLedgerV1 {

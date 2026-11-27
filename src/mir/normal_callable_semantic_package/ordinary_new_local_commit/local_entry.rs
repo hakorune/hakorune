@@ -17,6 +17,26 @@ pub(in crate::mir::normal_callable_semantic_package) struct SharedLocalCommitV1 
     pub(super) bindings: Vec<(BasicBlockId, MirInstruction)>,
 }
 
+/// Installed binding and exact source identity. The prefix owns the
+/// ExpressionEmission; this row supplies Home lookup and cleanup operands.
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::normal_callable_semantic_package) struct PublishedExpressionHomeV1 {
+    binding: BindingRefV1,
+    declaration: Option<SourceBindingSiteV1>,
+    local: ValueId,
+    value: ValueId,
+    text: Option<crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1>,
+}
+
+impl PublishedExpressionHomeV1 {
+    pub(super) fn matches_text_v1(
+        &self,
+        acquisition: &crate::mir::resolved_semantics::home_new_prefix::TextResidenceAcquisitionV1,
+    ) -> bool {
+        self.text.as_ref().is_some_and(|original| original.same_source(acquisition))
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) enum LocalCommitV1 {
     Ordinary(NewLocalCommitV1),
@@ -24,8 +44,8 @@ pub(in crate::mir::normal_callable_semantic_package) enum LocalCommitV1 {
     Map(MapLocalProgress),
     OwnedArray(OwnedArrayLocalProgress),
     CallReceived(CallReceivedCommitV1),
-    TextResidence(TextResidencePacketV1),
-    DynamicCarrierResidence(DynamicCarrierResidencePacketV1),
+    TextResidence(PublishedExpressionHomeV1),
+    DynamicCarrierResidence(PublishedExpressionHomeV1),
     Shared(std::rc::Rc<SharedLocalCommitV1>),
 }
 impl LocalCommitV1 {
@@ -143,8 +163,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.binding,
             Self::CallReceived(row) => Some(row.binding),
             Self::OwnedArray(row) => Some(row.binding()),
-            Self::TextResidence(row) => Some(row.binding()),
-            Self::DynamicCarrierResidence(row) => Some(row.binding()),
+            Self::TextResidence(row) | Self::DynamicCarrierResidence(row) => Some(row.binding),
             Self::Shared(row) => Some(row.binding),
         }
     }
@@ -155,8 +174,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.owner,
             Self::CallReceived(row) => row.owner,
             Self::OwnedArray(row) => row.owner(),
-            Self::TextResidence(row) => row.owner(),
-            Self::DynamicCarrierResidence(row) => row.owner(),
+            Self::TextResidence(row) | Self::DynamicCarrierResidence(row) => row.binding.owner(),
             Self::Shared(row) => row.binding.owner(),
         }
     }
@@ -167,8 +185,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.declaration.as_ref(),
             Self::CallReceived(row) => Some(&row.declaration),
             Self::OwnedArray(row) => Some(row.declaration()),
-            Self::TextResidence(row) => row.declaration(),
-            Self::DynamicCarrierResidence(row) => row.declaration(),
+            Self::TextResidence(row) | Self::DynamicCarrierResidence(row) => row.declaration.as_ref(),
             Self::Shared(row) => Some(&row.declaration),
         }
     }
@@ -179,8 +196,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.is_complete(),
             Self::CallReceived(row) => row.is_complete(),
             Self::OwnedArray(row) => row.is_complete(),
-            Self::TextResidence(row) => row.has_text_home(),
-            Self::DynamicCarrierResidence(row) => row.has_dynamic_carrier(),
+            Self::TextResidence(_) | Self::DynamicCarrierResidence(_) => true,
             Self::Shared(_) => true,
         }
     }
@@ -193,10 +209,7 @@ impl LocalCommitV1 {
             Self::Result(_) => false,
             Self::Map(row) => row.binding == Some(binding) && row.local().is_some(),
             Self::OwnedArray(row) => row.binding() == binding && row.local().is_some(),
-            Self::TextResidence(row) => row.has_text_home() && row.binding() == binding,
-            Self::DynamicCarrierResidence(row) => {
-                row.has_dynamic_carrier() && row.binding() == binding
-            }
+            Self::TextResidence(row) | Self::DynamicCarrierResidence(row) => row.binding == binding,
             Self::Shared(row) => row.binding == binding,
             Self::CallReceived(row) => row.binding == binding && row.local().is_some(),
         }
@@ -216,10 +229,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.local(),
             Self::CallReceived(row) => row.local(),
             Self::OwnedArray(row) => row.local(),
-            Self::TextResidence(row) => row.has_text_home().then_some(row.local_value()),
-            Self::DynamicCarrierResidence(row) => {
-                row.has_dynamic_carrier().then_some(row.local_value())
-            }
+            Self::TextResidence(row) | Self::DynamicCarrierResidence(row) => Some(row.local),
             Self::Shared(row) => Some(row.local),
         }
     }
@@ -235,8 +245,7 @@ impl LocalCommitV1 {
             Self::Map(row) => row.initializer(),
             Self::CallReceived(row) => row.initializer(),
             Self::OwnedArray(row) => row.initializer(),
-            Self::TextResidence(row) => row.has_text_home().then_some(row.value()),
-            Self::DynamicCarrierResidence(row) => row.has_dynamic_carrier().then_some(row.value()),
+            Self::TextResidence(row) | Self::DynamicCarrierResidence(row) => Some(row.value),
             Self::Shared(row) => Some(row.local),
         }
     }
@@ -295,8 +304,7 @@ impl LocalCommitV1 {
             Self::Result(_) => false,
             Self::Map(row) => row.local().is_some(),
             Self::OwnedArray(row) => row.local().is_some(),
-            Self::TextResidence(row) => row.has_text_home(),
-            Self::DynamicCarrierResidence(row) => row.has_dynamic_carrier(),
+            Self::TextResidence(_) | Self::DynamicCarrierResidence(_) => true,
             Self::Shared(_) => true,
             // The caller received an owned handle; it owes one release.
             // `Some(None)` children mean an owned object without residence
@@ -337,15 +345,15 @@ impl LocalCommitV1 {
             Self::CallReceived(row) => row.end_plan(),
             Self::OwnedArray(row) => row.end_plan(),
             Self::TextResidence(row) => Box::new([(
-                root_home::RootHomeReleaseSubjectV1::Binding(row.binding()),
+                root_home::RootHomeReleaseSubjectV1::Binding(row.binding),
                 InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End {
-                    value: row.local_value(),
+                    value: row.local,
                 }),
             )]),
             Self::DynamicCarrierResidence(row) => Box::new([(
-                root_home::RootHomeReleaseSubjectV1::Binding(row.binding()),
+                root_home::RootHomeReleaseSubjectV1::Binding(row.binding),
                 InvokeOperation::DynamicCarrierEnd {
-                    carrier: row.local_value(),
+                    carrier: row.local,
                 },
             )]),
             Self::Shared(row) => Box::new([(
@@ -404,29 +412,19 @@ impl OrdinaryNewClaimLedgerV1 {
         value: ValueId,
     ) -> Result<bool, String> {
         let rows = self.local_commits.borrow();
-        for row in rows.values() {
+        for (site, row) in rows.iter() {
+            if row.binding() != Some(binding) || row.local() != Some(value) {
+                continue;
+            }
+            let context = CallValidationContextV1::Lowering(self);
             match row {
-                LocalCommitV1::Map(map)
-                    if map.binding == Some(binding) && map.local() == Some(value) =>
-                {
-                    return Ok(true)
-                }
-                LocalCommitV1::TextResidence(packet)
-                    if packet.binding() == binding && packet.local_value() == value =>
-                {
-                    self.validate_text_residence_home_v1(
-                        packet,
-                        CallValidationContextV1::Lowering(self),
-                    )?;
+                LocalCommitV1::Map(_) => return Ok(true),
+                LocalCommitV1::TextResidence(_) => {
+                    self.published_text_residence_v1(site, context)?;
                     return Ok(true);
                 }
-                LocalCommitV1::DynamicCarrierResidence(packet)
-                    if packet.binding() == binding && packet.local_value() == value =>
-                {
-                    self.validate_dynamic_carrier_residence_home_v1(
-                        packet,
-                        CallValidationContextV1::Lowering(self),
-                    )?;
+                LocalCommitV1::DynamicCarrierResidence(_) => {
+                    self.published_dynamic_residence_v1(site, context)?;
                     return Ok(true);
                 }
                 _ => {}
@@ -506,6 +504,15 @@ impl TextResidencePacketV1 {
             Self::Rebind(packet) => packet.has_text_home(),
         }
     }
+    pub(super) fn published_home_v1(&self) -> PublishedExpressionHomeV1 {
+        PublishedExpressionHomeV1 {
+            binding: self.binding(),
+            declaration: self.declaration().cloned(),
+            local: self.local_value(),
+            value: self.value(),
+            text: Some(self.acquisition()),
+        }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn same_packet(
         &self,
         other: &Self,
@@ -568,6 +575,15 @@ impl DynamicCarrierResidencePacketV1 {
     }
     pub(in crate::mir::normal_callable_semantic_package) fn has_dynamic_carrier(&self) -> bool {
         self.initializer().has_dynamic_carrier()
+    }
+    pub(super) fn published_home_v1(&self) -> PublishedExpressionHomeV1 {
+        PublishedExpressionHomeV1 {
+            binding: self.binding(),
+            declaration: self.declaration().cloned(),
+            local: self.local_value(),
+            value: self.value(),
+            text: None,
+        }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn same_packet(
         &self,

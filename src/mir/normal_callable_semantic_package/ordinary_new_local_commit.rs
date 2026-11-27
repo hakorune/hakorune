@@ -493,7 +493,7 @@ pub(super) fn installed_source_home<'a>(
             let site = OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone());
             let row = rows.get(&site).ok_or(HomeLookupError::Missing)?;
             if !matches!(row, LocalCommitV1::TextResidence(packet)
-                if packet.acquisition().same_source(acquisition) && packet.has_text_home())
+                if packet.matches_text_v1(acquisition))
             {
                 return Err(HomeLookupError::Missing);
             }
