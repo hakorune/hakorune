@@ -529,9 +529,7 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .ok_or_else(reject)?;
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(reject)?;
+            .original_parameter_contracts.as_ref();
         let completion = self
             .completion_source_for_owner_v1(source.callee_owner())
             .ok_or_else(reject)?;

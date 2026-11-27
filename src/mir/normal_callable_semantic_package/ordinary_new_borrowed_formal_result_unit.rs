@@ -126,7 +126,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|(row, legacy)| !legacy && row.callee == owner && row.source.unit_discard_source_v1().is_some())
             .map(|(row, _)| row).collect();
         if !source_only.is_empty() {
-            let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
+            let catalog = self.original_parameter_contracts.as_ref();
             if Self::original_finite_instance_input_request_v1(ingress, catalog, owner)? { incoming.extend(source_only); }
         }
         for incoming in incoming {
@@ -181,7 +181,7 @@ impl OrdinaryNewClaimLedgerV1 {
             else { return Err(freeze("unit-call/original-source-missing")); };
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("unit-call/incoming-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let contracts = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
+        let contracts = self.original_parameter_contracts.as_ref();
         let incoming = Self::original_instance_input_call_v1(ingress, contracts, source.call_site())?
             .ok_or_else(|| freeze("unit-call/original-missing"))?;
         if incoming.callee != source.callee_owner()
@@ -258,7 +258,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.corroborate_unit_discard_v1(row)?;
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("unit-call/incoming-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("unit-call/original-contract-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let incoming = Self::original_instance_input_call_v1(ingress, catalog, row.call_site())?
             .ok_or_else(|| freeze("unit-call/original-missing"))?;
         Ok(incoming.source.constructor_unit_source_v1(row.source_target())?.cloned())

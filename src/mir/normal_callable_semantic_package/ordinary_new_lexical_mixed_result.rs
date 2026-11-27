@@ -50,7 +50,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let incoming = originals.next().ok_or_else(|| freeze("mixed-call/incoming-missing"))?;
         let observed = self.mixed_call_source_v1(source.call_site()).ok_or_else(|| freeze("mixed-call/observation-missing"))?;
         let (selected, signatures) = self.original_instance_input_issuance.as_ref().ok_or_else(|| freeze("mixed-call/input-issuance-missing"))?;
-        let contracts = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("mixed-call/catalog-missing"))?;
+        let contracts = self.original_parameter_contracts.as_ref();
         let arguments = self.checked_completed_original_instance_target_arguments_v1(source, selected, contracts, signatures)?
             .ok_or_else(|| freeze("mixed-call/input-incomplete"))?;
         let kind = InvokeCallResultKind::MixedHandle { formal_ordinal: loan.callee_ordinal() };

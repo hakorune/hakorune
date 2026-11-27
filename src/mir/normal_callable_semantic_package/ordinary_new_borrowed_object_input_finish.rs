@@ -39,14 +39,10 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         };
         let contract = self
-            .original_parameter_contracts
-            .as_deref()
-            .and_then(|catalog| catalog.for_owner(owner).next())
+            .original_parameter_contracts.as_ref().for_owner(owner).next()
             .ok_or_else(|| freeze("object-input/original-contract-missing"))?;
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let finite_input = Self::original_finite_instance_input_request_v1(source, catalog, owner)?;
         let owns_carrier = self.completion_source_for_owner_v1(owner)
             .zip(self.terminal_relation_index.get(&owner))
@@ -132,9 +128,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         if Self::original_finite_instance_input_request_v1(source, catalog, owner)? {
             Self::original_instance_input_calls_v1(source, catalog, owner)?;
             return Ok(true);
@@ -469,9 +463,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .as_ref()
                 .map_err(Clone::clone)?;
             let catalog = self
-                .original_parameter_contracts
-                .as_deref()
-                .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+                .original_parameter_contracts.as_ref();
             if self.original_unit_implicit_input_request_v1(ingress, catalog, completion)? {
                 match flow.implicit_exit() {
                     None => {
@@ -550,9 +542,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("object-input/contract-identity"));
         }
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let calls = match Self::original_instance_input_calls_v1(source, catalog, owner) {
             Ok(rows) => rows,
             Err(issue) => {
@@ -640,9 +630,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("object-input/original-actuals"));
                     }
                     let catalog = self
-                        .original_parameter_contracts
-                        .as_deref()
-                        .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+                        .original_parameter_contracts.as_ref();
                     let Some(regenerated) = object_source::reconstruct_object_source_actuals_v1(
                         source,
                         catalog,
@@ -662,9 +650,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     if kind == OriginalInstanceInputKindV1::QualifiedObject =>
                 {
                     let catalog = self
-                        .original_parameter_contracts
-                        .as_deref()
-                        .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+                        .original_parameter_contracts.as_ref();
                     object_source::recheck_object_source_actuals_v1(
                         source,
                         catalog,
@@ -679,9 +665,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     if kind == OriginalInstanceInputKindV1::SourceInstance =>
                 {
                     let catalog = self
-                        .original_parameter_contracts
-                        .as_deref()
-                        .ok_or_else(|| freeze("instance-input/original-catalog-missing"))?;
+                        .original_parameter_contracts.as_ref();
                     if !original.array_loans.is_empty() {
                         match self.prepare_original_array_producer_inputs_v1(
                             source, selected, signatures, original,
@@ -720,9 +704,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     if kind == OriginalInstanceInputKindV1::SourceInstance =>
                 {
                     let catalog = self
-                        .original_parameter_contracts
-                        .as_deref()
-                        .ok_or_else(|| freeze("instance-input/original-catalog-missing"))?;
+                        .original_parameter_contracts.as_ref();
                     instance_source::recheck_instance_source_actuals_v1(
                         source,
                         catalog,

@@ -42,8 +42,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(|issue| freeze(issue))?;
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-nullable-call/ingress-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-nullable-call/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let incoming = Self::original_instance_input_call_v1(ingress, catalog, source.call_site())?
             .ok_or_else(|| freeze("borrowed-nullable-call/incoming-missing"))?;
         let completion = self.completion_source_for_owner_v1(source.callee_owner())
@@ -91,8 +90,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some((class, object)) = loan.map_payload_v1() else {
             return Err(freeze("borrowed-nullable-call/source-completion-drift"));
         };
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-nullable-call/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-nullable-call/ingress-missing"))?
             .as_ref().map_err(Clone::clone)?;
         let producer = Self::original_instance_input_call_v1(ingress, catalog, loan.call())?

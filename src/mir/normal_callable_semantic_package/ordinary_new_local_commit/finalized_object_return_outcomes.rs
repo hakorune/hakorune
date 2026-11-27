@@ -335,7 +335,7 @@ impl FinalizedRootSourceHandoffV1 {
         let Some(crate::mir::resolved_semantics::BorrowedLifetimeAnchorV1::Entry { root, caller_support }) = borrowed.lifetime_anchor_v1() else { return Err(freeze("mixed-return/borrowed-support")); };
         if caller_support != outer_support { return Err(freeze("mixed-return/borrowed-support")); }
         if outer_support == crate::mir::instruction::BorrowedResultSupportV1::Receiver {
-            let mut contracts = self.ledger.original_parameter_contracts.as_deref().ok_or_else(|| freeze("mixed-return/borrowed-support"))?
+            let mut contracts = self.ledger.original_parameter_contracts.as_ref()
                 .iter().filter(|row| row.owner == owner);
             let contract = contracts.next().ok_or_else(|| freeze("mixed-return/borrowed-support"))?;
             if contracts.next().is_some() { return Err(freeze("mixed-return/borrowed-support")); }

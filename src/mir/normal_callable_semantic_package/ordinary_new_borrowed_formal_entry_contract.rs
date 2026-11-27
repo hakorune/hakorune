@@ -258,8 +258,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if uses.cover_exact_bool_static_return_reads_v1(contract.owner, contract.batch_slot,
                 incoming, &origins, &mut covered)? == Some(false) { input_use_pending!("bool-static-return") }
         }
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         use super::super::borrowed_formal_uses::BorrowedIncomingSourceV1;
         for observation in calls {
             let original = self.original_input_use_call_v1(structure.source, catalog, observation.site())?;
@@ -575,7 +574,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1, view: &BorrowedEntryOwnerViewV1<'_>, incoming: &BorrowedEntryActualsV1<'_>,
     ) -> Result<Box<[BorrowedFormalDomainV1]>, String> {
         use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 as Mode;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
@@ -621,7 +620,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     view.incoming.clone(), incoming)
             }
             EntryStructureEvidenceV1::OriginalInputs { uses, incoming, domains, tagged } => {
-                let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+                let catalog = self.original_parameter_contracts.as_ref();
                 let contract = catalog.for_owner(structure.owner).next()
                     .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
                 let complete = self.checked_input_use_source_v1(contract)?

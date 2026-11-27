@@ -638,7 +638,7 @@ fn object_packet_field_support_joins_original_callee_formal_and_actual_storage()
         changed[0].ordinal = 0;
         assert!(visit_actuals(&changed, &mut |_, _| Ok(())).is_err());
         changed = actuals.to_vec();
-        changed[0].formal = ledger.original_parameter_contracts.as_ref().unwrap().iter()
+        changed[0].formal = ledger.original_parameter_contracts.as_ref().iter()
             .find(|contract| contract.owner == target.callee_owner()).unwrap().parameters[0].binding;
         assert!(visit_actuals(&changed, &mut |_, _| Ok(())).is_err());
 

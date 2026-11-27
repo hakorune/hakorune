@@ -11,9 +11,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> Result<Option<OriginalInstanceInputKindV1>, String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let contract = contracts
             .next()
@@ -64,9 +62,7 @@ impl OrdinaryNewClaimLedgerV1 {
         contract: &OwnedCallableParameterContractDeclarationV1,
     ) -> Result<bool, String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut originals = catalog.for_owner(contract.owner);
         let original = originals
             .next()

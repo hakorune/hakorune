@@ -113,9 +113,7 @@ impl OrdinaryNewClaimLedgerV1 {
         elements: &[&ArrayElementSourceLoanV1],
     ) -> Result<TypedInputClosureV1, String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("array-producer-input/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut owners = std::collections::BTreeSet::new();
         let mut pending = false;
         let mut proposed = Vec::new();
@@ -340,9 +338,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .ok_or_else(|| freeze("array-lifecycle/original-issuance-missing"))?;
         let original_contracts = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("array-lifecycle/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         if !std::ptr::eq(selected, original_selected.as_ref())
             || !std::ptr::eq(contracts, original_contracts)
         {
@@ -358,9 +354,7 @@ impl OrdinaryNewClaimLedgerV1 {
         selected: &'a VerifiedSelectedCallableBatchMapV1,
     ) -> Result<&'a hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("array-lifecycle/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let contract = contracts
             .next()

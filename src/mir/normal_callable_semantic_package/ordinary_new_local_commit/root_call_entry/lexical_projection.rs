@@ -248,9 +248,8 @@ impl PreparedLexicalCallProjectionV1 {
                     (LexicalReceiverProjectionV1::Lexical(read), None) => {
                         if let Some(ledger) = ledger {
                             let binding = instance.receiver_binding()?;
-                            let formal = ledger.original_parameter_contracts.as_deref().is_some_and(|rows|
-                                rows.iter().any(|row| row.owner == owner
-                                    && row.parameters.iter().any(|formal| formal.binding == binding)));
+                            let formal = ledger.original_parameter_contracts.as_ref().iter().any(|row| row.owner == owner
+                                    && row.parameters.iter().any(|formal| formal.binding == binding));
                             if formal {
                                 if !ledger.prepared_entry_receiver_matches_source_v1(instance.source_target())? {
                                     return Err(freeze("lexical-terminal/receiver-arm-drift"));

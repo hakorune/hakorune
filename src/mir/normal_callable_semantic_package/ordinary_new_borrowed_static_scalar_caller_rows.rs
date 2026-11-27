@@ -404,9 +404,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         }
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("static-scalar/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut declarations = catalog.for_owner(owner);
         let declaration = declarations
             .next()

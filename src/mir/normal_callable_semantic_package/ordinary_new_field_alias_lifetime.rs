@@ -67,8 +67,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let ingress = self.borrowed_formal_source.as_ref()
             .ok_or_else(|| fault("alias/entry-root-empty"))?.as_ref().map_err(Clone::clone)?;
         if ingress.stored_local_new_root_v1(target)?.is_some() { return Ok(false); }
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| fault("alias/entry-root-empty"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let owner = target.call_site().owner();
         let mut rows = catalog.for_owner(owner);
         let Some(contract) = rows.next() else { return Ok(false) };
@@ -97,7 +96,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if original.instance_source() != Some(target) { return Ok(false); }
         let root = target.receiver_binding()?;
         let owner = target.call_site().owner();
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| fault("alias/entry-root-empty"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut rows = catalog.for_owner(owner);
         let Some(contract) = rows.next() else { return Ok(false); };
         if rows.next().is_some() || catalog.for_batch_slot(contract.batch_slot).count() != 1 {

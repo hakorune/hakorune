@@ -6,7 +6,7 @@ use super::*;
 /// during Object packet demand. This lends source membership, never a result.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_forwarding_instance_source_v1<'a>(
     source: &'a PreparedBorrowedFormalIngressV1,
-    catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<Option<&'a BorrowedFormalUsesDraftV1>, String> {
     if let Some(draft) = checked_guarded_instance_source_v1(source, catalog, owner)? {
@@ -45,8 +45,7 @@ impl OrdinaryNewClaimLedgerV1 {
             demanded = true;
         }
         if !demanded { return Ok(None); }
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-result-entry/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("borrowed-result-entry/contract-missing"))?;
         if contracts.next().is_some() { return Err(freeze("borrowed-result-entry/contract-duplicate")); }
@@ -123,7 +122,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
         checked_mixed_instance_entry_source_v1(
             source,
-            self.original_parameter_contracts.as_deref(),
+            self.original_parameter_contracts.as_ref(),
             owner,
         )
     }
@@ -138,9 +137,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("mixed-entry/nonempty-required"));
         }
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("mixed-entry/catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut rows = Vec::new();
         for original in &view.incoming {
             if original.callee != owner {
@@ -173,11 +170,10 @@ impl OrdinaryNewClaimLedgerV1 {
 /// It never selects a pending phase, reconstructs an actual, or admits a use.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_original_instance_parameter_frame_v1<'a>(
     source: &'a PreparedBorrowedFormalIngressV1,
-    catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
     let Some(definition) = source.source_definition_for(owner) else { return Ok(None); };
-    let catalog = catalog.ok_or_else(|| freeze("mixed-entry/catalog-missing"))?;
     let mut rows = catalog.for_owner(owner);
     let contract = rows.next().ok_or_else(|| freeze("mixed-entry/contract-missing"))?;
     if rows.next().is_some() { return Err(freeze("mixed-entry/contract-duplicate")); }
@@ -241,13 +237,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     'a,
 >(
     source: &'a PreparedBorrowedFormalIngressV1,
-    catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
+    catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<Option<BorrowedEntryOwnerViewV1<'a>>, String> {
     let Some(definition) = source.source_definition_for(owner) else {
         return Ok(None);
     };
-    let catalog = catalog.ok_or_else(|| freeze("mixed-entry/catalog-missing"))?;
     let mut rows = catalog.for_owner(owner);
     let contract = rows
         .next()
@@ -260,7 +255,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             || !contract.parameters.iter().any(|row| row.kind == CallableParameterContractKindV1::OpaqueHandle)
             || contract.parameters.iter().any(|row| !row.kind.is_ordinary_borrowed_handle())
         { return Ok(None); }
-    let Some(mut frame) = checked_original_instance_parameter_frame_v1(source, Some(catalog), owner)? else {
+    let Some(mut frame) = checked_original_instance_parameter_frame_v1(source, catalog, owner)? else {
         return Ok(None);
     };
     for formal in &contract.parameters {
@@ -333,9 +328,7 @@ impl OrdinaryNewClaimLedgerV1 {
         initial: Vec<&'a BorrowedIncomingCallDraftV1>,
     ) -> Result<Vec<&'a BorrowedIncomingCallDraftV1>, String> {
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("borrowed-static/original-catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut calls = initial;
         let mut owners = BTreeSet::from([owner]);
         loop {
@@ -388,7 +381,7 @@ impl PreparedBorrowedFormalIngressV1 {
         call: &OwnedExprSiteV1, ordinal: u32, site: &crate::mir::resolved_semantics::SourceExprSiteV1,
         binding: crate::mir::resolved_semantics::BindingRefV1, root: crate::mir::resolved_semantics::BindingRefV1,
     ) -> Result<Option<&super::super::super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>, String> {
-        let Some(view) = checked_mixed_instance_entry_source_v1(self, Some(catalog), call.owner())?
+        let Some(view) = checked_mixed_instance_entry_source_v1(self, catalog, call.owner())?
             else { return Ok(None); };
         let draft = view.definition;
         let mut originals = self.source_incoming.exact_rows().filter(|row| &row.call == call);
@@ -431,7 +424,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn ori
             .map_err(|issue| (call.call.clone(), issue))?.is_some()
             || super::super::super::borrowed_formal_actuals::original_core_argument_input_request_v1(source, catalog, &call.call)
                 .map_err(|issue| (call.call.clone(), issue))? {
-            return checked_original_instance_parameter_frame_v1(source, Some(catalog), owner)
+            return checked_original_instance_parameter_frame_v1(source, catalog, owner)
                 .map(|view| view.is_some()).map_err(|issue| (call.call.clone(), issue));
         }
     }
@@ -447,7 +440,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn ori
     }) else {
         return Ok(false);
     };
-    checked_mixed_instance_entry_source_v1(source, Some(catalog), owner)
+    checked_mixed_instance_entry_source_v1(source, catalog, owner)
         .map(|view| view.is_some())
         .map_err(|issue| (call.call.clone(), issue))
 }

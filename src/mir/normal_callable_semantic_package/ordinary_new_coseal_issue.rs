@@ -77,7 +77,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     >,
     app_main_source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
-    parameter_contracts: &super::super::model::OwnedCallableParameterContractsV1,
+    parameter_contracts: &Rc<super::super::model::OwnedCallableParameterContractsV1>,
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     dynamic: &mut super::super::model::NormalCallableDynamicProjectionV1,
     dynamic_source_calls: &[crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1],
@@ -673,6 +673,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         claims.into_boxed_slice(),
         result_claims.into_boxed_slice(),
         names,
+        Rc::clone(parameter_contracts),
     );
     ledger.original_object_sources = Some(Rc::clone(
         instance_constructors.original_object_sources_v1(),

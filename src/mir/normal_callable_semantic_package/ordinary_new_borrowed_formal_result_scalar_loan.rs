@@ -442,8 +442,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let source = self.borrowed_formal_source.as_ref()
             .ok_or_else(|| freeze("callable-scalar/source-missing"))?;
         let ingress = source.as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("object-input/original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let original = Self::original_instance_input_call_v1(ingress, catalog, site)?
             .ok_or_else(|| freeze("callable-scalar/anchor-missing"))?;
         let target = original.source.require_instance()?;
@@ -520,8 +519,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("callable-scalar/contract-missing"))?;
         if contracts.next().is_some() { return Err(freeze("callable-scalar/contract-duplicate")); }
@@ -586,8 +584,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let ingress = self.borrowed_formal_source.as_ref()
             .ok_or_else(|| freeze("callable-scalar/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let grounded = validation.grounded.get_or_init(||
             grounded_source_results_with_ingress_v1(&self.borrowed_i64_results, ingress));
         let mut pending = vec![(owner, None)];

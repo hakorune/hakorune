@@ -8,8 +8,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_object_input_parameter_frame_v1(
         &self, source: &PreparedBorrowedFormalIngressV1, owner: FunctionOwnerIdV1,
     ) -> Result<bool, String> {
-        if let Some(contract) = self.original_parameter_contracts.as_deref()
-            .and_then(|catalog| catalog.for_owner(owner).next())
+        if let Some(contract) = self.original_parameter_contracts.as_ref().for_owner(owner).next()
             .filter(|row| row.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod) {
             if let Some(structure) = self.finite_entry_for_owner_v1(owner)? {
                 if !std::ptr::eq(source, structure.source) { return Err(freeze("borrowed-entry/foreign-source-loan")); }
@@ -17,7 +16,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         Ok(super::super::owner_view::checked_original_instance_parameter_frame_v1(
-            source, self.original_parameter_contracts.as_deref(), owner)?.is_some())
+            source, self.original_parameter_contracts.as_ref(), owner)?.is_some())
     }
 
     /// Preparation borrows only original receiver identity and the installed
@@ -42,7 +41,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// remain unfulfilled; this is never an executable incoming projection.
     pub(super) fn finite_input_entry_structure_v1<'a>(
         source: &'a PreparedBorrowedFormalIngressV1,
-        catalog: Option<&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1>,
+        catalog: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractsV1,
         owner: FunctionOwnerIdV1,
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
         nominal_sibling_structure: bool,
@@ -346,7 +345,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(contract) = contracts.next() else { return Ok(false) };
         if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
         let parameters: Vec<_> = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-        Ok(Self::finite_input_entry_structure_v1(source, Some(catalog), owner, &parameters, false, true)?.is_some())
+        Ok(Self::finite_input_entry_structure_v1(source, catalog, owner, &parameters, false, true)?.is_some())
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_entry) fn finite_entry_for_owner_v1(
@@ -354,8 +353,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedEntryStructureV1<'_>>, String> {
         let source = self.borrowed_formal_source.as_ref()
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?.as_ref().map_err(Clone::clone)?;
-        let Some(contract) = self.original_parameter_contracts.as_deref()
-            .and_then(|rows| rows.iter().find(|row| row.owner == owner)) else { return Ok(None) };
+        let Some(contract) = self.original_parameter_contracts.as_ref().iter().find(|row| row.owner == owner) else { return Ok(None) };
         let parameters: Vec<_> = contract.parameters.iter()
             .map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
         self.selected_finite_input_entry_structure_v1(source, owner, &parameters)
@@ -369,7 +367,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedEntryStructureV1<'a>>, String> {
         let allow_tagged = self.allows_general_tagged_static_input_v1(source, owner);
         Self::finite_input_entry_structure_v1(
-            source, self.original_parameter_contracts.as_deref(), owner, parameters, true, allow_tagged,
+            source, self.original_parameter_contracts.as_ref(), owner, parameters, true, allow_tagged,
         )
     }
 

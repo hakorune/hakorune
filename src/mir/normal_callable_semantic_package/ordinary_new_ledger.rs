@@ -132,19 +132,6 @@ impl OrdinaryNewClaimLedgerV1 {
             .any(|site| site.owner() == owner)
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn retain_original_parameter_contracts_v1(
-        &mut self,
-        contracts: &Rc<super::super::model::OwnedCallableParameterContractsV1>,
-    ) -> Result<(), String> {
-        if self.original_parameter_contracts.is_some() {
-            return Err(
-                "[freeze:contract][ordinary-new/borrowed-entry/catalog-already-retained]"
-                    .to_owned(),
-            );
-        }
-        self.original_parameter_contracts = Some(Rc::clone(contracts));
-        Ok(())
-    }
 
     // Catch an unrepresentable declared Text parameter before lowering asks
     // for a Text ABI frame. Use only calls selected for Dynamic execution.
@@ -180,8 +167,8 @@ impl OrdinaryNewClaimLedgerV1 {
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn original_parameter_contracts_v1(
         &self,
-    ) -> Option<&Rc<super::super::model::OwnedCallableParameterContractsV1>> {
-        self.original_parameter_contracts.as_ref()
+    ) -> &Rc<super::super::model::OwnedCallableParameterContractsV1> {
+        &self.original_parameter_contracts
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn requires_map_lifecycle_consumer(
@@ -285,6 +272,7 @@ impl OrdinaryNewClaimLedgerV1 {
         claims: Box<[OrdinaryNewAdmissionClaimV1]>,
         result_claims: Box<[OrdinaryNewResultClaimV1]>,
         ordinary_box_names: Box<[Box<str>]>,
+        original_parameter_contracts: Rc<super::super::model::OwnedCallableParameterContractsV1>,
     ) -> Self {
         Self {
             claims: RefCell::new(
@@ -303,7 +291,7 @@ impl OrdinaryNewClaimLedgerV1 {
             ),
             ordinary_box_names,
             original_object_sources: None,
-            original_parameter_contracts: None,
+            original_parameter_contracts,
             original_instance_input_issuance: None,
             omitted_static_callers: None,
             array_holder_lifecycles: RefCell::new(BTreeMap::new()),

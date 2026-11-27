@@ -36,9 +36,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .as_ref()
                 .ok_or_else(|| freeze("borrowed-entry/original-issuance-missing"))?;
             let catalog = self
-                .original_parameter_contracts
-                .as_deref()
-                .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+                .original_parameter_contracts.as_ref();
             let first = view
                 .incoming
                 .first()

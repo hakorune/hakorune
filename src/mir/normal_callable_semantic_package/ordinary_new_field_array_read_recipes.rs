@@ -79,7 +79,7 @@ impl OrdinaryNewClaimLedgerV1 {
         source: Rc<super::super::CheckedFieldArrayAccessSourceV1>,
     ) -> Result<Rc<FieldArrayReadRecipeV1>, String> {
         let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| array_fault("read-original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| array_fault("read-original-contract-missing"))?;
         if contracts.next().is_some() { return Err(array_fault("read-original-contract-duplicate")); }
@@ -96,7 +96,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self, owner: FunctionOwnerIdV1,
     ) -> Result<Option<&CanonicalSameModuleCallableKeyV1>, String> {
         let (selected, _) = self.original_instance_input_issuance.as_ref().ok_or_else(|| array_fault("read-original-issuance-missing"))?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| array_fault("read-original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let Some(contract) = contracts.next() else { return Ok(None); };
         if contracts.next().is_some() { return Err(array_fault("read-original-contract-duplicate")); }
@@ -132,7 +132,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|source| source.map(Rc::new))
     }
     pub(in crate::mir::normal_callable_semantic_package) fn field_array_read_recipes_v1(&self) -> Result<Vec<Rc<FieldArrayReadRecipeV1>>, String> {
-        let Some(catalog) = &self.original_parameter_contracts else { return Ok(Vec::new()) };
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut recipes = Vec::new();
         for contract in catalog.iter() {
             for source in self.field_array_read_sources_for_owner_v1(contract.owner)? {

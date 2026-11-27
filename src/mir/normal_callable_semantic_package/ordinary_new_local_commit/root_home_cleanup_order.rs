@@ -612,9 +612,7 @@ impl super::OrdinaryNewClaimLedgerV1 {
         let Some(binding) = home.stable_origin() else {
             return Ok(None);
         };
-        let Some(catalog) = self.original_parameter_contracts.as_deref() else {
-            return Ok(None);
-        };
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut declarations = catalog.for_owner(binding.owner());
         let Some(declaration) = declarations.next() else {
             return Ok(None);

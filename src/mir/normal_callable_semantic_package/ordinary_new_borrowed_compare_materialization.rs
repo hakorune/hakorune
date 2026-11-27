@@ -168,10 +168,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 && definition.uses.iter().any(|row| {
                     matches!(&row.kind, Use::DynamicComparisonOperand { binary } if binary == site)
                 })
-                && self.original_parameter_contracts.as_ref().is_some_and(|contracts| {
+                && { let contracts = self.original_parameter_contracts.as_ref();
                     contracts.iter().any(|contract| contract.owner == owner && contract.mode ==
                         crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod)
-                })
+                }
                 && !source.source_incoming.has_original_call_to_v1(owner)
             {
                 return Err(freeze("borrowed-compare/source-only-entry"));

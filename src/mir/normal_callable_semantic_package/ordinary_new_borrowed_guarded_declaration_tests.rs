@@ -97,7 +97,7 @@ fn guarded_declaration_and_reconstruction_refuse_lost_original_guard_or_catalog(
             })
             .unwrap();
         if lose_catalog {
-            ledger.original_parameter_contracts = None;
+            ledger.original_parameter_contracts = Default::default();
             let source = ledger
                 .borrowed_formal_source
                 .as_ref()

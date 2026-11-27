@@ -75,7 +75,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let owner = requirement.source_plan.owner();
         let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-dynamic-entry/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-dynamic-entry/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut declarations = catalog.for_owner(owner);
         let declaration = declarations.next().ok_or_else(|| freeze("borrowed-dynamic-entry/declaration-missing"))?;
         if declarations.next().is_some() || requirement.batch_slot != declaration.batch_slot
@@ -151,7 +151,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let owner = requirement.source_plan.owner();
         let source = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("borrowed-text-entry/source-missing"))?
             .as_ref().map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref().ok_or_else(|| freeze("borrowed-text-entry/catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut declarations = catalog.for_owner(owner);
         let declaration = declarations.next().ok_or_else(|| freeze("borrowed-text-entry/declaration-missing"))?;
         if declarations.next().is_some() || requirement.batch_slot != declaration.batch_slot
@@ -260,7 +260,7 @@ pub(in crate::mir) fn original_entry_layout_v1(&self, binding: crate::mir::resol
     use crate::mir::callable_parameter_contract::{CallableParameterDeclarationModeV1 as Mode};
     use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1 as Role;
     let ledger = self;
-    let catalog = ledger.original_parameter_contracts.as_deref().ok_or_else(|| freeze("expression/scalar-entry-catalog"))?;
+    let catalog = ledger.original_parameter_contracts.as_ref();
     let mut declarations = catalog.for_owner(binding.owner());
     let declaration = declarations.next().ok_or_else(|| freeze("expression/scalar-entry-owner"))?;
     if declarations.next().is_some() { return Err(freeze("expression/scalar-entry-owner")); }

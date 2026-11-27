@@ -167,9 +167,7 @@ impl EmittedOwnedArrayHolderV1 {
                     .as_ref()
                     .ok_or_else(|| freeze("owned-holder/original-issuance-missing"))?;
                 let contracts = ledger
-                    .original_parameter_contracts
-                    .as_deref()
-                    .ok_or_else(|| freeze("owned-holder/original-catalog-missing"))?;
+                    .original_parameter_contracts.as_ref();
                 if symbol != &function.signature.name
                     || !std::ptr::eq(original.as_ref(), projection)
                     || ledger.checked_root_array_holder_caller_v1(

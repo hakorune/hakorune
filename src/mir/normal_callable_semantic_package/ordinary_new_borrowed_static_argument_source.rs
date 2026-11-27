@@ -331,9 +331,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .map_err(Clone::clone)?;
         let contracts = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("argument-expression/source-contracts"))?;
+            .original_parameter_contracts.as_ref();
         let identity = argument_source_identity_v1(
             self.borrowed_formal_source
                 .as_ref()
@@ -485,9 +483,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(Rc::clone(frame));
         }
         let contracts = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("argument-expression/source-contracts"))?;
+            .original_parameter_contracts.as_ref();
         let identity = argument_source_identity_v1(prepared, Some(contracts), rows, call)?
             .ok_or_else(|| freeze("argument-expression/source-phase"))?;
         if let Some(snapshot) = rows.source_static_snapshot_v1() {

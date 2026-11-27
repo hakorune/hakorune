@@ -55,21 +55,8 @@ fn original_parameter_catalog_loan_shares_package_and_completed_context() {
     let ledger = &package.ordinary_new_claim_ledger;
     assert!(Rc::ptr_eq(
         &original,
-        ledger.original_parameter_contracts_v1().unwrap()
+        ledger.original_parameter_contracts_v1()
     ));
-    let mut empty = super::super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1::issue(
-        Box::new([]),
-        Box::new([]),
-        Box::new([]),
-    );
-    assert!(empty.original_parameter_contracts_v1().is_none());
-    empty
-        .retain_original_parameter_contracts_v1(&original)
-        .unwrap();
-    assert!(empty
-        .retain_original_parameter_contracts_v1(&original)
-        .unwrap_err()
-        .contains("catalog-already-retained"));
     let context = package
         .result_contracts
         .retain_completed_context(package.selected, package.parameter_contracts)
@@ -80,6 +67,6 @@ fn original_parameter_catalog_loan_shares_package_and_completed_context() {
     ));
     assert!(Rc::ptr_eq(
         &original,
-        ledger.original_parameter_contracts_v1().unwrap()
+        ledger.original_parameter_contracts_v1()
     ));
 }

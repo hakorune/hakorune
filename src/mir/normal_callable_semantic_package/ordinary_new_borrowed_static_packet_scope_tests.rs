@@ -310,7 +310,7 @@ fn static_execution_scope_preserves_unrelated_object_source_integrity() {
                         .insert(passive_argument.2, view);
                 }
                 6 => {
-                    ledger.original_parameter_contracts = None;
+                    ledger.original_parameter_contracts = Default::default();
                 }
                 _ => unreachable!(),
             }

@@ -289,8 +289,7 @@ impl OrdinaryNewClaimLedgerV1 {
     fn require_original_borrowed_formal_result_v1(&self, owner: FunctionOwnerIdV1,
         key: &CanonicalSameModuleCallableKeyV1, binding: BindingRefV1, ordinal: u32,
     ) -> Result<(), String> {
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("callable-result/nullable-catalog"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let mut contracts = catalog.for_owner(owner);
         let contract = contracts.next().ok_or_else(|| freeze("callable-result/nullable-parameter"))?;
         if contracts.next().is_some()
@@ -370,8 +369,7 @@ impl OrdinaryNewClaimLedgerV1 {
             source.receiver_v1().require_entry_source_v1(self)?;
             let crate::mir::instruction::BorrowedResultSupportV1::ReceiverFieldSlot { key_ordinal, .. } = source.result_support_v1()
                 else { return Err(freeze("callable-result/nullable-root-role")); };
-            let catalog = self.original_parameter_contracts.as_deref()
-                .ok_or_else(|| freeze("callable-result/nullable-catalog"))?;
+            let catalog = self.original_parameter_contracts.as_ref();
             let mut contracts = catalog.for_owner(owner);
             let contract = contracts.next().ok_or_else(|| freeze("callable-result/nullable-parameter"))?;
             let (selected, _) = self.original_instance_input_issuance.as_ref()

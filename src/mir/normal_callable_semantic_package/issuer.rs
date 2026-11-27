@@ -584,9 +584,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
             });
         }
     }
-    ordinary_new_claim_ledger
-        .retain_original_parameter_contracts_v1(&parameter_contracts)
-        .map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
     let s6c_child_slot = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
     ordinary_new_claim_ledger

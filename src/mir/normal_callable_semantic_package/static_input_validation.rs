@@ -293,9 +293,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("static-input/source-cohort-veto"));
         }
         let catalog = self
-            .original_parameter_contracts
-            .as_deref()
-            .ok_or_else(|| freeze("static-input/catalog-missing"))?;
+            .original_parameter_contracts.as_ref();
         let mut matching = catalog.for_owner(owner);
         let contract = matching
             .next()

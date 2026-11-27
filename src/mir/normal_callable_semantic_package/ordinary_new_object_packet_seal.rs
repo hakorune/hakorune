@@ -26,9 +26,7 @@ fn packet_input_family_v1(
     target: &LexicalInstanceCallSourceTargetV1,
 ) -> Result<ObjectPacketInputFamilyV1, String> {
     let catalog = ledger
-        .original_parameter_contracts
-        .as_deref()
-        .ok_or_else(|| freeze("object-packet/original-catalog-missing"))?;
+        .original_parameter_contracts.as_ref();
     let mut contracts = catalog.for_owner(target.callee_owner());
     let contract = contracts
         .next()
@@ -68,9 +66,7 @@ fn packet_input_ready_v1(
                 return Ok(false);
             };
             let catalog = ledger
-                .original_parameter_contracts
-                .as_deref()
-                .ok_or_else(|| freeze("object-packet/original-catalog-missing"))?;
+                .original_parameter_contracts.as_ref();
             let arguments = if family == ObjectPacketInputFamilyV1::OriginalSourceInstance {
                 ledger.checked_completed_original_instance_target_arguments_v1(
                     target, selected, catalog, signatures,

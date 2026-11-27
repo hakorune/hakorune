@@ -356,8 +356,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .map_err(Clone::clone)?;
         if self.finite_entry_for_owner_v1(owner)?.is_some() {
-            let mut contracts = self.original_parameter_contracts.as_deref()
-                .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?
+            let mut contracts = self.original_parameter_contracts.as_ref()
                 .iter().filter(|row| row.owner == owner);
             let contract = contracts.next().ok_or_else(|| format!("{}: owner={owner:?}", freeze("borrowed-entry/entry-owner")))?;
             if contracts.next().is_some() { return Err(freeze("borrowed-entry/original-contract-duplicate")); }
@@ -452,8 +451,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let Some((selected, signatures)) = &self.original_instance_input_issuance else {
                 return Ok(None);
             };
-            let catalog = self.original_parameter_contracts.as_deref()
-                .ok_or_else(|| freeze("object-return/original-input-catalog-missing"))?;
+            let catalog = self.original_parameter_contracts.as_ref();
             let mut original = catalog.for_owner(contract.owner);
             let original = original.next()
                 .filter(|_| original.next().is_none())
@@ -603,8 +601,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-call/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let catalog = self.original_parameter_contracts.as_deref()
-            .ok_or_else(|| freeze("borrowed-entry/original-catalog-missing"))?;
+        let catalog = self.original_parameter_contracts.as_ref();
         let original = Self::original_instance_input_call_v1(source, catalog, row.call_site())?;
         if let Some(original) = &original {
             if original.callee != row.callee_owner() || original.source.require_instance()? != row.source_target()
