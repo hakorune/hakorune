@@ -178,66 +178,55 @@ fn substring_len_plan_reads_placement_effect_window_before_legacy_facts() {
     assert_eq!(plan.end, ValueId(2));
 }
 
+
 #[test]
-fn empty_retained_len_apply_publishes_no_owner_effects() {
-    let signature = FunctionSignature {
-        name: "empty_retained_len".to_string(),
-        params: vec![],
-        return_type: MirType::Integer,
-        effects: EffectMask::PURE,
-    };
-    let mut function = MirFunction::new(signature, BasicBlockId(0));
-    let instructions_before = function
-        .blocks
-        .get(&BasicBlockId(0))
-        .expect("entry")
-        .instructions
-        .clone();
-    let hints_before = function.metadata.optimization_hints.clone();
-
-    let rewritten = apply_retained_len_plans(&mut function, std::collections::BTreeMap::new());
-
-    assert_eq!(rewritten, 0);
-    assert_eq!(
-        function
+fn empty_length_plans_leave_instructions_and_metadata_unchanged() {
+    for (case_name, symbol, apply_empty, check_value_types) in [
+        (
+            "empty_retained_len_apply_publishes_no_owner_effects",
+            "empty_retained_len",
+            (|function| apply_retained_len_plans(function, std::collections::BTreeMap::new()))
+                as fn(&mut MirFunction) -> _,
+            false,
+        ),
+        (
+            "empty_substring_len_apply_publishes_no_owner_effects",
+            "empty_substring_len",
+            |function| apply_plans(function, std::collections::BTreeMap::new()),
+            true,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let signature = FunctionSignature {
+            name: symbol.to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        let instructions_before = function
             .blocks
             .get(&BasicBlockId(0))
             .expect("entry")
-            .instructions,
-        instructions_before
-    );
-    assert_eq!(function.metadata.optimization_hints, hints_before);
-}
+            .instructions
+            .clone();
+        let hints_before = function.metadata.optimization_hints.clone();
 
-#[test]
-fn empty_substring_len_apply_publishes_no_owner_effects() {
-    let signature = FunctionSignature {
-        name: "empty_substring_len".to_string(),
-        params: vec![],
-        return_type: MirType::Integer,
-        effects: EffectMask::PURE,
-    };
-    let mut function = MirFunction::new(signature, BasicBlockId(0));
-    let instructions_before = function
-        .blocks
-        .get(&BasicBlockId(0))
-        .expect("entry")
-        .instructions
-        .clone();
-    let hints_before = function.metadata.optimization_hints.clone();
-    let value_types_before = function.metadata.value_types.clone();
+        let value_types_before = check_value_types.then(|| function.metadata.value_types.clone());
+        let rewritten = apply_empty(&mut function);
 
-    let rewritten = apply_plans(&mut function, std::collections::BTreeMap::new());
-
-    assert_eq!(rewritten, 0);
-    assert_eq!(
-        function
-            .blocks
-            .get(&BasicBlockId(0))
-            .expect("entry")
-            .instructions,
-        instructions_before
-    );
-    assert_eq!(function.metadata.optimization_hints, hints_before);
-    assert_eq!(function.metadata.value_types, value_types_before);
+        assert_eq!(rewritten, 0);
+        assert_eq!(
+            function
+                .blocks
+                .get(&BasicBlockId(0))
+                .expect("entry")
+                .instructions,
+            instructions_before
+        );
+        assert_eq!(function.metadata.optimization_hints, hints_before);
+        if let Some(before) = value_types_before {
+            assert_eq!(function.metadata.value_types, before);
+        }
+    }
 }

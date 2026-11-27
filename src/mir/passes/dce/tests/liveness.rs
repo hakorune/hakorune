@@ -266,19 +266,21 @@ fn test_dce_prunes_phi_inputs_from_removed_unreachable_predecessors() {
     assert_eq!(inputs, &vec![(BasicBlockId(0), entry_value)]);
 }
 
-#[test]
-fn test_dce_prunes_redundant_keepalive_when_return_already_keeps_value_live() {
+fn liveness_marker_module(
+    v1: ValueId,
+    return_type: MirType,
+    marker: MirInstruction,
+    returned: Option<ValueId>,
+) -> MirModule {
     let mut module = MirModule::new("dce_test".to_string());
 
     let sig = FunctionSignature {
         name: "test/0".to_string(),
         params: vec![],
-        return_type: MirType::Integer,
+        return_type,
         effects: EffectMask::PURE,
     };
     let mut func = MirFunction::new(sig, BasicBlockId(0));
-
-    let v1 = ValueId(1);
 
     {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
@@ -287,14 +289,25 @@ fn test_dce_prunes_redundant_keepalive_when_return_already_keeps_value_live() {
             value: ConstValue::Integer(123),
         });
         bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions
-            .push(MirInstruction::KeepAlive { values: vec![v1] });
+        bb0.instructions.push(marker);
         bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return { value: Some(v1) });
+        bb0.set_terminator(MirInstruction::Return { value: returned });
     }
 
     module.add_function(func);
 
+    module
+}
+
+#[test]
+fn test_dce_prunes_redundant_keepalive_when_return_already_keeps_value_live() {
+    let v1 = ValueId(1);
+    let mut module = liveness_marker_module(
+        v1,
+        MirType::Integer,
+        MirInstruction::KeepAlive { values: vec![v1] },
+        Some(v1),
+    );
     let eliminated = eliminate_dead_code(&mut module);
     assert_eq!(eliminated, 1);
 
@@ -422,33 +435,13 @@ fn test_dce_keeps_branch_condition_operand_live() {
 
 #[test]
 fn test_dce_keeps_nonredundant_keepalive_when_it_is_the_only_live_reason() {
-    let mut module = MirModule::new("dce_test".to_string());
-
-    let sig = FunctionSignature {
-        name: "test/0".to_string(),
-        params: vec![],
-        return_type: MirType::Void,
-        effects: EffectMask::PURE,
-    };
-    let mut func = MirFunction::new(sig, BasicBlockId(0));
-
     let v1 = ValueId(1);
-
-    {
-        let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
-        bb0.instructions.push(MirInstruction::Const {
-            dst: v1,
-            value: ConstValue::Integer(123),
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions
-            .push(MirInstruction::KeepAlive { values: vec![v1] });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return { value: None });
-    }
-
-    module.add_function(func);
-
+    let mut module = liveness_marker_module(
+        v1,
+        MirType::Void,
+        MirInstruction::KeepAlive { values: vec![v1] },
+        None,
+    );
     let eliminated = eliminate_dead_code(&mut module);
     assert_eq!(eliminated, 0);
 
@@ -466,32 +459,9 @@ fn test_dce_keeps_nonredundant_keepalive_when_it_is_the_only_live_reason() {
 
 #[test]
 fn test_dce_prunes_safepoint_noop_when_it_has_no_other_effects() {
-    let mut module = MirModule::new("dce_test".to_string());
-
-    let sig = FunctionSignature {
-        name: "test/0".to_string(),
-        params: vec![],
-        return_type: MirType::Integer,
-        effects: EffectMask::PURE,
-    };
-    let mut func = MirFunction::new(sig, BasicBlockId(0));
-
     let v1 = ValueId(1);
-
-    {
-        let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
-        bb0.instructions.push(MirInstruction::Const {
-            dst: v1,
-            value: ConstValue::Integer(123),
-        });
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Safepoint);
-        bb0.instruction_spans.push(Span::unknown());
-        bb0.set_terminator(MirInstruction::Return { value: Some(v1) });
-    }
-
-    module.add_function(func);
-
+    let mut module =
+        liveness_marker_module(v1, MirType::Integer, MirInstruction::Safepoint, Some(v1));
     let eliminated = eliminate_dead_code(&mut module);
     assert_eq!(eliminated, 1);
 

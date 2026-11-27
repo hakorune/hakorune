@@ -246,12 +246,32 @@ mod tests {
     }
 
     #[test]
-    fn inline_rune_prefer_maps_to_keep_call_plan() {
-        let plans = inline_plans_from_runes("Main.fast/0", &[rune("Inline", "prefer")]);
-        assert_eq!(plans.len(), 1);
-        assert_eq!(plans[0].request, InlineRequest::Prefer);
-        assert_eq!(plans[0].fallback, "keep_call");
-        assert_eq!(plans[0].source, "rune_inline");
+    fn inline_runes_keep_request_and_fallback() {
+        for (case_name, rune_name, rune_value, expected_request, expected_fallback, expected_source) in [
+            (
+                "inline_rune_prefer_maps_to_keep_call_plan",
+                "Inline",
+                "prefer",
+                InlineRequest::Prefer,
+                "keep_call",
+                "rune_inline",
+            ),
+            (
+                "lowering_inline_required_remains_compat_plan",
+                "Lowering",
+                "inline_required",
+                InlineRequest::Required,
+                "fail_fast",
+                "rune_lowering",
+            ),
+        ] {
+            println!("case: {case_name}");
+            let plans = inline_plans_from_runes("Main.fast/0", &[rune(rune_name, rune_value)]);
+            assert_eq!(plans.len(), 1);
+            assert_eq!(plans[0].request, expected_request);
+            assert_eq!(plans[0].fallback, expected_fallback);
+            assert_eq!(plans[0].source, expected_source);
+        }
     }
 
     #[test]
@@ -264,12 +284,4 @@ mod tests {
         assert_eq!(plans[0].source, "rune_inline_required");
     }
 
-    #[test]
-    fn lowering_inline_required_remains_compat_plan() {
-        let plans = inline_plans_from_runes("Main.fast/0", &[rune("Lowering", "inline_required")]);
-        assert_eq!(plans.len(), 1);
-        assert_eq!(plans[0].request, InlineRequest::Required);
-        assert_eq!(plans[0].fallback, "fail_fast");
-        assert_eq!(plans[0].source, "rune_lowering");
-    }
 }

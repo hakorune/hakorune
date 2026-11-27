@@ -35,22 +35,35 @@ fn block0<'m>(module: &'m MirModule) -> &'m crate::mir::BasicBlock {
         .expect("entry block exists")
 }
 
-#[test]
-fn proven_known_array_get_canonicalizes_to_array_element_read() {
-    let mut module = MirModule::new("array_read_known".to_string());
+fn array_read_call_fixture(
+    name: &str,
+    certainty: TypeCertainty,
+    before_index: Option<MirInstruction>,
+    after_index: Option<MirInstruction>,
+    args: Vec<ValueId>,
+) -> MirModule {
+    let mut module = MirModule::new(name.to_string());
     let mut func = new_test_function();
     let block = entry_block(&mut func);
+    if let Some(instruction) = before_index {
+        block.instructions.push(instruction);
+        block.instruction_spans.push(Span::unknown());
+    }
     block.instructions.push(MirInstruction::Const {
         dst: ValueId(1),
         value: crate::mir::ConstValue::Integer(0),
     });
     block.instruction_spans.push(Span::unknown());
+    if let Some(instruction) = after_index {
+        block.instructions.push(instruction);
+        block.instruction_spans.push(Span::unknown());
+    }
     block
         .instructions
         .push(MirInstruction::Call(crate::mir::definitions::MirCall {
             dst: Some(ValueId(2)),
-            callee: array_method_get(ValueId(10), TypeCertainty::Known),
-            args: vec![ValueId(1)],
+            callee: array_method_get(ValueId(10), certainty),
+            args,
             text_argument_cleanup: Vec::new(),
             flags: crate::mir::definitions::call_unified::CallFlags::default(),
             effects: EffectMask::PURE,
@@ -58,6 +71,18 @@ fn proven_known_array_get_canonicalizes_to_array_element_read() {
     block.instruction_spans.push(Span::unknown());
     module.add_function(func);
 
+    module
+}
+
+#[test]
+fn proven_known_array_get_canonicalizes_to_array_element_read() {
+    let mut module = array_read_call_fixture(
+        "array_read_known",
+        TypeCertainty::Known,
+        None,
+        None,
+        vec![ValueId(1)],
+    );
     let rewritten = canonicalize_callsites(&mut module);
     assert_eq!(rewritten, 1);
     assert!(matches!(
@@ -73,33 +98,17 @@ fn proven_known_array_get_canonicalizes_to_array_element_read() {
 
 #[test]
 fn union_receiver_with_arraybox_origin_canonicalizes() {
-    let mut module = MirModule::new("array_read_origin".to_string());
-    let mut func = new_test_function();
-    let block = entry_block(&mut func);
-    block.instructions.push(MirInstruction::NewBox {
-        dst: ValueId(10),
-        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
-        args: vec![],
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(1),
-        value: crate::mir::ConstValue::Integer(0),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block
-        .instructions
-        .push(MirInstruction::Call(crate::mir::definitions::MirCall {
-            dst: Some(ValueId(2)),
-            callee: array_method_get(ValueId(10), TypeCertainty::Union),
-            args: vec![ValueId(1)],
-            text_argument_cleanup: Vec::new(),
-            flags: crate::mir::definitions::call_unified::CallFlags::default(),
-            effects: EffectMask::PURE,
-        }));
-    block.instruction_spans.push(Span::unknown());
-    module.add_function(func);
-
+    let mut module = array_read_call_fixture(
+        "array_read_origin",
+        TypeCertainty::Union,
+        Some(MirInstruction::NewBox {
+            dst: ValueId(10),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
+            args: vec![],
+        }),
+        None,
+        vec![ValueId(1)],
+    );
     let rewritten = canonicalize_callsites(&mut module);
     assert_eq!(rewritten, 1);
     assert!(matches!(
@@ -115,32 +124,16 @@ fn union_receiver_with_arraybox_origin_canonicalizes() {
 
 #[test]
 fn union_receiver_without_arraybox_origin_stays_untouched() {
-    let mut module = MirModule::new("array_read_union".to_string());
-    let mut func = new_test_function();
-    let block = entry_block(&mut func);
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(10),
-        value: crate::mir::ConstValue::Integer(0),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(1),
-        value: crate::mir::ConstValue::Integer(0),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block
-        .instructions
-        .push(MirInstruction::Call(crate::mir::definitions::MirCall {
-            dst: Some(ValueId(2)),
-            callee: array_method_get(ValueId(10), TypeCertainty::Union),
-            args: vec![ValueId(1)],
-            text_argument_cleanup: Vec::new(),
-            flags: crate::mir::definitions::call_unified::CallFlags::default(),
-            effects: EffectMask::PURE,
-        }));
-    block.instruction_spans.push(Span::unknown());
-    module.add_function(func);
-
+    let mut module = array_read_call_fixture(
+        "array_read_union",
+        TypeCertainty::Union,
+        Some(MirInstruction::Const {
+            dst: ValueId(10),
+            value: crate::mir::ConstValue::Integer(0),
+        }),
+        None,
+        vec![ValueId(1)],
+    );
     let rewritten = canonicalize_callsites(&mut module);
     assert_eq!(rewritten, 0);
     assert!(matches!(
@@ -216,32 +209,16 @@ fn legacy_call_v0_array_get_is_never_laundered() {
 
 #[test]
 fn malformed_arity_stays_untouched() {
-    let mut module = MirModule::new("array_read_arity".to_string());
-    let mut func = new_test_function();
-    let block = entry_block(&mut func);
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(1),
-        value: crate::mir::ConstValue::Integer(0),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(3),
-        value: crate::mir::ConstValue::Integer(1),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block
-        .instructions
-        .push(MirInstruction::Call(crate::mir::definitions::MirCall {
-            dst: Some(ValueId(2)),
-            callee: array_method_get(ValueId(10), TypeCertainty::Known),
-            args: vec![ValueId(1), ValueId(3)],
-            text_argument_cleanup: Vec::new(),
-            flags: crate::mir::definitions::call_unified::CallFlags::default(),
-            effects: EffectMask::PURE,
-        }));
-    block.instruction_spans.push(Span::unknown());
-    module.add_function(func);
-
+    let mut module = array_read_call_fixture(
+        "array_read_arity",
+        TypeCertainty::Known,
+        None,
+        Some(MirInstruction::Const {
+            dst: ValueId(3),
+            value: crate::mir::ConstValue::Integer(1),
+        }),
+        vec![ValueId(1), ValueId(3)],
+    );
     let rewritten = canonicalize_callsites(&mut module);
     assert_eq!(rewritten, 0);
     assert!(matches!(
@@ -252,27 +229,13 @@ fn malformed_arity_stays_untouched() {
 
 #[test]
 fn receiver_duplicated_arg_surface_uses_the_real_index() {
-    let mut module = MirModule::new("array_read_dup".to_string());
-    let mut func = new_test_function();
-    let block = entry_block(&mut func);
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(1),
-        value: crate::mir::ConstValue::Integer(0),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block
-        .instructions
-        .push(MirInstruction::Call(crate::mir::definitions::MirCall {
-            dst: Some(ValueId(2)),
-            callee: array_method_get(ValueId(10), TypeCertainty::Known),
-            args: vec![ValueId(10), ValueId(1)],
-            text_argument_cleanup: Vec::new(),
-            flags: crate::mir::definitions::call_unified::CallFlags::default(),
-            effects: EffectMask::PURE,
-        }));
-    block.instruction_spans.push(Span::unknown());
-    module.add_function(func);
-
+    let mut module = array_read_call_fixture(
+        "array_read_dup",
+        TypeCertainty::Known,
+        None,
+        None,
+        vec![ValueId(10), ValueId(1)],
+    );
     let rewritten = canonicalize_callsites(&mut module);
     assert_eq!(rewritten, 1);
     assert!(matches!(
@@ -321,34 +284,20 @@ fn canonicalized_read_reaches_the_sole_published_consumer() {
 
 #[test]
 fn site_id_continues_above_existing_read_sites() {
-    let mut module = MirModule::new("array_read_site".to_string());
-    let mut func = new_test_function();
-    let block = entry_block(&mut func);
-    block.instructions.push(MirInstruction::ArrayRead {
-        site_id: crate::mir::ArrayReadSiteId::new(5),
-        dst: Some(ValueId(20)),
-        receiver: ValueId(11),
-        operation: crate::mir::instruction::ArrayReadOperationV1::Element { index: ValueId(12) },
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(1),
-        value: crate::mir::ConstValue::Integer(0),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block
-        .instructions
-        .push(MirInstruction::Call(crate::mir::definitions::MirCall {
-            dst: Some(ValueId(2)),
-            callee: array_method_get(ValueId(10), TypeCertainty::Known),
-            args: vec![ValueId(1)],
-            text_argument_cleanup: Vec::new(),
-            flags: crate::mir::definitions::call_unified::CallFlags::default(),
-            effects: EffectMask::PURE,
-        }));
-    block.instruction_spans.push(Span::unknown());
-    module.add_function(func);
-
+    let mut module = array_read_call_fixture(
+        "array_read_site",
+        TypeCertainty::Known,
+        Some(MirInstruction::ArrayRead {
+            site_id: crate::mir::ArrayReadSiteId::new(5),
+            dst: Some(ValueId(20)),
+            receiver: ValueId(11),
+            operation: crate::mir::instruction::ArrayReadOperationV1::Element {
+                index: ValueId(12),
+            },
+        }),
+        None,
+        vec![ValueId(1)],
+    );
     let rewritten = canonicalize_callsites(&mut module);
     assert_eq!(rewritten, 1);
     assert!(matches!(

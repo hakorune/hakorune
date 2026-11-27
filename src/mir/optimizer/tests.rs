@@ -272,96 +272,53 @@ fn test_normalize_keeps_weakref_load_instruction() {
     );
 }
 
-#[test]
-fn test_normalize_keeps_barrier_read_instruction() {
-    let signature = FunctionSignature {
-        name: "main".to_string(),
-        params: vec![],
-        return_type: MirType::Void,
-        effects: super::super::effect::EffectMask::PURE,
-    };
-    let mut func = MirFunction::new(signature, BasicBlockId::new(0));
-    let bb0 = BasicBlockId::new(0);
-    let mut b0 = BasicBlock::new(bb0);
-    let v0 = ValueId::new(0);
-    b0.add_instruction(MirInstruction::Const {
-        dst: v0,
-        value: ConstValue::Integer(1),
-    });
-    b0.add_instruction(MirInstruction::Barrier {
-        op: crate::mir::BarrierOp::Read,
-        ptr: v0,
-    });
-    b0.set_terminator(MirInstruction::Return { value: None });
-    func.add_block(b0);
-    let mut module = MirModule::new("test".to_string());
-    module.add_function(func);
-
-    let mut opt = MirOptimizer::new();
-    let _stats = opt.optimize_module(&mut module);
-
-    let f = module.get_function("main").unwrap();
-    let block = f.get_block(bb0).unwrap();
-    let mut has_barrier_read_unified = false;
-    for sp in block.all_spanned_instructions() {
-        match sp.inst {
-            MirInstruction::Barrier {
-                op: crate::mir::BarrierOp::Read,
-                ..
-            } => has_barrier_read_unified = true,
-            _ => {}
-        }
-    }
-    assert!(
-        has_barrier_read_unified,
-        "Barrier(Read) should remain representable in normalized MIR"
-    );
-}
 
 #[test]
-fn test_normalize_keeps_barrier_write_instruction() {
-    let signature = FunctionSignature {
-        name: "main".to_string(),
-        params: vec![],
-        return_type: MirType::Void,
-        effects: super::super::effect::EffectMask::PURE,
-    };
-    let mut func = MirFunction::new(signature, BasicBlockId::new(0));
-    let bb0 = BasicBlockId::new(0);
-    let mut b0 = BasicBlock::new(bb0);
-    let v0 = ValueId::new(0);
-    b0.add_instruction(MirInstruction::Const {
-        dst: v0,
-        value: ConstValue::Integer(1),
-    });
-    b0.add_instruction(MirInstruction::Barrier {
-        op: crate::mir::BarrierOp::Write,
-        ptr: v0,
-    });
-    b0.set_terminator(MirInstruction::Return { value: None });
-    func.add_block(b0);
-    let mut module = MirModule::new("test".to_string());
-    module.add_function(func);
+fn normalization_preserves_memory_barriers() {
+    for (case_name, barrier) in [
+        (
+            "test_normalize_keeps_barrier_read_instruction",
+            crate::mir::BarrierOp::Read,
+        ),
+        (
+            "test_normalize_keeps_barrier_write_instruction",
+            crate::mir::BarrierOp::Write,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let signature = FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: super::super::effect::EffectMask::PURE,
+        };
+        let mut func = MirFunction::new(signature, BasicBlockId::new(0));
+        let bb0 = BasicBlockId::new(0);
+        let mut b0 = BasicBlock::new(bb0);
+        let v0 = ValueId::new(0);
+        b0.add_instruction(MirInstruction::Const {
+            dst: v0,
+            value: ConstValue::Integer(1),
+        });
+        b0.add_instruction(MirInstruction::Barrier {
+            op: barrier,
+            ptr: v0,
+        });
+        b0.set_terminator(MirInstruction::Return { value: None });
+        func.add_block(b0);
+        let mut module = MirModule::new("test".to_string());
+        module.add_function(func);
 
-    let mut opt = MirOptimizer::new();
-    let _stats = opt.optimize_module(&mut module);
+        let mut opt = MirOptimizer::new();
+        let _stats = opt.optimize_module(&mut module);
 
-    let f = module.get_function("main").unwrap();
-    let block = f.get_block(bb0).unwrap();
-    let mut has_barrier_write_unified = false;
-    for sp in block.all_spanned_instructions() {
-        match sp.inst {
-            MirInstruction::Barrier {
-                op: crate::mir::BarrierOp::Write,
-                ..
-            } => has_barrier_write_unified = true,
-            _ => {}
-        }
+        let f = module.get_function("main").unwrap();
+        let block = f.get_block(bb0).unwrap();
+
+        assert!(block.all_spanned_instructions().any(|spanned|
+        matches!(spanned.inst, MirInstruction::Barrier { op, .. } if *op == barrier)
+    ), "Barrier({barrier:?}) should remain representable in normalized MIR");
     }
-    assert!(
-        has_barrier_write_unified,
-        "Barrier(Write) should remain representable in normalized MIR"
-    );
 }
 
 #[test]

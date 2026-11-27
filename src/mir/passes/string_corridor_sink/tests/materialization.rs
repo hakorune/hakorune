@@ -8,9 +8,7 @@ fn non_pure_extern_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInst
     call
 }
 
-#[test]
-fn sinks_materialization_helper_to_array_store_boundary() {
-    let mut module = MirModule::new("substring_concat_materialization_store".to_string());
+fn materialization_store_prefix() -> MirFunction {
     let signature = FunctionSignature {
         name: "main".to_string(),
         params: vec![
@@ -95,6 +93,15 @@ fn sinks_materialization_helper_to_array_store_boundary() {
         src: ValueId(11),
     });
     block.instruction_spans.push(Span::unknown());
+
+    function
+}
+
+#[test]
+fn sinks_materialization_helper_to_array_store_boundary() {
+    let mut module = MirModule::new("substring_concat_materialization_store".to_string());
+    let mut function = materialization_store_prefix();
+    let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
     block.instructions.push(MirInstruction::Const {
         dst: ValueId(13),
         value: crate::mir::ConstValue::Integer(99),
@@ -330,90 +337,8 @@ fn reuses_store_side_const_suffix_for_trailing_substring() {
 fn sinks_materialization_helper_with_trailing_length_observer() {
     let mut module =
         MirModule::new("substring_concat_materialization_store_len_observer".to_string());
-    let signature = FunctionSignature {
-        name: "main".to_string(),
-        params: vec![
-            MirType::Box("ArrayBox".to_string()),
-            MirType::Box("RuntimeDataBox".to_string()),
-        ],
-        return_type: MirType::Integer,
-        effects: EffectMask::PURE,
-    };
-    let mut function = MirFunction::new(signature, BasicBlockId(0));
+    let mut function = materialization_store_prefix();
     let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
-
-    block.instructions.push(method_call(
-        ValueId(2),
-        ValueId(1),
-        "RuntimeDataBox",
-        "length",
-        vec![],
-        MirType::Integer,
-    ));
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(3),
-        value: crate::mir::ConstValue::Integer(2),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::BinOp {
-        dst: ValueId(4),
-        op: crate::mir::BinaryOp::Div,
-        lhs: ValueId(2),
-        rhs: ValueId(3),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(5),
-        value: crate::mir::ConstValue::Integer(0),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(method_call(
-        ValueId(6),
-        ValueId(1),
-        "RuntimeDataBox",
-        "substring",
-        vec![ValueId(5), ValueId(4)],
-        MirType::Box("RuntimeDataBox".to_string()),
-    ));
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(method_call(
-        ValueId(7),
-        ValueId(1),
-        "RuntimeDataBox",
-        "substring",
-        vec![ValueId(4), ValueId(2)],
-        MirType::Box("RuntimeDataBox".to_string()),
-    ));
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(8),
-        value: crate::mir::ConstValue::String("xx".to_string()),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Const {
-        dst: ValueId(9),
-        value: crate::mir::ConstValue::Integer(1),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::BinOp {
-        dst: ValueId(10),
-        op: crate::mir::BinaryOp::Add,
-        lhs: ValueId(2),
-        rhs: ValueId(9),
-    });
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(non_pure_extern_call(
-        ValueId(11),
-        SUBSTRING_CONCAT3_EXTERN,
-        vec![ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
-    ));
-    block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Copy {
-        dst: ValueId(12),
-        src: ValueId(11),
-    });
-    block.instruction_spans.push(Span::unknown());
     block.instructions.push(method_call(
         ValueId(13),
         ValueId(0),

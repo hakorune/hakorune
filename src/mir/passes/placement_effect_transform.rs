@@ -41,118 +41,76 @@ mod tests {
     };
 
     #[test]
-    fn pre_dce_transform_owner_runs_landed_string_corridor_sink() {
-        let mut module = MirModule::new("placement_effect_transform".to_string());
-        let signature = FunctionSignature {
-            name: "main".to_string(),
-            params: vec![
-                MirType::Box("StringBox".to_string()),
-                MirType::Integer,
-                MirType::Integer,
-            ],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        };
-        let mut function = MirFunction::new(signature, BasicBlockId(0));
-        let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
-        block.instructions.push(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId(3)),
-            func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Method {
-                box_name: "StringBox".to_string(),
-                method: "substring".to_string(),
-                receiver: Some(ValueId(0)),
-                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![ValueId(1), ValueId(2)],
-            effects: EffectMask::PURE,
-        });
-        block.instructions.push(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId(4)),
-            func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Method {
-                box_name: "StringBox".to_string(),
-                method: "length".to_string(),
-                receiver: Some(ValueId(3)),
-                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![],
-            effects: EffectMask::PURE,
-        });
-        block.set_terminator(MirInstruction::Return {
-            value: Some(ValueId(4)),
-        });
-        function
-            .metadata
-            .value_types
-            .insert(ValueId(3), MirType::Box("StringBox".to_string()));
-        function
-            .metadata
-            .value_types
-            .insert(ValueId(4), MirType::Integer);
-        module.add_function(function);
+    fn placement_transform_stages_run_landed_string_corridor_sink() {
+        for (case_name, module_name, transform) in [
+            (
+                "pre_dce_transform_owner_runs_landed_string_corridor_sink",
+                "placement_effect_transform".to_string(),
+                apply_pre_dce_transforms as fn(&mut MirModule) -> _,
+            ),
+            (
+                "post_dce_transform_owner_runs_landed_string_corridor_sink",
+                "placement_effect_transform_post".to_string(),
+                apply_post_dce_transforms,
+            ),
+        ] {
+            println!("case: {case_name}");
+            let mut module = MirModule::new(module_name);
+            let signature = FunctionSignature {
+                name: "main".to_string(),
+                params: vec![
+                    MirType::Box("StringBox".to_string()),
+                    MirType::Integer,
+                    MirType::Integer,
+                ],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            };
+            let mut function = MirFunction::new(signature, BasicBlockId(0));
+            let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
+            block.instructions.push(MirInstruction::LegacyCallV0 {
+                dst: Some(ValueId(3)),
+                func: ValueId::INVALID,
+                callee: Some(crate::mir::Callee::Method {
+                    box_name: "StringBox".to_string(),
+                    method: "substring".to_string(),
+                    receiver: Some(ValueId(0)),
+                    certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                    box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+                }),
+                args: vec![ValueId(1), ValueId(2)],
+                effects: EffectMask::PURE,
+            });
+            block.instructions.push(MirInstruction::LegacyCallV0 {
+                dst: Some(ValueId(4)),
+                func: ValueId::INVALID,
+                callee: Some(crate::mir::Callee::Method {
+                    box_name: "StringBox".to_string(),
+                    method: "length".to_string(),
+                    receiver: Some(ValueId(3)),
+                    certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                    box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+                }),
+                args: vec![],
+                effects: EffectMask::PURE,
+            });
+            block.set_terminator(MirInstruction::Return {
+                value: Some(ValueId(4)),
+            });
+            function
+                .metadata
+                .value_types
+                .insert(ValueId(3), MirType::Box("StringBox".to_string()));
+            function
+                .metadata
+                .value_types
+                .insert(ValueId(4), MirType::Integer);
+            module.add_function(function);
 
-        let rewritten = apply_pre_dce_transforms(&mut module);
-        assert_eq!(rewritten, 1);
+            let rewritten = transform(&mut module);
+            assert_eq!(rewritten, 1);
+        }
     }
 
-    #[test]
-    fn post_dce_transform_owner_runs_landed_string_corridor_sink() {
-        let mut module = MirModule::new("placement_effect_transform_post".to_string());
-        let signature = FunctionSignature {
-            name: "main".to_string(),
-            params: vec![
-                MirType::Box("StringBox".to_string()),
-                MirType::Integer,
-                MirType::Integer,
-            ],
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        };
-        let mut function = MirFunction::new(signature, BasicBlockId(0));
-        let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
-        block.instructions.push(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId(3)),
-            func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Method {
-                box_name: "StringBox".to_string(),
-                method: "substring".to_string(),
-                receiver: Some(ValueId(0)),
-                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![ValueId(1), ValueId(2)],
-            effects: EffectMask::PURE,
-        });
-        block.instructions.push(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId(4)),
-            func: ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Method {
-                box_name: "StringBox".to_string(),
-                method: "length".to_string(),
-                receiver: Some(ValueId(3)),
-                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![],
-            effects: EffectMask::PURE,
-        });
-        block.set_terminator(MirInstruction::Return {
-            value: Some(ValueId(4)),
-        });
-        function
-            .metadata
-            .value_types
-            .insert(ValueId(3), MirType::Box("StringBox".to_string()));
-        function
-            .metadata
-            .value_types
-            .insert(ValueId(4), MirType::Integer);
-        module.add_function(function);
 
-        let rewritten = apply_post_dce_transforms(&mut module);
-        assert_eq!(rewritten, 1);
-    }
 }
