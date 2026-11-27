@@ -43,10 +43,9 @@ pub(in crate::mir::builder) mod instance_method_draft_preparation;
 pub(in crate::mir::builder) use function_session::CanonicalFunctionLoweringSessionV1;
 pub(in crate::mir) use function_session::CanonicalFunctionSessionErrorV1;
 pub(in crate::mir::builder) use function_session::{
-    CanonicalFunctionSessionRestorationReceiptV1, LegacyFunctionPayloadPendingSessionV1,
+    LegacyFunctionPayloadPendingSessionV1,
     LegacyFunctionPayloadSessionErrorV1, LegacyFunctionPendingSessionV1,
-    PendingFunctionSessionCloseV1, PreparedFunctionSessionCloseV1,
-    PreparedFunctionSessionCommitInputV1,
+    PendingFunctionSessionCloseV1,
 };
 #[cfg(test)]
 mod finalize_value_lifecycle_tests;

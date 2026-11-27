@@ -9,30 +9,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::mir::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
 
-use crate::mir::builder::{BuilderInvocationConfigV1, MirBuilder};
 
-pub(super) struct CanonicalModuleLoweringSessionV1 {
-    candidate: MirBuilder,
-}
 
-impl CanonicalModuleLoweringSessionV1 {
-    pub(super) fn open(current: &MirBuilder) -> Self {
-        let source_file = current.current_source_file();
-        let config =
-            BuilderInvocationConfigV1::snapshot_for_canonical(current, source_file.as_deref());
-        let mut candidate = MirBuilder::new();
-        config.install_into(&mut candidate);
-        Self { candidate }
-    }
-
-    pub(super) fn builder_mut(&mut self) -> &mut MirBuilder {
-        &mut self.candidate
-    }
-
-    pub(super) fn commit(self, current: &mut MirBuilder) {
-        *current = self.candidate;
-    }
-}
 
 static NEXT_COMPILER_DOMAIN: AtomicU64 = AtomicU64::new(1);
 

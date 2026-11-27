@@ -37,11 +37,7 @@ callable_result_representation	pub(crate)	none
 callable_semantic_batch	pub(crate)	none
 canonical_direct_call	pub(crate)	none
 canonical_direct_call_contract	pub(crate)	none
-canonical_direct_static_call_backend_capability	pub(crate)	none
-canonical_direct_static_call_capability	pub(crate)	none
 canonical_physical_drain	pub(crate)	none
-canonical_recursive_callable_module_backend_capability	pub(crate)	none
-canonical_recursive_callable_module_capability	pub(crate)	none
 cfg_extractor	pub	none
 checked_callout	pub(crate)	none
 compile_target_capability	pub	none
@@ -148,7 +144,6 @@ record_state_residence_plan	pub	none
 record_value_backend_capability	pub(crate)	none
 region	pub	none
 resolved_control_flow	pub(crate)	none
-resolved_region_flow	pub(crate)	none
 resolved_semantics	pub(crate)	none
 resolved_value_profile	pub(crate)	none
 return_exit_backend_capability	pub(crate)	none

@@ -218,8 +218,6 @@ fn enforce_before_typed_array_backend_supported_without_parameter_entry_or_retur
     crate::mir::array_record_backend_capability::enforce_array_record_backend_supported(
         module, backend,
     )?;
-    crate::mir::canonical_direct_static_call_backend_capability::enforce(module, backend)?;
-    crate::mir::canonical_recursive_callable_module_backend_capability::enforce(module, backend)?;
     crate::mir::local_slot_backend_capability::enforce_local_slot_backend_supported(
         module, backend,
     )?;
@@ -251,11 +249,9 @@ fn enforce_after_typed_array_backend_supported(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
     use crate::mir::function::ArrayRecordPackedAutoUsePilotPlan;
     use crate::mir::{
-        array_record_backend_capability::ARRAY_RECORD_BACKEND_PACKED_ROUTE_UNSUPPORTED_TAG,
-        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+        array_record_backend_capability::ARRAY_RECORD_BACKEND_PACKED_ROUTE_UNSUPPORTED_TAG, MirModule,
     };
 
     fn module_with_packed_route(required: bool) -> MirModule {
@@ -291,30 +287,4 @@ mod tests {
         assert!(err.contains(ARRAY_RECORD_BACKEND_PACKED_ROUTE_UNSUPPORTED_TAG));
     }
 
-    #[test]
-    fn shared_gate_includes_canonical_direct_call_failfast() {
-        let mut function = MirFunction::new(
-            FunctionSignature {
-                name: "countdown/1".to_string(),
-                params: vec![MirType::Integer],
-                return_type: MirType::Integer,
-                effects: EffectMask::PURE,
-            },
-            BasicBlockId::new(0),
-        );
-        CanonicalDirectStaticCallCapabilityV1::install_for_function(
-            &mut function.metadata.canonical_direct_static_call_capabilities,
-            true,
-        )
-        .unwrap();
-        let mut module = MirModule::new("direct-call-gate".to_string());
-        module.add_function(function);
-
-        assert!(enforce_mir_backend_supported(&module, "mir-interpreter").is_ok());
-        let error = enforce_mir_backend_supported(&module, "wasm").unwrap_err();
-        assert!(error.contains(
-            crate::mir::canonical_direct_static_call_backend_capability::
-                CANONICAL_DIRECT_STATIC_CALL_BACKEND_UNSUPPORTED_TAG
-        ));
-    }
 }

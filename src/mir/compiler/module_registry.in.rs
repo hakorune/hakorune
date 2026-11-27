@@ -3,12 +3,9 @@
 // This file contains only Cargo/module topology. Semantic authorities and
 // compiler entry points remain in the sibling modules and in `mod.rs`.
 
-pub(in crate::mir) mod callable_graph_inventory;
-pub(in crate::mir) mod callable_scc_partition;
 #[cfg(test)]
 pub(crate) mod loop_source_expression_shapes;
 pub(crate) mod canonical_source_identity;
-pub(in crate::mir) mod capability;
 pub(in crate::mir) mod dynamic_full_body_recipe;
 pub(in crate::mir) mod dynamic_full_body_source;
 #[cfg(test)]
@@ -45,9 +42,6 @@ mod loop_cond_break_continue_projection_tests;
 pub(crate) use loop_cond_break_continue_projection_tests::positive_function as loop_cond_function_for_test;
 mod normal_default_pipeline;
 pub(crate) mod normal_source_plan;
-pub(in crate::mir) mod recursive_callable_module_plan;
-pub(in crate::mir) mod resolved_callable_module;
-mod resolved_callable_module_input;
 pub(in crate::mir) mod selected_dynamic_w6_activation;
 pub(in crate::mir) mod source_projection;
 pub(in crate::mir) mod source_view;

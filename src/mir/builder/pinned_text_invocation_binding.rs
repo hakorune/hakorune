@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn targetless_session_rejects_selected_binding_and_duplicate_install() {
         let live = MirBuilder::new();
-        let config = BuilderInvocationConfigV1::snapshot_for_canonical(&live, None);
+        let config = BuilderInvocationConfigV1::snapshot_for_raw(&live, None);
         let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);
         assert_eq!(
             session

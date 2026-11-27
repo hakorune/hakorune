@@ -17,9 +17,8 @@ pub(in crate::mir::builder) use payload_terminal::{
     LegacyFunctionPayloadPendingSessionV1, LegacyFunctionPayloadSessionErrorV1,
 };
 pub(in crate::mir::builder) use terminal::{
-    CanonicalFunctionSessionRestorationReceiptV1, LegacyFunctionPendingSessionV1,
-    PendingFunctionSessionCloseV1, PreparedFunctionSessionCloseV1,
-    PreparedFunctionSessionCommitInputV1,
+    LegacyFunctionPendingSessionV1,
+    PendingFunctionSessionCloseV1,
 };
 
 #[derive(Debug)]
@@ -223,32 +222,13 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         &self,
         operation_succeeded: bool,
     ) -> Result<(), FunctionSessionCleanupErrorV1> {
-        self.validate_session_state(operation_succeeded, false)
+        self.validate_session_state(operation_succeeded)
     }
 
-    /// Validate the state that must already be closed before a canonical
-    /// draft-seal commit takes ownership of the unpublished function.
-    ///
-    /// Unlike `validate_before_restore(true)`, this intentionally requires
-    /// `current_function` to remain installed: the prepared draft-seal
-    /// terminal is the sole owner that takes it during its infallible commit.
-    pub(super) fn validate_before_draft_seal(&self) -> Result<String, String> {
-        self.validate_session_state(true, true)
-            .map(|()| {
-                self.builder
-                    .function_state
-                    .current_function
-                    .as_ref()
-                    .map(|function| function.signature.name.clone())
-                    .expect("draft-seal readiness requires one installed function")
-            })
-            .map_err(|error| error.to_string())
-    }
 
     fn validate_session_state(
         &self,
         operation_succeeded: bool,
-        draft_seal_owns_extraction: bool,
     ) -> Result<(), FunctionSessionCleanupErrorV1> {
         let context = self
             .context
@@ -270,14 +250,7 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
             imbalances.push("unified_boxcall_fallback");
         }
         if operation_succeeded {
-            if draft_seal_owns_extraction && !self.requires_resolved_authority {
-                imbalances.push("draft_seal_requires_resolved_authority");
-            }
-            if draft_seal_owns_extraction {
-                if self.builder.function_state.current_function.is_none() {
-                    imbalances.push("draft_not_installed");
-                }
-            } else if self.builder.function_state.current_function.is_some() {
+            if self.builder.function_state.current_function.is_some() {
                 imbalances.push("published_draft_still_installed");
             }
             if !self
@@ -382,13 +355,4 @@ impl MirBuilder {
         .run(operation)
     }
 
-    /// Open the canonical session without closing or extracting its
-    /// unpublished function. The draft-seal owner consumes this handoff after
-    /// all borrow-only plans have been prepared.
-    pub(in crate::mir::builder) fn open_resolved_function_draft_seal_session_v1(
-        &mut self,
-        function_name: &str,
-    ) -> CanonicalFunctionLoweringSessionV1<'_> {
-        CanonicalFunctionLoweringSessionV1::open(self, function_name, true)
-    }
 }

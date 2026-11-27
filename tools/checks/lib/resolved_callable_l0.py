@@ -8,7 +8,6 @@ import re
 import sys
 
 from resolved_callable_p0c_f import check_p0c_f
-from resolved_callable_p0c_mr import check_p0c_mr
 
 
 def fail(message: str) -> None:
@@ -702,5 +701,4 @@ for marker in [
         fail(f"P0c-F-DX0b function-level capability install missing: {marker}")
 
 check_p0c_f(root, fail)
-check_p0c_mr(root, fail)
 print("[resolved-callable-l0] ok")

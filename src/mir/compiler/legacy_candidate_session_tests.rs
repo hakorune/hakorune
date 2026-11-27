@@ -981,9 +981,10 @@ fn canonical_finish_rejects_an_invalid_target_before_publication() {
         .unwrap()
         .set_jump_with_edge_args(crate::mir::BasicBlockId::new(9999), None);
     let error = compiler
-        .finish_built_canonical_module(module, super::CanonicalFinishScheduleV1::TrivialBindingSsa)
+        .finish_built_module(module, super::MirFinishScheduleV1::Legacy, &Default::default())
+        .and_then(super::MirCompileResult::into_verified_module)
         .unwrap_err();
-    assert!(matches!(error, super::CanonicalLoweringErrorV1::MirVerificationFailed { .. }), "{error}");
+    assert!(error.contains("9999"), "{error}");
     assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
     assert!(compiler.builder.current_module.is_none());
 }

@@ -70,14 +70,6 @@ pub(in crate::mir) struct BuilderInvocationConfigV1 {
 }
 
 impl BuilderInvocationConfigV1 {
-    pub(in crate::mir) fn snapshot_for_canonical(
-        current: &MirBuilder,
-        source_file: Option<&str>,
-    ) -> Self {
-        let mut config = Self::snapshot_with_policy(current, BuilderCoreSeedPolicyV1::Fresh);
-        config.source_file = source_file.map(str::to_owned);
-        config
-    }
 
     /// RAW-SOURCE0-BIND0: capture the legacy candidate inputs without
     /// mutating the live Builder. Raw preserves the existing CoreContext

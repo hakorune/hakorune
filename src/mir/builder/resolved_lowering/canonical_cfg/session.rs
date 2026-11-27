@@ -292,18 +292,6 @@ impl CanonicalCfgSessionV1 {
         Ok(())
     }
 
-    /// Sole canonical writer for a success-only Residence marker on the
-    /// detached DraftSeal image. The image has already passed the live CFG
-    /// close, so a sealed block is expected; only the absence of a terminator
-    /// and the Residence marker itself are admitted here. No second CFG
-    /// session or direct MIR writer is allowed to place this instruction.
-    pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_finish_detached(
-        function: &mut MirFunction,
-        source: BasicBlockId,
-        residence: TextFormalResidenceIdV1,
-    ) -> Result<(), CanonicalCfgErrorV1> {
-        super::pinned_text_finish::emit_detached(function, source, residence)
-    }
 
     pub(in crate::mir::builder) fn seal_block(
         &mut self,
