@@ -47,10 +47,11 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> bool {
         use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1;
         let site = original.call_site();
-        // A Return can use the existing tagged input cohort. Narrowing its
-        // callee to a finite domain would require evidence the forwarded
-        // borrowed pair's original caller entry intentionally does not carry.
-        !source.has_tagged_static_input_v1(original.callee_owner(), original.parameters())
+        let callee = original.callee_owner();
+        // Existing tagged and scalar-only cohorts already own the entry.
+        // Their actuals use their original protocols through a Return as well.
+        !source.has_tagged_static_input_v1(callee, original.parameters())
+            && !source.is_scalar_only_static_input_v1(callee)
             && original.parameters().iter().any(|formal| formal.kind == CallableParameterContractKindV1::OpaqueHandle)
             && self.observes_static_result_v1(original, LocalCallResultClassV1::I64)
             && self.local_call_for_owner(site.owner(), site.site())

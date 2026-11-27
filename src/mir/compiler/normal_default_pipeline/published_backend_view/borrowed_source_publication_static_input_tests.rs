@@ -1,6 +1,31 @@
 //! Mutation checks for Static calls closed by the general whole-input cohort.
 use super::*;
 
+#[test]
+fn scalar_input_comparison_keeps_its_numeric_protocol_through_return() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = r#"static box Main {
+  sign(value) {
+    if value < 0 { return 3 }
+    return 4
+  }
+  main() { return Main.sign(-5) }
+}"#;
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let compiled = MirCompiler::with_options(false)
+            .compile_normal_with_published(request(source), |view, verification| {
+                require_artifact_verification(verification);
+                assert!(view.module().functions.contains_key("Main.sign/1"));
+                Ok(())
+            })
+            .expect("the original numeric argument qualifies for Return");
+        assert!(matches!(
+            compiled,
+            crate::mir::compiler::normal_default_pipeline::NormalPublishedCompileOutcome::Consumed(())
+        ));
+    });
+}
+
 /// The zero-input call and the former mixed cohort (one integer caller and two
 /// forwarded formals) now close through the same qualified input. A completed
 /// module whose call arguments are changed afterwards must not verify.
