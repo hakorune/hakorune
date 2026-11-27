@@ -1,0 +1,34 @@
+// BM-13 measurement copy (full result) of benchmarks/bench_kilo_micro_userbox_counter_step_chain.hako
+// See benchmarks/variants/README.md for the expected result.
+// Same workload; field is `i64` and set by `birth(value: i64)`.
+box Counter {
+  value: i64
+
+  birth(value: i64) {
+    me.value = value
+  }
+
+  step() {
+    return me.value + 2
+  }
+
+  step_chain() {
+    return me.step()
+  }
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local c = new Counter(41)
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      acc = acc + c.step_chain()
+      i = i + 1
+    }
+
+    return acc + c.step_chain()
+  }
+}

@@ -1,0 +1,34 @@
+// BM-13 measurement copy (% 256 pair) of benchmarks/bench_kilo_micro_userbox_point_sum.hako
+// See benchmarks/variants/README.md for the expected result.
+// Same workload; fields are `i64` and set by `birth(x: i64, y: i64)` instead of
+// IntegerBox fields assigned after `new Point()`.
+// Only the final `return` is reduced with `% 256`.
+box Point {
+  x: i64
+  y: i64
+
+  birth(x: i64, y: i64) {
+    me.x = x
+    me.y = y
+  }
+
+  sum() {
+    return me.x + me.y
+  }
+}
+
+static box Main {
+  main() {
+    local ops = 2000000
+    local p = new Point(1, 2)
+
+    local acc = 0
+    local i = 0
+    loop (i < ops) {
+      acc = acc + p.sum()
+      i = i + 1
+    }
+
+    return (acc + p.sum()) % 256
+  }
+}
