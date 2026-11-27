@@ -208,7 +208,7 @@ impl ArgumentExpressionSourceLoanV1 {
 /// optional catalog is unnecessary for Static (its source owns all formals),
 /// and mandatory for Instance; absence never invents an empty formal contract.
 struct ArgumentSourceIdentityRefV1<'a> {
-    source: super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'a>,
+    source: super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1<'a>,
     candidates: &'a [BorrowedCallActualCandidateV1],
     slots: &'a BTreeMap<u32, ArgumentExpressionV1>,
     formals: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1],
@@ -223,7 +223,7 @@ fn argument_source_contract_v1<'a>(
         contracts, source.callee_owner(), reject, reject,
     )?;
     if contract.batch_slot != source.target_batch_slot()
-        || contract.mode != super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(source).declaration_mode()
+        || contract.mode != super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(source).declaration_mode()
         || contract.parameters.len() != candidates.len()
         || contract.parameters.iter().zip(candidates).enumerate().any(|(index, (formal, candidate))| {
             formal.ordinal as usize != index
@@ -241,7 +241,7 @@ fn argument_source_identity_v1<'a>(
     rows: &'a PreparedBorrowedCallActualsV1,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<ArgumentSourceIdentityRefV1<'a>>, String> {
-    use super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1 as Loan;
+    use super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1 as Loan;
     let rows = rows.source_static_snapshot_v1().unwrap_or(rows);
     match &rows.phase {
         BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) => {

@@ -54,7 +54,7 @@ impl crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1 {
 /// stay with the original Static/Instance issuer, outside this common product.
 pub(super) fn bind_original_argument_plans_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    source: super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>,
+    source: super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1<'_>,
     method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     candidates: &[BorrowedCallActualCandidateV1],
     previous: Option<&BTreeMap<u32, ArgumentExpressionV1>>,
@@ -150,7 +150,7 @@ pub(super) fn bind_original_argument_plans_v1(
 /// Source-plan membership, not execution/entry/ownership permission. Qualified
 /// frames must retain their SAME source loan, not a rebuilt plan or frame.
 pub(super) fn validate_original_argument_plans_v1(
-    source: super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>,
+    source: super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1<'_>,
     candidates: &[BorrowedCallActualCandidateV1],
     plans: &BTreeMap<u32, ArgumentExpressionV1>,
 ) -> Result<(), String> {

@@ -76,7 +76,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
             .ok_or_else(reject)?;
         identity.argument_sources = model::bind_original_argument_plans_v1(
             input,
-            super::super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+            super::super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(
                 &identity.source,
             ),
             method,
@@ -115,7 +115,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
             .ok_or_else(reject)?;
         identity.argument_sources = model::bind_original_argument_plans_v1(
             input,
-            super::super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+            super::super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(
                 &identity.source,
             ),
             method,
@@ -224,7 +224,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_argument_sources_v1
     }
     identity.argument_sources = model::bind_original_argument_plans_v1(
         input,
-        super::super::super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Static(
+        super::super::super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Static(
             &identity.source,
         ),
         identity.source.method_source(),

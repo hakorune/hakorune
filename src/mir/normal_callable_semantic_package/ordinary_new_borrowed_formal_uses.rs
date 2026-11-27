@@ -308,7 +308,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedIncomingCall
 
 #[path = "ordinary_new_borrowed_call_source.rs"]
 mod call_source;
-pub(super) use call_source::{borrow_call_sources_v1, BorrowedCallSourceLoanV1};
+pub(super) use call_source::{borrow_call_sources_v1, BorrowedIncomingCallLoanV1};
 #[path = "ordinary_new_borrowed_incoming_source.rs"]
 mod incoming_source;
 pub(super) use incoming_source::BorrowedIncomingSourceV1;

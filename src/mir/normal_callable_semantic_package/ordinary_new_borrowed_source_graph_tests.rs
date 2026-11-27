@@ -1,7 +1,7 @@
 //! Original rows and callee vetoes share one immutable inventory.
 #[path = "ordinary_new_borrowed_instance_source_domain_tests.rs"]
 mod instance_source_domain_tests;
-use super::super::super::borrowed_formal_uses::{borrow_call_sources_v1, BorrowedCallSourceLoanV1};
+use super::super::super::borrowed_formal_uses::{borrow_call_sources_v1, BorrowedIncomingCallLoanV1};
 use super::*;
 use std::rc::Rc;
 type Package =
@@ -572,7 +572,7 @@ fn source_graph_static_owner_preserves_rc_and_refuses_instance_authority() {
         matches!(owned.clone(), BorrowedIncomingSourceV1::Static(row) if Rc::ptr_eq(&row, original))
     );
     assert!(
-        matches!(owned.as_loan().unwrap(), BorrowedCallSourceLoanV1::Static(row) if std::ptr::eq(row, original.as_ref()))
+        matches!(owned.as_loan().unwrap(), BorrowedIncomingCallLoanV1::Static(row) if std::ptr::eq(row, original.as_ref()))
     );
     assert!(owned
         .require_instance()

@@ -203,7 +203,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     /// Loan the original target, including its source owner and batch identity.
     pub(crate) fn incoming_targets(
         &self,
-    ) -> impl Iterator<Item = Result<super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>, String>>
+    ) -> impl Iterator<Item = Result<super::borrowed_formal_uses::BorrowedIncomingCallLoanV1<'_>, String>>
     {
         self.incoming_rows
             .iter()

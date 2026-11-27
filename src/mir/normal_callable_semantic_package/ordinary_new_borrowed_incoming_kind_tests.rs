@@ -51,6 +51,6 @@ fn source_graph_physical_incoming_iterator_lends_static_without_filtering() {
     );
     assert!(matches!(
         loan,
-        super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Static(_)
+        super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Static(_)
     ));
 }

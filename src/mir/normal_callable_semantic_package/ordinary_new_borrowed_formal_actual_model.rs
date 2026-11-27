@@ -617,7 +617,7 @@ pub(super) fn retain_instance_argument_sources_v1(
     }
     if !original.argument_sources.is_empty() {
         validate_original_argument_plans_v1(
-            super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+            super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(
                 &original.source,
             ),
             &original.candidates,
@@ -646,7 +646,7 @@ pub(super) fn retain_object_argument_sources_v1(
     }
     if !original.argument_sources.is_empty() {
         validate_original_argument_plans_v1(
-            super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Instance(
+            super::super::borrowed_formal_uses::BorrowedIncomingCallLoanV1::Instance(
                 &original.source,
             ),
             &original.candidates,

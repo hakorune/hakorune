@@ -8,7 +8,7 @@ use super::*;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn join_borrowed_forward_uses_v1(
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
-    calls: &BTreeMap<OwnedExprSiteV1, BorrowedCallSourceLoanV1<'_>>,
+    calls: &BTreeMap<OwnedExprSiteV1, BorrowedIncomingCallLoanV1<'_>>,
 ) -> Result<Box<[BorrowedForwardUseDraftRowV1]>, BorrowedForwardJoinDraftErrorV1> {
     let mut rows = Vec::new();
     for (owner, draft) in drafts {

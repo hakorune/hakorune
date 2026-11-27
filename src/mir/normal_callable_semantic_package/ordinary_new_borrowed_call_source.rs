@@ -6,12 +6,12 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
 #[derive(Debug, Clone, Copy)]
-pub(crate) enum BorrowedCallSourceLoanV1<'a> {
+pub(crate) enum BorrowedIncomingCallLoanV1<'a> {
     Instance(&'a super::super::LexicalInstanceCallSourceTargetV1),
     Static(&'a StaticIncomingSourceV1),
 }
 
-impl BorrowedCallSourceLoanV1<'_> {
+impl BorrowedIncomingCallLoanV1<'_> {
     pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {
         match self {
             Self::Instance(row) => row.call_site(),
@@ -60,14 +60,14 @@ impl BorrowedCallSourceLoanV1<'_> {
 pub(in crate::mir) fn borrow_call_sources_v1<'a>(
     instance: &BTreeMap<OwnedExprSiteV1, &'a super::super::LexicalInstanceCallSourceTargetV1>,
     static_sources: impl IntoIterator<Item = &'a StaticIncomingSourceV1>,
-) -> Result<BTreeMap<OwnedExprSiteV1, BorrowedCallSourceLoanV1<'a>>, String> {
+) -> Result<BTreeMap<OwnedExprSiteV1, BorrowedIncomingCallLoanV1<'a>>, String> {
     let mut result: BTreeMap<_, _> = instance
         .iter()
-        .map(|(site, row)| (site.clone(), BorrowedCallSourceLoanV1::Instance(row)))
+        .map(|(site, row)| (site.clone(), BorrowedIncomingCallLoanV1::Instance(row)))
         .collect();
     for source in static_sources {
         match result.get(source.call_site()) {
-            Some(BorrowedCallSourceLoanV1::Static(previous))
+            Some(BorrowedIncomingCallLoanV1::Static(previous))
                 if std::ptr::eq(*previous, source) => {}
             Some(_) => {
                 return Err("[freeze:contract][borrowed-formal/conflicting-source-call]".into())
@@ -75,7 +75,7 @@ pub(in crate::mir) fn borrow_call_sources_v1<'a>(
             None => {
                 result.insert(
                     source.call_site().clone(),
-                    BorrowedCallSourceLoanV1::Static(source),
+                    BorrowedIncomingCallLoanV1::Static(source),
                 );
             }
         }
