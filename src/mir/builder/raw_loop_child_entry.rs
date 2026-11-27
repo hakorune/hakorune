@@ -18,7 +18,6 @@ use super::normal_callable_loop_handoff::{
 };
 use super::normal_callable_loop_source_facts::{
     CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
-    CallableGenericLoopSourceFactsRouteErrorV1,
 };
 use super::normal_callable_loop_source_route::{
     CallableLoopSourceItemBindingV1, CallableLoopSourceTargetProbeV1,
@@ -380,15 +379,12 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => Err(format!(
                 "[freeze:contract][callable-loop/source-unavailable] {error:?}"
             )),
-            CallableGenericLoopSourceFactsDispositionV1::FactsAbsent => {
-                Err("[freeze:contract][callable-loop/facts-absent]".to_owned())
-            }
             CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error) => Err(format!(
                 "[freeze:contract][callable-loop/facts-rejected] {error}"
             )),
-            CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
-                CallableGenericLoopSourceFactsRouteErrorV1::NonGenericOrOverlapping { .. },
-            ) => Err(checked_source_route_unavailable(function_name, parent_source.site())),
+            CallableGenericLoopSourceFactsDispositionV1::CheckedSourceRouteUnavailable => {
+                Err(checked_source_route_unavailable(function_name, parent_source.site()))
+            }
             CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error) => {
                 Err(format!(
                     "[freeze:contract][callable-loop/route-not-front-selected] {error:?} function={function_name} source={:?} site={:?}",

@@ -276,7 +276,7 @@ fn located_entry_carries_callable_handoff_before_route_effects() {
 }
 
 #[test]
-fn body_only_product_rejects_before_builder_effect_when_facts_are_absent() {
+fn body_only_product_rejects_before_builder_effect_without_a_checked_route() {
     let source = located_loop_source();
     let loop_site = source.site().unwrap().clone();
     let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
@@ -295,9 +295,9 @@ fn body_only_product_rejects_before_builder_effect_when_facts_are_absent() {
             false,
             LoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true),
         )
-        .expect_err("body-only product must reject absent Facts before effects");
+        .expect_err("body-only product must reject an unavailable checked route before effects");
 
-    assert!(error.contains("callable-loop/facts-absent"));
+    assert!(error.contains("raw-loop-child-entry/checked-source-route-unavailable"));
     assert!(builder.function_state.current_function.is_none());
     assert!(builder.function_state.current_block.is_none());
 }

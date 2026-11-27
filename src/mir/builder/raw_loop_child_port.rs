@@ -359,28 +359,15 @@ mod tests {
         assert_eq!(after, before, "fail-fast must not create partial MIR");
     }
 
-    /// A resolver-cataloged nested loop with no admitted callable Facts stays
-    /// at the source-facts terminal. It must not re-enter the compatibility
-    /// GenericLoop route, regardless of the planner diagnostic mode.
     #[test]
     fn unarmed_nested_loop_stops_at_source_facts_without_compatibility_reentry() {
-        for (mode, expected_terminal) in [
-            (
-                &crate::test_support::JOINIR_DEFAULT_MODE,
-                "[callable-loop/facts-absent]",
-            ),
-            (
-                &crate::test_support::JOINIR_STRICT_PLANNER_MODE,
-                "[callable-loop/facts-rejected]",
-            ),
-        ] {
-            crate::test_support::with_env_vars(mode, || {
-                let error = lower_unarmed_nested_loop()
-                    .expect_err("unarmed nested loop must stop at its source owner");
-                assert!(error.contains(expected_terminal), "{error}");
-                assert!(!error.contains("route_loop"), "{error}");
-            });
-        }
+        let error = lower_unarmed_nested_loop()
+            .expect_err("unarmed nested loop must stop at its source owner");
+        assert!(
+            error.contains("[raw-loop-child-entry/checked-source-route-unavailable]"),
+            "{error}"
+        );
+        assert!(!error.contains("route_loop"), "{error}");
     }
 
     /// Lower the if-nested (resolver-cataloged but unarmed) loop of the mixed

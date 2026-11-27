@@ -3,7 +3,7 @@ use super::*;
 pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsIssuerV1;
 
 impl CallableGenericLoopSourceFactsIssuerV1 {
-    /// Issue exactly one source-aware planner outcome.  The raw Ready branch
+    /// Issue the retained checked loop source product.  The raw Ready branch
     /// is the sole production caller; no old-route fallback is owned here.
     pub(in crate::mir::builder) fn issue_once<'source>(
         payload: PreparedCallableGenericLoopSourceFactsPayloadV1<'source>,
@@ -17,8 +17,8 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             body,
             owner,
             binding_product,
-            function_name,
-            debug,
+            function_name: _,
+            debug: _,
             in_static_box: _,
             policy,
             function_origin,
@@ -38,9 +38,6 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         ) {
             return CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error);
         }
-        let trace_name = std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some()
-            .then(|| function_name.clone());
-
         let retained = retained.map(|retained| {
             parent_source.site().ok_or_else(|| "[freeze:contract][preissued-loop/parent-missing]".to_owned())
                 .and_then(|site| retained.into_issuance(owner, site, function_origin, source_kind, policy))
@@ -57,26 +54,6 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             Ok(_) => {}
             Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
         }
-        let PlannedSourceLoopV1 { selection } = match PlannedSourceLoopV1::issue(
-            &condition, &body, policy, function_name, debug
-        ) {
-            Ok(planned) => planned,
-            Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
-        };
-        if let Some(function_name) = trace_name {
-            eprintln!("[local-call-bindings] loop-route owner={owner:?} function={function_name} family={:?}",
-                selection.as_ref().and_then(|selection| selection.sole_family()));
-        }
-        let Some(selection) = selection else {
-            return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
-        };
-        if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) {
-            return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
-        }
-        CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
-            CallableGenericLoopSourceFactsRouteErrorV1::NonGenericOrOverlapping {
-                routes: selection.matched_routes().into(),
-            },
-        )
+        CallableGenericLoopSourceFactsDispositionV1::CheckedSourceRouteUnavailable
     }
 }

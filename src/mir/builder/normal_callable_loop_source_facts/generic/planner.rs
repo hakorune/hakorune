@@ -12,20 +12,6 @@ use crate::mir::builder::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopBindingSourceV1,
 };
 
-#[derive(Debug)]
-pub(super) struct PlannedSourceLoopV1 {
-    pub(super) selection: Option<CallableLoopRouteMatchV1>,
-}
-impl PlannedSourceLoopV1 {
-    pub(super) fn issue(condition: &crate::ast::ASTNode, body: &[crate::ast::ASTNode],
-        policy: LoopFactsPolicyFrameV1, name: Box<str>, debug: bool) -> Result<Self, String> {
-        let outcome = single_planner::try_build_source_outcome(
-            CallableLoopFactsPlannerInputV1::new(condition, body, policy, name, debug))?;
-        let selection = outcome.facts.as_ref().map(CallableLoopRouteMatchV1::issue);
-        Ok(Self { selection })
-    }
-}
-
 /// Same original source membership and the sole planner result. No physical ID,
 /// Home permission or second planner call can be manufactured by this transport.
 #[derive(Debug)]
