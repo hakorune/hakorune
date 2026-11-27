@@ -44,7 +44,6 @@ use super::dynamic_admission::{
 use super::instance_constructor_semantic::{
     capture_instance_constructor_sources_v1, InstanceConstructorSemanticBatchIssueV1,
 };
-use super::loop_break_source::issue_loop_break_source_package_v1;
 use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1, OwnedCallableParameterContractsV1,
     OwnedCallableParameterContractV1, VerifiedNormalCallableSemanticPackageV1,
@@ -162,9 +161,6 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     MissingDynamicSourceOwner,
     CoreMethodSource {
         _error: String,
-    },
-    LoopBreakSource {
-        _error: super::loop_break_source::LoopBreakSourcePackageIssueV1,
     },
     QualifiedStaticClaim {
         _error: super::qualified_static_call_claim::QualifiedStaticCallClaimIndexIssueV1,
@@ -345,8 +341,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
     ).map_err(|error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error })?;
     let mut instance_constructors = captured_constructors.seal(&batch, &static_claim_index, &field_writers)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::InstanceConstructors { _error: error })?;
-    let loop_break_source = issue_loop_break_source_package_v1(&batch, loop_policy)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
     let (source_core_method_calls, named_array_field_providers) = match brand_catalog {
         Some(brands) => issue_source_core_method_calls_with_named_arrays_and_dynamic_calls_v1(
             &catalog,
@@ -631,7 +625,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         physical_header,
         dynamic,
         dynamic_physical_header,
-        loop_break_source,
         source_core_method_calls,
         named_array_field_providers,
         app_main_qualified_receiver_catalog: None,

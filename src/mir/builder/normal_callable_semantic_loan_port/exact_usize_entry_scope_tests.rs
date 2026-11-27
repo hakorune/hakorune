@@ -126,7 +126,6 @@ fn scope(mode: &str) -> Result<(), String> {
                     named_arrays,
                     Rc::clone(&ledger),
                     Some(owned_array_source),
-                    None,
                     |inner, _transport| {
                         use hakorune_mir_defs::PhysicalCallableLaneCarrierV1 as Carrier;
                         let function = builder.function_state.current_function.as_mut().unwrap();

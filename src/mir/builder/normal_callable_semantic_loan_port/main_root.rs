@@ -76,7 +76,6 @@ pub(super) fn lower_app_main_root_body_v1(
                 Some(Rc::clone(&named_array_emissions)),
                 Rc::clone(&ordinary_new_claim_ledger),
                 Some(owned_array_source),
-                None,
                 |inner, transport| {
                     inner.with_source_transport_v1(transport, |inner, ()| {
                         verify_raw_callable_owner_v1(identity.owner(), inner.callable_owner_v1())

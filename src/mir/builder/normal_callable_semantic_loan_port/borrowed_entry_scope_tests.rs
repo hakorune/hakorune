@@ -126,7 +126,6 @@ fn scope(actual: &str) -> Result<(ValueId, ValueId), String> {
                     named_arrays,
                     Rc::clone(&ledger),
                     Some(owned_array_source),
-                    None,
                     |inner, _transport| {
                         inner
                             .owned_array_source
@@ -316,7 +315,6 @@ fn selected_scope_adopts_existing_borrowed_formal_value() {
                         arrays,
                         Rc::clone(&ledger),
                         Some(owned),
-                        None,
                         |inner, transport| {
                             inner.with_source_transport_v1(transport, |inner, ()| {
                                 builder

@@ -31,25 +31,6 @@ impl CallableSemanticLoweringState {
             SelectedSourceCoreMethodCallV1,
         >,
     ) -> Result<Self, String> {
-        Self::from_exact_source_with_dynamic_source_and_core_methods_and_loop_break_source(
-            input,
-            dynamic_source,
-            source_core_method_calls,
-            None,
-        )
-    }
-
-    pub(in crate::mir::builder) fn from_exact_source_with_dynamic_source_and_core_methods_and_loop_break_source(
-        input: ResolvedFunctionLoweringInputV1<'_>,
-        dynamic_source: Option<
-            Rc<super::super::normal_callable_dynamic_source::VerifiedSourceBackedDynamicCallableV1>,
-        >,
-        source_core_method_calls: BTreeMap<
-            crate::mir::resolved_semantics::SourceExprSiteV1,
-            SelectedSourceCoreMethodCallV1,
-        >,
-        loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
-    ) -> Result<Self, String> {
         let source_loop_bridge = source_loop_bridge::CallableLoopSourceBridgeV1::from_input(input)?;
         // Only the explicitly selected Dynamic source owns its entry ABI.
         // A source observer built below for ordinary lowering grants no lanes.
@@ -231,7 +212,6 @@ impl CallableSemanticLoweringState {
             consumed_brand_constructors: BTreeSet::new(),
             consumed_source_core_method_calls: BTreeSet::new(),
             source_loop_bridge,
-            loop_break_source,
             source_core_method_calls,
             named_array_writes: Vec::new(),
             named_array_reads: Vec::new(),

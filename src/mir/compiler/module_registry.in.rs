@@ -11,7 +11,6 @@ pub(in crate::mir) mod dynamic_full_body_source;
 mod dynamic_full_body_source_tests;
 pub(in crate::mir) mod function_input;
 pub(in crate::mir) mod located;
-pub(in crate::mir) mod loop_break_source_projection;
 pub(in crate::mir) mod loop_cond_break_continue_projection;
 // Caller-zero Main0 Continue co-seal issuer; sole owner is this row's source
 // front. Recheck at the Main0 canonical-root handoff / production caller

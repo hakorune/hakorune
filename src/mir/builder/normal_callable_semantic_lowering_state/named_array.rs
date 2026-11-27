@@ -74,13 +74,6 @@ impl CallableSemanticLoweringState {
         self.dynamic_origins
             .finish()
             .map_err(|error| error.to_string())?;
-        if let Some(loop_break_source) = self.loop_break_source.as_ref() {
-            loop_break_source.finish_empty()?;
-        }
-        let loop_break_transport_kind = self
-            .loop_break_source
-            .as_ref()
-            .map(LoopBreakSourcePackageLoanV1::is_candidate);
         let missing_variables = self
             .variables
             .keys()
@@ -98,7 +91,7 @@ impl CallableSemanticLoweringState {
                 != self.named_array_field_allocations.len()
         {
             return Err(format!(
-                "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{} loop_break_transport_kind={:?} pending_core={:?} pending_static={:?}",
+                "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{} pending_core={:?} pending_static={:?}",
                 freeze("incomplete-consumption"),
                 self.owner,
                 self.entry_installed,
@@ -111,7 +104,6 @@ impl CallableSemanticLoweringState {
                 self.assignments.len(),
                 self.consumed_direct_lambdas.len(),
                 self.direct_lambda_captures.len(),
-                loop_break_transport_kind,
                 self.source_core_method_calls.keys().collect::<Vec<_>>(),
                 self.source_static_result_publications.keys().collect::<Vec<_>>(),
             ));

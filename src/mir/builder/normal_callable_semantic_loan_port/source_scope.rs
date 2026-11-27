@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::{
-    LoopBreakSourcePackageLoanV1, LoopBreakSourcePackageTakeHandle, OrdinaryNewClaimLedgerV1,
+    OrdinaryNewClaimLedgerV1,
 };
 use crate::parser::CallableMethodSourceObservationV1;
 
@@ -29,7 +29,6 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
     owned_array_source: Option<
         crate::mir::normal_callable_semantic_package::OwnedArrayLifecycleSourceLoanV1<'_>,
     >,
-    loop_break_take: Option<LoopBreakSourcePackageTakeHandle<'_>>,
     execute: impl FnOnce(
         &mut RawInvocationChildPortV1<'_, 'collector>,
         RawInvocationSourceTransportV1<()>,
@@ -71,9 +70,6 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         Some(named_array_emissions),
         ordinary_new_claim_ledger,
         owned_array_source,
-        loop_break_take
-            .map(|take| take.take_for_owner(input.source().owner()))
-            .transpose()?,
         move |inner, transport| {
             {
                 let state = inner.source_ledger.callable().ok_or_else(|| {
@@ -108,7 +104,6 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
     owned_array_source: Option<
         crate::mir::normal_callable_semantic_package::OwnedArrayLifecycleSourceLoanV1<'_>,
     >,
-    loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     execute: impl FnOnce(
         &mut RawInvocationChildPortV1<'_, 'collector>,
         RawInvocationSourceTransportV1<()>,
@@ -117,11 +112,10 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
     let source_scope_ledger = Rc::clone(&ordinary_new_claim_ledger);
     let _source_scope = source_scope_ledger.branch_source_scope_v1(input.owner());
     let transport = RawInvocationSourceTransportV1::root((), lineage);
-    let mut state = CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods_and_loop_break_source(
+    let mut state = CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(
         input,
         dynamic_source,
         core_method_calls,
-        loop_break_source,
     )?;
     state.lend_ordinary_new_claim_ledger(Rc::clone(&ordinary_new_claim_ledger));
     let state = Rc::new(RefCell::new(state));

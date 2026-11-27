@@ -55,7 +55,6 @@ impl<'package, 'loan, 'port, 'collector, 'target>
                     Rc::clone(&named_array_emissions),
                         Rc::clone(&ordinary_new_claim_ledger),
                     Some(owned_array_source),
-                    None,
                     |inner, transport| {
                         inner.with_declared_instance_locator_scope(locator, |inner| {
                             execute(inner, transport, admission, signature)

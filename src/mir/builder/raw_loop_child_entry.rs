@@ -320,20 +320,6 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             } else {
                 (None, None, None, Box::default(), None)
             };
-        let direct_candidate = match (callable_ledger, parent_source.site()) {
-            (Some(ledger), Some(site)) => {
-                // Consume a pre-issued direct candidate even when the checked recipe owns the site.
-                ledger.borrow_mut().take_loop_break_source_candidate(site)?
-            }
-            _ => None,
-        };
-        if std::env::var_os("NYASH_DEBUG_LOCAL_CALLS").is_some() {
-            eprintln!("[local-call-bindings] raw-loop-routes function={function_name} checked={checked_source_selected} loop-break={}",
-                direct_candidate.is_some() && !checked_source_selected);
-        }
-        if direct_candidate.is_some() && !checked_source_selected {
-            return Err("[freeze:contract][callable-loop/facts-absent]".to_owned());
-        }
         let prepared = Self {
             parent_source,
             loop_node,

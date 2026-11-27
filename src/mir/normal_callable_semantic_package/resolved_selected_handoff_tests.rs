@@ -61,9 +61,9 @@ box InstanceApi {
     let mut port = installed.begin_lowering(&context).expect("same catalog");
     let mut completion_address = 0usize;
 
-    port.with_selected_cataloged_lowering_input_signature_and_loop_break(
+    port.with_selected_cataloged_lowering_input_signature(
         admission(&static_key),
-        |input, signature, _| {
+        |input, signature| {
             input.with_selected_and_admission(|selected, admitted| {
                 completion_address =
                     selected.result_contract().unwrap().completion() as *const _ as usize;
@@ -81,9 +81,9 @@ box InstanceApi {
     )
     .expect("static sibling loan");
 
-    port.with_selected_cataloged_lowering_input_signature_and_loop_break(
+    port.with_selected_cataloged_lowering_input_signature(
         admission(&instance_key),
-        |input, signature, _| {
+        |input, signature| {
             input.with_selected_and_admission(|selected, admitted| {
                 assert_eq!(selected.source().owner(), signature.owner());
                 assert_eq!(
@@ -99,9 +99,9 @@ box InstanceApi {
     .expect("instance sibling loan");
 
     assert_eq!(
-        port.with_selected_cataloged_lowering_input_signature_and_loop_break(
+        port.with_selected_cataloged_lowering_input_signature(
             admission(&static_key),
-            |_, _, _| ()
+            |_, _| ()
         ),
         Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey)
     );
