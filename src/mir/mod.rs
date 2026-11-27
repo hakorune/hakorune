@@ -101,7 +101,6 @@ pub(crate) use compiler::normal_source_plan;
 pub mod cfg_extractor; // Phase 154: CFG extraction for hako_check
 pub(crate) mod checked_callout; // canonical MIR-owned checked Normal/Fault callout vocabulary
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
-pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
 pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod control_form;
 pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
@@ -170,7 +169,6 @@ pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name
 pub mod optimizer;
 pub mod optimizer_passes; // optimizer passes (normalize/diagnostics)
 pub mod optimizer_stats; // extracted stats struct
-pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publication
 pub(crate) mod ownership_backend_capability; // exact backend ownership lifecycle preflight
 pub(crate) mod ownership_ssa; // verified per-function Ownership SSA discipline
 pub(crate) mod parameter_entry_backend_capability; // exact-numeric parameter-entry backend gate
@@ -239,7 +237,6 @@ pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
 pub(crate) mod typed_array_backend_capability;
 pub mod typed_object_plan; // MIR-owned typed user-object layout plans for EXE lowering
 pub mod types; // core MIR enums (ConstValue, Ops, MirType)
-pub mod user_box_method_publication; // report-only publication classifier for user-box method fastpath candidates
 pub mod user_box_method_route_plan; // MIR-owned route plans for typed user-box method calls
 pub mod userbox_known_receiver_method_seed_plan; // MIR-owned route plan for temporary UserBox known-receiver method exact seeds
 pub mod userbox_local_scalar_seed_plan; // MIR-owned route plan for temporary UserBox local scalar exact seeds

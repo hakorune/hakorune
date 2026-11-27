@@ -568,12 +568,6 @@ if "MirInstruction::Call { func" in consumer_window:
 for token in ("match_method_set_call", "record_direct_set_consumer_use", "record_other_uses"):
     if token not in value_consumer:
         raise SystemExit(f"value_consumer lost fact boundary helper: {token}")
-publication = (root / "src/mir/user_box_method_publication.rs").read_text()
-publication_start = publication.index("fn instruction_publishes_any_alias")
-publication_end = publication.index("#[cfg(test)]", publication_start)
-publication_window = " ".join(publication[publication_start:publication_end].split())
-if (publication_window.count("MirInstruction::LegacyCallV0 { .. } => inst") != 1 or publication_window.count("used_values()") != 1 or "method_receiver_is_alias" in publication_window or "Callee::" in publication_window):
-    raise SystemExit("user-box publication lost its compatibility-only generic operand observer")
 host_writer = (root / "src/mir/passes/string_corridor_sink/publication.rs").read_text()
 for label, marker, rewrite in (("host", "apply_publication_host_boundary_plans", "rewrite_method_set_value"), ("write", "apply_publication_write_boundary_plans", "rewrite_publication_write_boundary_value")):
     start = host_writer.index(marker)

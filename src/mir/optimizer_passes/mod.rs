@@ -3,6 +3,5 @@
 // only by the optimizer pipeline (optimizer/core.rs). Not for external reuse.
 // Boundary: see OPTIMIZER_REGISTRY.md
 
-pub mod boxfield;
 pub mod diagnostics;
 pub mod normalize;

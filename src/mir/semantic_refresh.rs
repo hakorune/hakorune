@@ -29,7 +29,6 @@ use super::{
     array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     boxed_sum_abi_plan::refresh_module_boxed_sum_abi_plans,
     concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
-    constructor_call_route_plan::refresh_function_constructor_call_routes,
     direct_array_access_plan::refresh_function_direct_array_access_plans,
     direct_array_extent_fact::refresh_function_direct_array_extent_facts_with_def_map,
     direct_exact_hotcore_call_plan::refresh_module_direct_exact_hotcore_call_plans,
@@ -55,8 +54,6 @@ use super::{
     local_fastpath_fact::refresh_function_local_fastpath_facts,
     map_lookup_fusion_plan::refresh_function_map_lookup_fusion_routes,
     map_repr_plan::refresh_function_map_repr_plans,
-    ordered_map_origin_plan::refresh_module_carrier_api_ordered_map_get_result_origins,
-    ordered_map_origin_plan::refresh_module_ordered_map_get_result_origins,
     placement_effect::refresh_function_placement_effect_routes,
     range_index_fact::refresh_function_range_index_facts_with_def_map,
     receiver_snapshot_publication_plan::refresh_function_receiver_snapshot_publication_plans,
@@ -96,7 +93,6 @@ use super::{
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
     },
-    user_box_method_publication::refresh_function_user_box_method_publication_classifications,
     user_box_method_route_plan::refresh_function_user_box_method_routes,
     userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
     value_origin::build_value_def_map,
@@ -156,7 +152,6 @@ fn refresh_function_pre_fixpoint_routes(
     let def_map = build_value_def_map(function);
     refresh_function_string_dead_text_region_plans_with_def_map(function, &def_map);
     refresh_function_generic_method_routes(function);
-    refresh_function_constructor_call_routes(function);
     refresh_function_map_repr_plans(function);
     refresh_function_range_index_facts_with_def_map(function, &def_map);
     refresh_function_direct_array_extent_facts_with_def_map(function, &def_map);
@@ -172,7 +167,6 @@ fn refresh_function_pre_fixpoint_routes(
     refresh_function_extern_call_routes(function);
     refresh_function_global_call_routes(function);
     refresh_function_user_box_method_routes(function);
-    refresh_function_user_box_method_publication_classifications(function);
     refresh_function_hotcore_method_summaries(function);
     refresh_function_map_lookup_fusion_routes(function);
     refresh_function_array_rmw_window_routes(function);
@@ -273,8 +267,6 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) -> Result<(), St
         || refresh_all_functions_semantic_metadata(module, &module_metadata),
     );
     super::compile_timing::trace_stage("semantic.all_functions", stage_start.elapsed());
-    // Seed carrier-API result origins before route convergence so the API
-    // bodies themselves can lower nested ArrayBox reads without widening.
     let stage_start = std::time::Instant::now();
     super::compile_timing::with_refresh_walk_scope(
         "refresh_module_semantic_metadata",
@@ -282,15 +274,9 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) -> Result<(), St
         "route_convergence",
         super::compile_timing::RefreshAccessClass::MirReadWrite,
         true,
-        || {
-            refresh_module_carrier_api_ordered_map_get_result_origins(module);
-            refresh_module_route_convergence(module);
-        },
+        || refresh_module_route_convergence(module),
     );
     super::compile_timing::trace_stage("semantic.route_convergence", stage_start.elapsed());
-    // Reassert focused carrier-data map result origins before the post-fixpoint
-    // consumer refresh so caller-side OrderedMapBox.get reads keep the ArrayBox
-    // result origin when route metadata is rebuilt.
     let stage_start = std::time::Instant::now();
     super::compile_timing::with_refresh_walk_scope(
         "refresh_module_semantic_metadata",
@@ -298,14 +284,9 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) -> Result<(), St
         "post_fixpoint",
         super::compile_timing::RefreshAccessClass::MirReadWrite,
         true,
-        || {
-            refresh_module_ordered_map_get_result_origins(module);
-            refresh_function_post_fixpoint_consumers(module, &module_metadata);
-        },
+        || refresh_function_post_fixpoint_consumers(module, &module_metadata),
     );
     super::compile_timing::trace_stage("semantic.post_fixpoint", stage_start.elapsed());
-    // Post-fixpoint consumers may rebuild route metadata again, so reassert the
-    // focused carrier-data result origins one last time before contract checks.
     let stage_start = std::time::Instant::now();
     super::compile_timing::with_refresh_walk_scope(
         "refresh_module_semantic_metadata",
@@ -314,8 +295,6 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) -> Result<(), St
         super::compile_timing::RefreshAccessClass::MirReadWrite,
         true,
         || {
-            refresh_module_carrier_api_ordered_map_get_result_origins(module);
-            refresh_module_ordered_map_get_result_origins(module);
             refresh_module_contracts_and_exact_numeric(module);
             refresh_module_value_representation_facts(module);
             // Contract refresh may canonicalize legacy array writes into the
@@ -411,7 +390,6 @@ fn refresh_function_post_fixpoint_consumers(
         refresh_function_fastmem_access_plans(function);
         refresh_function_effect_summaries(function);
         refresh_function_receiver_snapshot_publication_plans(function);
-        refresh_function_user_box_method_publication_classifications(function);
         refresh_function_hotcore_method_summaries(function);
         refresh_function_local_fastpath_facts(function);
     }

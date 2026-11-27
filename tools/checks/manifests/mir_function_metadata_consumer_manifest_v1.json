@@ -5,13 +5,13 @@
  "source": {
   "path": "src/mir/function/metadata.rs",
   "anchor": "pub struct FunctionMetadata",
-  "field_count": 130
+  "field_count": 128
  },
  "boundary": {
   "start": "src/mir/function/metadata.rs::FunctionMetadata stored fields",
   "end": "producer / egress / selected-backend / reference / non-selected consumer owner files",
   "includes": [
-   "all 127 stored fields",
+   "all stored FunctionMetadata fields in the observed revision",
    "non-test Rust producer and production consumer anchors",
    "MIR JSON egress anchors",
    "selected C/AOT and Rust reference anchors"
@@ -38,7 +38,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:106:checked_callout_site_plans"
+     "src/mir/function/metadata.rs:104:checked_callout_site_plans"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -259,7 +259,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:127:dynamic_v2_aot_metadata"
+     "src/mir/function/metadata.rs:125:dynamic_v2_aot_metadata"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -398,7 +398,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:133:line_number"
+     "src/mir/function/metadata.rs:131:line_number"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -658,7 +658,6 @@
      "src/mir/global_call_route_plan/value_type_publish.rs",
      "src/mir/join_ir_to_mir/joinir_block_converter/utils.rs",
      "src/mir/join_ir_to_mir/joinir_function_converter.rs",
-     "src/mir/ordered_map_origin_plan.rs",
      "src/mir/passes/callsite_canonicalize/helpers.rs",
      "src/mir/passes/callsite_canonicalize/pass.rs",
      "src/mir/passes/inline_soft_leaf.rs",
@@ -681,7 +680,7 @@
      "src/mir/builder/array_element_write.rs:27:value_types",
      "src/mir/builder/calls/guard.rs:28:value_types"
     ],
-    "count": 53,
+    "count": 52,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -779,7 +778,6 @@
      "src/mir/join_ir_to_mir/joinir_block_converter/handlers.rs",
      "src/mir/join_ir_to_mir/joinir_block_converter/utils.rs",
      "src/mir/join_ir_to_mir/joinir_function_converter.rs",
-     "src/mir/ordered_map_origin_plan.rs",
      "src/mir/passes/callsite_canonicalize/helpers.rs",
      "src/mir/passes/callsite_canonicalize/pass.rs",
      "src/mir/passes/cse.rs",
@@ -816,7 +814,7 @@
      "src/mir/array_receiver_proof.rs:121:value_types",
      "src/mir/builder/array_element_write.rs:24:value_types"
     ],
-    "count": 125
+    "count": 124
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -2239,7 +2237,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:248:fastmem_index_access_sites"
+     "src/mir/function/metadata.rs:246:fastmem_index_access_sites"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -2611,7 +2609,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:293:direct_exact_hotcore_call_plans"
+     "src/mir/function/metadata.rs:291:direct_exact_hotcore_call_plans"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -3092,7 +3090,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:326:string_corridor_relations"
+     "src/mir/function/metadata.rs:324:string_corridor_relations"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -3856,7 +3854,6 @@
      "src/mir/map_missing_empty_route_plan.rs",
      "src/mir/map_repr_plan/candidates.rs",
      "src/mir/map_repr_plan/refresh.rs",
-     "src/mir/ordered_map_origin_plan.rs",
      "src/mir/same_module_body_shape.rs",
      "src/mir/semantic_refresh.rs",
      "src/mir/span_access_plan.rs",
@@ -3868,7 +3865,7 @@
      "src/mir/array_element_write.rs:124:generic_method_routes",
      "src/mir/direct_array_access_plan.rs:7:generic_method_routes"
     ],
-    "count": 23
+    "count": 22
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -4009,65 +4006,6 @@
     "owners": [],
     "anchors": [],
     "count": 0
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retain until the owning production consumer is retired or replaced with parity and caller-zero evidence"
-  },
-  {
-   "field": "constructor_call_routes",
-   "class": "LoweringRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/constructor_call_route_plan.rs",
-     "src/runner/mir_json_emit/route_json.rs"
-    ],
-    "anchors": [
-     "src/mir/constructor_call_route_plan.rs:145:constructor_call_routes",
-     "src/runner/mir_json_emit/route_json.rs:99:constructor_call_routes"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/constructor_call_route_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/constructor_call_route_plan.rs:145:constructor_call_routes"
-    ],
-    "count": 1
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_constructor_call_route_metadata.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_constructor_call_route_metadata.inc:4:constructor_call_routes"
-     ],
-     "count": 1
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/route_json.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/route_json.rs:99:constructor_call_routes"
-    ],
-    "count": 1
    },
    "verification_kind": "static_owner_file",
    "caller_state": "live",
@@ -4343,7 +4281,7 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_json.rs:128:global_call_routes",
+     "src/runner/mir_json_emit/route_json.rs:101:global_call_routes",
      "src/runner/mir_json_emit/route_metadata.rs:32:global_call_routes"
     ],
     "count": 2
@@ -4400,7 +4338,7 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_json.rs:135:builtin_global_call_routes",
+     "src/runner/mir_json_emit/route_json.rs:108:builtin_global_call_routes",
      "src/runner/mir_json_emit/route_metadata.rs:42:builtin_global_call_routes"
     ],
     "count": 2
@@ -4433,10 +4371,8 @@
      "src/mir/global_call_route_plan/same_module_static_helper_contract.rs",
      "src/mir/global_call_route_plan/void_side_effect_body.rs",
      "src/mir/hotcore_method_summary.rs",
-     "src/mir/ordered_map_origin_plan.rs",
      "src/mir/same_module_body_shape.rs",
      "src/mir/same_module_definition_plan.rs",
-     "src/mir/user_box_method_publication.rs",
      "src/mir/user_box_method_route_plan/convergence.rs",
      "src/mir/user_box_method_route_plan/materialization.rs",
      "src/mir/user_box_method_route_plan/return_shape.rs",
@@ -4447,7 +4383,7 @@
      "src/mir/direct_exact_hotcore_call_plan.rs:8:user_box_method_routes",
      "src/mir/generic_method_route_plan/flow_origin.rs:450:user_box_method_routes"
     ],
-    "count": 15
+    "count": 13
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -4479,63 +4415,10 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_json.rs:140:user_box_method_routes",
+     "src/runner/mir_json_emit/route_json.rs:113:user_box_method_routes",
      "src/runner/mir_json_emit/route_metadata.rs:52:user_box_method_routes"
     ],
     "count": 2
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retain until the owning production consumer is retired or replaced with parity and caller-zero evidence"
-  },
-  {
-   "field": "user_box_method_publication_classifications",
-   "class": "SemanticFacts",
-   "producer": {
-    "owners": [
-     "src/mir/user_box_method_publication.rs"
-    ],
-    "anchors": [
-     "src/mir/user_box_method_publication.rs:105:user_box_method_publication_classifications"
-    ],
-    "count": 1,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/user_box_method_publication.rs"
-    ],
-    "anchors": [
-     "src/mir/user_box_method_publication.rs:105:user_box_method_publication_classifications"
-    ],
-    "count": 1
-   },
-   "backend_consumer": {
-    "role": "none",
-    "evidence": {
-     "owners": [],
-     "anchors": [],
-     "count": 0
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/plan_metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/plan_metadata.rs:132:user_box_method_publication_classifications"
-    ],
-    "count": 1
    },
    "verification_kind": "static_owner_file",
    "caller_state": "live",
@@ -4757,7 +4640,7 @@
      "src/runner/mir_json_emit/plan_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/plan_metadata.rs:154:local_map_storage_realization_plans"
+     "src/runner/mir_json_emit/plan_metadata.rs:137:local_map_storage_realization_plans"
     ],
     "count": 1
    },
@@ -4814,7 +4697,7 @@
      "src/runner/mir_json_emit/plan_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/plan_metadata.rs:174:local_i64_map_direct_storage_plans"
+     "src/runner/mir_json_emit/plan_metadata.rs:157:local_i64_map_direct_storage_plans"
     ],
     "count": 1
    },
@@ -4871,7 +4754,7 @@
      "src/runner/mir_json_emit/plan_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/plan_metadata.rs:195:local_i64_map_entry_value_tracking_plans"
+     "src/runner/mir_json_emit/plan_metadata.rs:178:local_i64_map_entry_value_tracking_plans"
     ],
     "count": 1
    },
@@ -7771,7 +7654,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:738:exact_numeric_runtime_check_contracts"
+     "src/mir/function/metadata.rs:725:exact_numeric_runtime_check_contracts"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -7830,7 +7713,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:742:exact_numeric_field_contract_proofs"
+     "src/mir/function/metadata.rs:729:exact_numeric_field_contract_proofs"
     ],
     "count": 1,
     "kind": "default_carrier"

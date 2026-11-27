@@ -94,13 +94,8 @@ impl MirOptimizer {
         stats: &mut OptimizationStats,
     ) {
         // Pass 0: Normalize legacy instructions to unified forms.
-        // Includes optional Array→BoxCall guarded by env inside the pass.
         stats.merge(
             crate::mir::optimizer_passes::normalize::normalize_legacy_instructions(self, module),
-        );
-        // Normalize Python helper form: py.getattr(obj, name) → obj.getattr(name).
-        stats.merge(
-            crate::mir::optimizer_passes::normalize::normalize_python_helper_calls(self, module),
         );
     }
 
@@ -158,10 +153,6 @@ impl MirOptimizer {
     }
 
     fn run_late_call_and_inline(&mut self, module: &mut MirModule, stats: &mut OptimizationStats) {
-        stats.merge(
-            crate::mir::optimizer_passes::boxfield::optimize_boxfield_operations(self, module),
-        );
-
         // Inline consumes refreshed MIR InlinePlan metadata only.
         crate::mir::rune_plan_refresh::refresh_module_rune_plans(module);
         let inline_soft_leaf = crate::mir::passes::inline_soft_leaf::apply(module);

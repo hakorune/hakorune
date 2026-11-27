@@ -36,7 +36,6 @@ use crate::mir::{
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
-    constructor_call_route_plan::ConstructorCallRoute,
     direct_array_access_plan::DirectArrayAccessPlan,
     direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
@@ -81,7 +80,6 @@ use crate::mir::{
     thin_entry::ThinEntryCandidate,
     thin_entry_selection::ThinEntrySelection,
     type_contracts::proof::TypeContractProof,
-    user_box_method_publication::UserBoxMethodPublicationClassification,
     user_box_method_route_plan::UserBoxMethodRoute,
     userbox_known_receiver_method_seed_plan::UserBoxKnownReceiverMethodSeedRoute,
     userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
@@ -400,11 +398,6 @@ pub struct FunctionMetadata {
     /// witness. These rows do not reject the existing route behavior.
     pub(crate) mapstore_i64_key_fact_rejections: Vec<MapStoreI64KeyFactRejection>,
 
-    /// Backend-consumable collection constructor call route plans.
-    /// These own narrow constructor declaration/origin facts in MIR so backend
-    /// prepass code does not reclassify constructor callee spelling.
-    pub constructor_call_routes: Vec<ConstructorCallRoute>,
-
     /// Metadata-only DirectArray access plans derived from Array get/set
     /// method routes.  The first slice records checked DirectArrayI64
     /// candidates only; unchecked proofs and backend consumption land later.
@@ -437,12 +430,6 @@ pub struct FunctionMetadata {
     /// function call; backends must consume this metadata instead of
     /// rediscovering user-box method semantics from raw names.
     pub user_box_method_routes: Vec<UserBoxMethodRoute>,
-
-    /// Report-only publication classification for user-box method route receivers.
-    ///
-    /// These rows are not backend-consumable. They only say whether a later
-    /// LocalFastPathFact producer may consider a route receiver unpublished.
-    pub user_box_method_publication_classifications: Vec<UserBoxMethodPublicationClassification>,
 
     /// Metadata-only MapGet/MapHas same-key fusion preflight routes.
     /// These are derived from `generic_method_routes` and do not change
