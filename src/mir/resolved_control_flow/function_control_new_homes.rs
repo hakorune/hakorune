@@ -1,5 +1,6 @@
 //! Completion forwarding for source-issued ordinary-New Home/terminal relations.
 //! The source scanner owns selection; this owner only binds its cleanup to Completion.
+use crate::mir::loop_recipe_contract::RetainedSourceLoopProductV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1;
 
@@ -71,7 +72,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     loop_prestate: &mut impl FnMut(
         crate::mir::resolved_semantics::home_new_prefix::LoopI64PreStateRequestV1,
     ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1>,
+        Option<std::rc::Rc<RetainedSourceLoopProductV1>>,
         E,
     >,
 

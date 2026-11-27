@@ -7,7 +7,7 @@ use crate::mir::loop_recipe_contract::RetainedSourceLoopProductV1;
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
-    home_new_prefix::{LoopI64PreStateRequestV1, SelectedLoopHomeLoanV1},
+    home_new_prefix::LoopI64PreStateRequestV1,
     FunctionOwnerIdV1, SourceStmtSiteV1,
 };
 
@@ -26,13 +26,13 @@ pub(super) fn retain_selected_loop_product_v1(
     prestate: LoopI64PreStateRequestV1,
     rows: &mut SelectedLoopProductV1,
     policy: crate::mir::builder::LoopFactsPolicyFrameV1,
-) -> Option<SelectedLoopHomeLoanV1> {
+) -> Option<std::rc::Rc<RetainedSourceLoopProductV1>> {
     let key = (prestate.owner(), prestate.site().clone());
     match rows.entry(key) {
         std::collections::btree_map::Entry::Vacant(slot) => {
             let row = RetainedSourceLoopProductV1::issue(input, prestate.site(), policy);
             let loan = row.observation_source_v1(input)
-                .map(|_| SelectedLoopHomeLoanV1::SourceObservation(std::rc::Rc::clone(&row)));
+                .map(|_| std::rc::Rc::clone(&row));
             slot.insert(Ok(row));
             loan
         }

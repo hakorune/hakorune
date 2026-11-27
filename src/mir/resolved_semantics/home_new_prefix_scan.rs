@@ -1,6 +1,6 @@
 //! Per-statement source walk inside `scan_new_home_flow`: the loop owns no
 //! separate authority — every observation still lands in the caller's rows.
-use super::SelectedLoopHomeLoanV1;
+use crate::mir::loop_recipe_contract::RetainedSourceLoopProductV1;
 use super::*;
 
 /// Returns `true` when this path terminated at an explicit exit site —
@@ -49,7 +49,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     loop_prestate: &mut impl FnMut(
         LoopI64PreStateRequestV1,
-    ) -> Result<Option<SelectedLoopHomeLoanV1>, E>,
+    ) -> Result<Option<std::rc::Rc<RetainedSourceLoopProductV1>>, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -419,7 +419,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                         );
                     }
                     match selected_loan {
-                        Some(SelectedLoopHomeLoanV1::SourceObservation(row)) => {
+                        Some(row) => {
                             let Some(source) = row.observation_source_v1(input) else {
                                 unavailable.get_or_insert_with(|| {
                                     HomePrefixUnavailableV1::PrefixNotCovered(

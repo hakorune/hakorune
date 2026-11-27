@@ -5,7 +5,7 @@
 //! `HomeFlowBranchDivergent` — never a union, never an empty substitution.
 //! Only a verified `ResolvedIfRegionBundleV1` admits the walk; any other `If`
 //! keeps `PrefixNotCovered`.
-use super::SelectedLoopHomeLoanV1;
+use crate::mir::loop_recipe_contract::RetainedSourceLoopProductV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::LiveHomeV1;
 use crate::mir::resolved_semantics::{
@@ -58,7 +58,7 @@ fn walk_branch<'a, E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     loop_prestate: &mut impl FnMut(
         LoopI64PreStateRequestV1,
-    ) -> Result<Option<SelectedLoopHomeLoanV1>, E>,
+    ) -> Result<Option<std::rc::Rc<RetainedSourceLoopProductV1>>, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -232,7 +232,7 @@ pub(super) fn observe_if_statement<'a, E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     loop_prestate: &mut impl FnMut(
         LoopI64PreStateRequestV1,
-    ) -> Result<Option<SelectedLoopHomeLoanV1>, E>,
+    ) -> Result<Option<std::rc::Rc<RetainedSourceLoopProductV1>>, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
