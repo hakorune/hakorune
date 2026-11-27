@@ -345,7 +345,7 @@ Additional ordinary static-method checks (2026-11-09, separate from the fixed ro
 | if t.f.length() > 2 | accept, exit 0 [rule1/field read] | refused-generic | `artifact-source-unavailable` |
 | t.f == "abc" comparison | accept, exit 0 [rule1/field read] | refused-generic | `print-expression` |
 | new Tag(t.f) | accept, exit 0 [rule1/field read] | refused-generic | `argument-source-unavailable` |
-| read inside a loop | accept, exit 0 [rule1/field read] | refused-generic | `facts-absent` |
+| `print(t.f)` inside a loop | accept, exit 0 [rule1/field read] | refused-generic | `source-loop/v2/execution-root-purpose` |
 | read inside an if | accept, exit 0 [rule1/field read] | connected | `exit 0` |
 | get() { return me.f } unannotated | reject [rule5 (borrow return needs from me)] | against-frozen | `exit 0` |
 | get(): String { return me.f } annotated, no from | reject [rule5] | refused-named | `UnsupportedResultAnnotation` |

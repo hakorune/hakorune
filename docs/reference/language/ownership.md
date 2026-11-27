@@ -1129,10 +1129,11 @@ unannotated `get() { return me.f }` (also `print(t.get())`), which returns the i
 copy. A `String?` field stores through an unannotated `birth(n)` formal but not through a `String?`-annotated formal (refused with a generic tag). A field with no type that only ever receives Text is readable too (`print(a.v)`), also
 next to a `String` field. Refused with a generic tag that does not name the form
 (`artifact-source-unavailable`, `print-expression/source-unavailable`,
-`argument-source-unavailable`, `callable-loop/facts-absent`): `local s = t.f`,
+`argument-source-unavailable`): `local s = t.f`,
 `return t.f.length()`, `print(t.f.length())`, `if t.f.length() > 2`, `print(t.f == "abc")`,
-`new Tag(t.f)`, a read inside a loop, a read of a `String?` field, a store after publication, and a
-`String` field next to a typed object field. Refused by name: a `: String` result annotation
+`new Tag(t.f)`, a read of a `String?` field, a store after publication, and a
+`String` field next to a typed object field. The current CLI refuses `print(t.f)` inside
+a loop with `source-loop/v2/execution-root-purpose`. Refused by name: a `: String` result annotation
 (`UnsupportedResultAnnotation`) and an untyped field that receives an object next to a
 `String` field (`move-argument-unplanned`). The unannotated `get() { return me.f }` is accepted
 although the frozen rule 5 asks for `from me` on a borrowed return; how it should be treated is
