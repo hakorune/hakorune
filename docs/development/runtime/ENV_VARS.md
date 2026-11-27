@@ -91,12 +91,6 @@ NYASH_DISABLE_PLUGINS = "1"
 - 設定ファイル: `nyash.toml` の `[env]` で標準化（ブランチ/CI での一括制御）。
 - 将来: `nyash env print/set` の CLI サブコマンドを追加し、実行前に `.env`/toml 反映と検証を行う。
 
-## MIR Cleanup (Phase 11.8) 用トグル（段階導入）
-- NYASH_MIR_ARRAY_BOXCALL: ArrayGet/Set → BoxCall 変換を有効化
-- NYASH_MIR_REF_BOXCALL: RefGet/Set → BoxCall 変換を有効化
-- NYASH_MIR_CORE13: Core‑13 セットの一括有効（将来拡張）
-- NYASH_MIR_CORE13_PURE: Core‑13 純化モード（"1" で有効）。最終MIRは13命令のみ許可され、Load/Store などは `env.local.get/set`、`new` は `env.box.new` 経由へ強制正規化。禁制命令が残存するとコンパイルエラーで早期失敗。
-
 ## 非推奨ENV変数（Phase 21.4で段階的削除）
 
 以下の環境変数は **非推奨** です。新しい統一ENV変数を使用してください：

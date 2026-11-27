@@ -13,7 +13,7 @@
 | Namespace | 責務 (What it is) | signature 軸 | 外部再利用 | 入口 |
 |---|---|---|---|---|
 | `optimizer/` | optimizer orchestration / pipeline owner。`MirOptimizer` schedule を所有し、全 wave（normalize → cleanup → late-call/inline → diagnostics）の順序を決める | — (orchestrator) | `MirOptimizer` 経由のみ | `src/mir/optimizer.rs`（sibling entry: `mod core; pub use core::{MirOptimizer, ...}`） |
-| `optimizer_passes/` | MirOptimizer 結合用 built-in pass composition layer。`MirOptimizer` の debug/state を必要とする正規化・診断・ピープホール群 | `(opt: &mut MirOptimizer, module: &mut MirModule)` | ❌ 外部非公開（消費者は `optimizer/core.rs` のみ） | `src/mir/optimizer_passes/mod.rs` |
+| `optimizer_passes/` | MirOptimizer 結合用 built-in pass composition layer。`MirOptimizer` の debug/state を必要とする正規化・診断 | `(opt: &mut MirOptimizer, module: &mut MirModule)` | ❌ 外部非公開（消費者は `optimizer/core.rs` のみ） | `src/mir/optimizer_passes/mod.rs` |
 | `passes/` | reusable MIR transforms / analyses。optimizer に依存しない独立変換（DCE/CSE/inlining/memory-effect 等）。runner/bin の外部消費者も持つ | `(module: &mut MirModule)` のみ | ✅ 外部再利用可 | `src/mir/passes/mod.rs` |
 | `phi_core/loopform/passes/` | loopform / PHI-specific lowering boundary。optimizer namespace の**外**（PHI 構築パス。最適化パスではない） | （loopform 固有） | loopform 内のみ | `src/mir/phi_core/loopform/passes/mod.rs` |
 
@@ -42,8 +42,6 @@ must-not:
 
 - **名前は正確**: `optimizer_passes/` は「optimizer 結合パス」、`passes/` は「再利用変換」。coupling 軸で一意。
 - **クリーンな rename 先が存在しない**:
-  - `early_normalize/` → ❌ `reorder` / `intrinsics` / `boxfield` は `run_late_call_and_inline` で**後期**実行（早期ではない）
-  - `normalize/` → ❌ `boxfield` / `intrinsics` は「optimize」（normalize ではない）
   - `optimizer_internal/` → 正確だが冗長・不格好、決定的改善なし
 - **物理 rename は挙動不変なのに import churn のみ増大**。特に `passes/` は `runner/bin` の外部消費者 6+ を持ち、rename は広範囲の無意味な書き換えを生む。
 
@@ -62,6 +60,6 @@ must-not:
 ## 参照
 
 - orchestrator 実装: `src/mir/optimizer/core.rs`（wave 順序の SSOT）
-- `optimizer_passes/` 消費点: `src/mir/optimizer/core.rs` 内の9箇所（外部消費ゼロ）
+- `optimizer_passes/` 消費点: `src/mir/optimizer/core.rs`（外部消費ゼロ）
 - `passes/` 外部消費者: `src/runner/modes/*`, `src/runner/product/llvm/*`, `src/bin/rc_insertion_selfcheck/*`
 - REGISTRY 慣習（兄弟 doc）: `src/mir/builder/control_flow/plan/REGISTRY.md`

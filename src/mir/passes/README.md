@@ -69,17 +69,8 @@ placement_effect_pre
 Do not physically merge DCE, memory-effect cleanup, or pre/post
 placement-effect without a separate optimizer behavior card.
 
-## Reserved / Scaffold Hooks
-
-These entries currently exist to keep the schedule seam stable. Do not read
-them as active optimizer wins.
-
-| Hook | Current behavior | Schedule group | Rule |
-| --- | --- | --- | --- |
-| `optimizer_passes::reorder::reorder_pure_instructions` | no-op scaffold; debug logging only | `late_call_and_inline` | keep until a separate card either implements or retires it |
-| `optimizer_passes::intrinsics::optimize_intrinsic_calls` | no-op scaffold; debug logging only | `late_call_and_inline` | keep until a separate card either implements or retires it |
-| `passes::type_hints::propagate_param_type_hints` | returns `0` updates | `late_call_and_inline` | keep as reserved hook; do not claim type propagation is active |
-| `optimizer_passes::normalize::normalize_ref_field_access` | idempotence marker only unless future rewriting lands | `normalize_frontend_surface` | do not move before proving Core-13 / ref-field timing |
+The measured usage gate for retired scaffolds is recorded under
+[OPT-THIN-002](../../../docs/development/current/main/design/compiler-pipeline-thinning-ssot.md#opt-thin-002).
 
 ## P5 Crate Split Prep
 
