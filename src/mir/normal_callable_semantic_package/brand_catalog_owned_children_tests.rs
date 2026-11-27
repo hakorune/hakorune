@@ -40,13 +40,10 @@ fn ordinary_new_owned_array_children_seal_in_declaration_order() {
     assert_eq!(ordinals, [1, 2], "declaration order is the sealed order");
 }
 
-/// The residence proof stays fail-closed: no provider store, a second
-/// `me.` store, or a store outside the constructor path each leave
-/// `array_children` empty on an `OwnedArrayFieldsNoHook` claim — the
-/// lifecycle gate then refuses the teardown instead of releasing plain.
 #[test]
-fn ordinary_new_owned_array_children_stay_unproven_on_ambiguous_writes() {
-    for (label, members) in [
+fn owned_child_claim_requires_unambiguous_residence_evidence() {
+    for (case_name, class, preamble, filter_class, destruction, reason, members_cases) in [
+                ("ordinary_new_owned_array_children_stay_unproven_on_ambiguous_writes", "Page", "", false, crate::mir::function::ObjectDestructionDispositionV1::ARRAY_FIELDS_NO_HOOK, "an unproven residence stays unsealed", &[
         // No birth-side provider store at all.
         ("missing", "items: ArrayBox\nbirth() { }"),
         // A second `me.` store — even of `new ArrayBox()` — is re-assignment.
@@ -59,30 +56,61 @@ fn ordinary_new_owned_array_children_stay_unproven_on_ambiguous_writes() {
             "non-birth",
             "items: ArrayBox = new ArrayBox()\nbirth() { }\ntouch() { me.items = new ArrayBox() }",
         ),
-    ] {
+    ][..]),
+("ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence", "Parent", "box Child { v: i64 = 0\nbirth() { } }\n            box Other { v: i64 = 0\nbirth() { } }\n            box DeepChild { inner: Child = new Child()\nbirth() { } }\n            box HalfChild { items: ArrayBox\nbirth() { } }\n            ", true, crate::mir::function::ObjectDestructionDispositionV1::OBJECT_FIELDS_NO_HOOK, "rejected residence evidence stays unsealed", &[
+        // No birth-side provider store at all.
+        ("missing", "child: Child\nbirth() { }"),
+        // A second `me.` store — even of the same class — is re-assignment.
+        (
+            "rewritten",
+            "child: Child = new Child()\nbirth() { me.child = new Child() }",
+        ),
+        // A store outside the constructor path is not a birth provider.
+        (
+            "non-birth",
+            "child: Child = new Child()\nbirth() { }\ntouch() { me.child = new Child() }",
+        ),
+        // The sole birth store must write exactly the declared class.
+        ("wrong-class", "child: Child = new Other()\nbirth() { }"),
+        // A child whose own `ArrayBox` residence never proved a birth
+        // provider keeps the whole nested claim unsealed.
+        (
+            "unproven-nested",
+            "child: HalfChild = new HalfChild()\nbirth() { }",
+        ),
+    ][..]),
+            ] {
+                println!("case: {case_name}");
+                    for &(label, members) in members_cases {
+
         let source = format!(
-            "box Page {{ {members} }}
-            static box Main {{ main() {{ local item = new Page() return 0 }} }}"
+            "{preamble}box {class} {{ {members} }}
+            static box Main {{ main() {{ local item = new {class}() return 0 }} }}"
         );
         let package = issue_with_brand_catalog(&source)
             .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
         let rows = package
             .ordinary_new_claim_ledger
             .pending_claims_for_test();
-        let claims: Vec<_> = rows.values().collect();
+        let claims: Vec<_> = rows
+            .values()
+            .filter(|claim| !filter_class || claim.core().class() == class)
+            .collect();
         let [claim] = claims.as_slice() else {
             panic!("{label}: one claim, got {claims:?}")
         };
         assert_eq!(
             claim.core().destruction(),
-            crate::mir::function::ObjectDestructionDispositionV1::ARRAY_FIELDS_NO_HOOK,
+            destruction,
             "{label}"
         );
         assert!(
             claim.core().children().is_none(),
-            "{label}: an unproven residence stays unsealed"
+            "{label}: {reason}"
         );
+
     }
+            }
 }
 
 /// A declaration default `child: Child = new Child()` on a user-object field
@@ -253,14 +281,12 @@ fn ordinary_new_owned_nested_object_child_seals() {
     );
 }
 
-/// The nested recursion stays fail-closed: a `OwnedObjectFields` child
-/// whose own inventory cannot seal — an unproven object-field residence
-/// — leaves the enclosing children unsealed rather than guessing a
-/// release shape.
 #[test]
-fn ordinary_new_owned_nested_object_child_stays_unproven_on_rejected_evidence() {
-    let package = issue_with_brand_catalog(
-        "box Inner { value: i64\nbirth(value) { me.value = value } }
+fn owned_object_children_remain_unsealed_without_complete_evidence() {
+    for (case_name, source_text, description, box_name, claim_error, unsealed_error) in [
+        (
+            "ordinary_new_owned_nested_object_child_stays_unproven_on_rejected_evidence",
+            "box Inner { value: i64\nbirth(value) { me.value = value } }
         box Mid { inner: Inner\nbirth() { } }
         box Top { mid: Mid\nbirth(mid) { me.mid = mid } }
         static box Main {
@@ -270,22 +296,46 @@ fn ordinary_new_owned_nested_object_child_stays_unproven_on_rejected_evidence() 
                 return 0
             }
         }",
-    )
-    .expect("unproven nested package");
-    let rows = package
-        .ordinary_new_claim_ledger
-        .pending_claims_for_test();
-    let claims: Vec<_> = rows
-        .values()
-        .filter(|claim| claim.core().class() == "Top")
-        .collect();
-    let [claim] = claims.as_slice() else {
-        panic!("one Top claim, got {claims:?}")
-    };
-    assert!(
-        claim.core().children().is_none(),
-        "an unproven nested child leaves the inventory unsealed"
-    );
+            "unproven nested package",
+            "Top",
+            "one Top claim",
+            "an unproven nested child leaves the inventory unsealed",
+        ),
+        (
+            "ordinary_new_owned_object_children_decline_non_self_cycles",
+            "box PeerA {
+            peer: PeerB
+            birth(peer) { me.peer = peer }
+        }
+        box PeerB {
+            peer: PeerA
+            birth(peer) { me.peer = peer }
+        }
+        box Parent {
+            child: PeerA
+            birth(child) { me.child = child }
+        }
+        static box Main {
+            main() { local item = new Parent(null) return 0 }
+        }",
+            "mutual-ownership package",
+            "Parent",
+            "one Parent claim",
+            "a non-self ownership cycle stays unsealed",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = issue_with_brand_catalog(source_text).expect(description);
+        let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+        let claims: Vec<_> = rows
+            .values()
+            .filter(|claim| claim.core().class() == box_name)
+            .collect();
+        let [claim] = claims.as_slice() else {
+            panic!("{claim_error}, got {claims:?}")
+        };
+        assert!(claim.core().children().is_none(), "{unsealed_error}");
+    }
 }
 
 /// A child owning sealed `ArrayBox` residences is the admitted bounded
@@ -325,107 +375,5 @@ fn ordinary_new_owned_nested_array_child_seals() {
     assert!(
         matches!(child.kind, OwnedFieldChildKindV1::Object(_)),
         "owned-array child seals as an Object child, got {child:?}"
-    );
-}
-
-/// The user-object residence proof stays fail-closed: missing or ambiguous
-/// birth stores, a wrong-class store, or a child whose own nested
-/// residences never proved each leave `children` unsealed — the lifecycle
-/// gate refuses the teardown rather than guessing a release shape.
-#[test]
-fn ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence() {
-    for (label, members) in [
-        // No birth-side provider store at all.
-        ("missing", "child: Child\nbirth() { }"),
-        // A second `me.` store — even of the same class — is re-assignment.
-        (
-            "rewritten",
-            "child: Child = new Child()\nbirth() { me.child = new Child() }",
-        ),
-        // A store outside the constructor path is not a birth provider.
-        (
-            "non-birth",
-            "child: Child = new Child()\nbirth() { }\ntouch() { me.child = new Child() }",
-        ),
-        // The sole birth store must write exactly the declared class.
-        ("wrong-class", "child: Child = new Other()\nbirth() { }"),
-        // A child whose own `ArrayBox` residence never proved a birth
-        // provider keeps the whole nested claim unsealed.
-        (
-            "unproven-nested",
-            "child: HalfChild = new HalfChild()\nbirth() { }",
-        ),
-    ] {
-        let source = format!(
-            "box Child {{ v: i64 = 0\nbirth() {{ }} }}
-            box Other {{ v: i64 = 0\nbirth() {{ }} }}
-            box DeepChild {{ inner: Child = new Child()\nbirth() {{ }} }}
-            box HalfChild {{ items: ArrayBox\nbirth() {{ }} }}
-            box Parent {{ {members} }}
-            static box Main {{ main() {{ local item = new Parent() return 0 }} }}"
-        );
-        let package = issue_with_brand_catalog(&source)
-            .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
-        let rows = package
-            .ordinary_new_claim_ledger
-            .pending_claims_for_test();
-        let claims: Vec<_> = rows
-            .values()
-            .filter(|claim| claim.core().class() == "Parent")
-            .collect();
-        let [claim] = claims.as_slice() else {
-            panic!("{label}: one Parent claim, got {claims:?}")
-        };
-        assert_eq!(
-            claim.core().destruction(),
-            crate::mir::function::ObjectDestructionDispositionV1::OBJECT_FIELDS_NO_HOOK,
-            "{label}"
-        );
-        assert!(
-            claim.core().children().is_none(),
-            "{label}: rejected residence evidence stays unsealed"
-        );
-    }
-}
-
-/// A non-self ownership cycle stays declined: `PeerA -> PeerB -> PeerA`
-/// revisits an in-progress ancestor, so the `visiting` set declines the
-/// nested seal and the enclosing claim keeps `children` unsealed. Mutual
-/// ownership is source-unconstructible — each binding moves once — and
-/// its teardown could never bottom out, so the census refuses the type
-/// shape rather than inventing a release order.
-#[test]
-fn ordinary_new_owned_object_children_decline_non_self_cycles() {
-    let package = issue_with_brand_catalog(
-        "box PeerA {
-            peer: PeerB
-            birth(peer) { me.peer = peer }
-        }
-        box PeerB {
-            peer: PeerA
-            birth(peer) { me.peer = peer }
-        }
-        box Parent {
-            child: PeerA
-            birth(child) { me.child = child }
-        }
-        static box Main {
-            main() { local item = new Parent(null) return 0 }
-        }",
-    )
-    .expect("mutual-ownership package");
-    let rows = package
-        .ordinary_new_claim_ledger
-        .pending_claims_for_test();
-    let claims: Vec<_> = rows
-        .values()
-        .filter(|claim| claim.core().class() == "Parent")
-        .collect();
-    let [claim] = claims.as_slice() else {
-        panic!("one Parent claim, got {claims:?}")
-    };
-    assert!(
-        claim.core().children().is_none(),
-        "a non-self ownership cycle stays unsealed"
     );
 }

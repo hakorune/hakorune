@@ -108,15 +108,30 @@ fn typed_object_home_is_borrowed_and_not_transferred_into_the_pending_call() {
 
 
 #[test]
-fn unsupported_actuals_are_pending_named_errors_and_never_integer_payloads() {
-    for argument in ["1.5", "1.5 + 1", "%{\"key\"=>1}"] {
-        let source = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({argument}) return 0 }} }}");
-        let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected unsupported domain stops package issue");
-        let error = format!("{error:?}");
-        assert!(
-            error.contains("borrowed-actual/unsupported-or-unavailable"),
-            "{error}"
-        );
+fn selected_borrowed_actuals_reject_unsupported_domains() {
+    for (case_name, arguments, formals, prefix, token) in [
+        (
+            "unsupported_actuals_are_pending_named_errors_and_never_integer_payloads",
+            &["1.5", "1.5 + 1", "%{\"key\"=>1}"][..],
+            "p",
+            "",
+            "borrowed-actual/unsupported-or-unavailable",
+        ),
+        (
+            "mixed_actuals_reject_noninteger_domains_in_the_nonopaque_scalar_slot",
+            &["false", "recv", "\"text\"", "null", "1.5", "%{\"key\"=>1}"][..],
+            "p, q: i64",
+            "true, ",
+            "borrowed-actual/nonopaque-scalar-unproved",
+        ),
+    ] {
+        println!("case: {case_name}");
+        for argument in arguments {
+            let source = format!("box Transport {{ birth() {{ }} probe({formals}): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({prefix}{argument}) return 0 }} }}");
+            let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected unsupported domain stops package issue");
+            let error = format!("{error:?}");
+            assert!(error.contains(token), "{argument}: {error}");
+        }
     }
 }
 
@@ -355,19 +370,6 @@ fn mixed_actuals_preserve_opaque_domain_and_exact_integer_parameter_lanes() {
         pending.ordered_arguments[1],
         LocalCallArgumentV1::Integer(-7)
     );
-}
-
-#[test]
-fn mixed_actuals_reject_noninteger_domains_in_the_nonopaque_scalar_slot() {
-    for argument in ["false", "recv", "\"text\"", "null", "1.5", "%{\"key\"=>1}"] {
-        let source = format!("box Transport {{ birth() {{ }} probe(p, q: i64): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe(true, {argument}) return 0 }} }}");
-        let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected nonopaque slot is required");
-        let error = format!("{error:?}");
-        assert!(
-            error.contains("borrowed-actual/nonopaque-scalar-unproved"),
-            "{argument}: {error}"
-        );
-    }
 }
 
 #[test]

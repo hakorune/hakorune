@@ -498,21 +498,39 @@ fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
 }
 
 #[test]
-fn map_install_accepts_complete_unannotated_root_and_aliases() {
-    for body in [
-        "local m = %{} return 30",
-        "local m = %{} local alias = m local again = alias return 30",
-        "local a = new Page() local m = %{\"a\" => a} return 30",
+fn map_initializer_fixtures_preflight_without_committing() {
+    for (case_name, bodies, coverage_description) in [
+        (
+            "map_install_accepts_complete_unannotated_root_and_aliases",
+            [
+                "local m = %{} return 30",
+                "local m = %{} local alias = m local again = alias return 30",
+                "local a = new Page() local m = %{\"a\" => a} return 30",
+            ],
+            "preflight does not commit",
+        ),
+        (
+            "argument_free_new_map_box_is_the_same_empty_map_home_as_a_literal",
+            [
+                "local m = new MapBox() return 30",
+                "local m = new MapBox() local alias = m local again = alias return 30",
+                "local a = new Page() local m = new MapBox() return 30",
+            ],
+            "preflight does not commit",
+        ),
     ] {
-        let package = issue(&source(body)).unwrap();
-        let mut context = CompilationContext::new();
-        package
-            .prepare_install_with_consumer(&mut context, None)
-            .expect("ready source Map cohort");
-        assert!(
-            context.callable_declaration_catalog_vacant(),
-            "preflight does not commit"
-        );
+        println!("case: {case_name}");
+        for body in bodies {
+            let package = issue(&source(body)).unwrap();
+            let mut context = CompilationContext::new();
+            package
+                .prepare_install_with_consumer(&mut context, None)
+                .expect("ready source Map cohort");
+            assert!(
+                context.callable_declaration_catalog_vacant(),
+                "{coverage_description} ({body})"
+            );
+        }
     }
 }
 
@@ -867,22 +885,6 @@ fn stored_map_get_keeps_its_original_local_source() {
 }
 
 #[test]
-fn argument_free_new_map_box_is_the_same_empty_map_home_as_a_literal() {
-    for body in [
-        "local m = new MapBox() return 30",
-        "local m = new MapBox() local alias = m local again = alias return 30",
-        "local a = new Page() local m = new MapBox() return 30",
-    ] {
-        let package = issue(&source(body)).unwrap();
-        let mut context = CompilationContext::new();
-        package
-            .prepare_install_with_consumer(&mut context, None)
-            .expect("ready source Map cohort");
-        assert!(context.callable_declaration_catalog_vacant(), "{body}");
-    }
-}
-
-#[test]
 fn new_map_box_home_refusal_names_the_uncovered_statement() {
     use crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1;
     // `delete` on a named local Map is not covered yet: the refusal must carry
@@ -904,20 +906,21 @@ fn new_map_box_home_refusal_names_the_uncovered_statement() {
 }
 
 #[test]
-fn literal_key_i64_set_on_a_named_local_map_is_one_entry_of_the_same_flow_row() {
-    for body in [
-        "local m = new MapBox() m.set(\"k\", 5) return 30",
-        "local m = new MapBox() m.set(\"k\", 5) m.set(\"k\", 7) return 30",
-        "local m = %{\"a\" => 1} m.set(\"b\", 2) return 30",
-        "local n = 4 local m = new MapBox() m.set(\"k\", n) return 30",
-    ] {
-        let package = issue(&source(body)).unwrap();
-        let mut context = CompilationContext::new();
-        package
-            .prepare_install_with_consumer(&mut context, None)
-            .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
-        assert!(context.callable_declaration_catalog_vacant(), "{body}");
-    }
+fn map_set_and_compare_fixtures_install_without_committing() {
+    for (case_name, bodies) in [
+("literal_key_i64_set_on_a_named_local_map_is_one_entry_of_the_same_flow_row", ["local m = new MapBox() m.set(\"k\", 5) return 30", "local m = new MapBox() m.set(\"k\", 5) m.set(\"k\", 7) return 30", "local m = %{\"a\" => 1} m.set(\"b\", 2) return 30", "local n = 4 local m = new MapBox() m.set(\"k\", n) return 30"]),
+("checked_get_as_a_comparison_input_installs_with_the_same_map_home", ["local m = new MapBox() m.set(\"k\", 5) if m.get(\"k\") == 5 { return 1 } return 0", "local m = %{\"k\" => 5} if 5 == m.get(\"k\") { return 1 } else { return 2 }", "local m = %{\"a\" => 3} local n = 2 if n < m.get(\"a\") { return 1 } return 0", "local m = %{\"a\" => 3} if m.get(\"a\") > 1 && m.get(\"a\") < 9 { return 1 } return 0"]),
+] {
+println!("case: {case_name}");
+for body in bodies {
+    let package = issue(&source(body)).unwrap();
+    let mut context = CompilationContext::new();
+    package
+        .prepare_install_with_consumer(&mut context, None)
+        .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
+    assert!(context.callable_declaration_catalog_vacant(), "{body}");
+}
+}
 }
 
 #[test]
@@ -960,25 +963,6 @@ fn checked_get_on_a_named_local_map_is_a_shared_expression_operation() {
         package
             .prepare_install_with_consumer(&mut context, None)
             .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
-    }
-}
-
-#[test]
-fn checked_get_as_a_comparison_input_installs_with_the_same_map_home() {
-    // The checked get is one shared Core operation wherever it sits; a
-    // condition takes its inputs from the same Home and owes one End.
-    for body in [
-        "local m = new MapBox() m.set(\"k\", 5) if m.get(\"k\") == 5 { return 1 } return 0",
-        "local m = %{\"k\" => 5} if 5 == m.get(\"k\") { return 1 } else { return 2 }",
-        "local m = %{\"a\" => 3} local n = 2 if n < m.get(\"a\") { return 1 } return 0",
-        "local m = %{\"a\" => 3} if m.get(\"a\") > 1 && m.get(\"a\") < 9 { return 1 } return 0",
-    ] {
-        let package = issue(&source(body)).unwrap();
-        let mut context = CompilationContext::new();
-        package
-            .prepare_install_with_consumer(&mut context, None)
-            .unwrap_or_else(|(_, error)| panic!("{body}: {error:?}"));
-        assert!(context.callable_declaration_catalog_vacant(), "{body}");
     }
 }
 

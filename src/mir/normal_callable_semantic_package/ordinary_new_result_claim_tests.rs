@@ -393,101 +393,76 @@ fn defaulted_scalar_field_accepts_birth_overwrite() {
     );
 }
 
-/// A re-stored object field needs real release of the stored `new` — in
-/// the same defaulted box where the scalar overwrite is admitted, the
-/// object-field re-store stays `ReplacementStoreUnsupported`.
 #[test]
-fn defaulted_object_field_rejects_birth_overwrite() {
-    let package = issue(
-        "box Token { v: i64 birth(v) { me.v = v } }
+fn object_field_stores_without_storage_authority_stay_unavailable() {
+    for (case_name, source_text, description, refusal_description) in [
+        (
+            "defaulted_object_field_rejects_birth_overwrite",
+            "box Token { v: i64 birth(v) { me.v = v } }
          box Wrap { n: i64 = 0 tok: Token
              birth(n, t) { me.tok = new Token(0) me.n = n me.tok = t } }
          static box Work { make(args) { return new Wrap(1, null) } }
          static box Main { main() { return 30 } }",
-    )
-    .expect("defaulted-object overwrite package");
-    let claims = package
-        .ordinary_new_claim_ledger
-        .pending_result_claims_for_test();
-    let claim = claims
-        .values()
-        .find(|claim| claim.core().class() == "Wrap")
-        .expect("Wrap result claim");
-    assert!(
-        claim.core().construction().is_err(),
-        "an object-field re-store still needs release semantics"
-    );
-}
-
-/// A copy of a birth formal is a `Local` binding, not the `Parameter`
-/// itself — the store falls to `BodyFormUnsupported`
-/// (a `local` statement), like any non-formal RHS.
-#[test]
-fn provided_parameter_store_rejects_copied_local() {
-    let package = issue(
-        "box Token { v: i64 birth(v) { me.v = v } }
+            "defaulted-object overwrite package",
+            "an object-field re-store still needs release semantics",
+        ),
+        (
+            "provided_parameter_store_rejects_copied_local",
+            "box Token { v: i64 birth(v) { me.v = v } }
          box Wrap { tok: Token
              birth(tok) { local t = tok me.tok = t } }
          static box Work { make(args) { return new Wrap(null) } }
          static box Main { main() { return 30 } }",
-    )
-    .expect("copied-local package");
-    let claims = package
-        .ordinary_new_claim_ledger
-        .pending_result_claims_for_test();
-    let claim = claims
-        .values()
-        .find(|claim| claim.core().class() == "Wrap")
-        .expect("Wrap result claim");
-    assert!(
-        claim.core().construction().is_err(),
-        "a copied local is not a provided parameter"
-    );
+            "copied-local package",
+            "a copied local is not a provided parameter",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = issue(source_text).expect(description);
+        let claims = package
+            .ordinary_new_claim_ledger
+            .pending_result_claims_for_test();
+        let claim = claims
+            .values()
+            .find(|claim| claim.core().class() == "Wrap")
+            .expect("Wrap result claim");
+        assert!(
+            claim.core().construction().is_err(),
+            "{refusal_description}"
+        );
+    }
 }
 
-/// Declared class membership does not change an ordinary formal's borrowing
-/// contract. Returning it preserves nullable input identity without a new Home.
 #[test]
-fn declared_formal_return_preserves_borrowed_nullable_identity() {
-    let package = issue(
-        "box Wrap { v: i64 birth(v) { me.v = v } }
+fn borrowed_nullable_formal_returns_preserve_identity() {
+    for (case_name, source_text, description) in [
+        (
+            "declared_formal_return_preserves_borrowed_nullable_identity",
+            "box Wrap { v: i64 birth(v) { me.v = v } }
          box Door { give(t: Wrap) { return t } }
          static box Main { main() { return 30 } }",
-    )
-    .expect("declared formal return package");
-    let (_, claim) = package
-        .ordinary_new_claim_ledger
-        .callable_result_class_claims_for_test()
-        .iter()
-        .find(|(key, _)| key.owner() == "Door" && key.name() == "give")
-        .expect("Door.give claims a result class");
-    assert_eq!(
-        *claim,
-        super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 },
-    );
-}
-
-/// `return <opaque formal>` mints a class-free `NullableForwarded`
-/// identity claim: the callee asserts only that its result is the
-/// caller's arg-`ordinal` value or `null`. A borrowed value never
-/// becomes a new Home — the caller supplies both class and ownership.
-#[test]
-fn opaque_formal_return_mints_nullable_forwarded_claim() {
-    let package = issue(
-        "box Door { give(t) { return t } }
+            "declared formal return package",
+        ),
+        (
+            "opaque_formal_return_mints_nullable_forwarded_claim",
+            "box Door { give(t) { return t } }
          static box Main { main() { return 30 } }",
-    )
-    .expect("opaque formal return package");
-    let (_, claim) = package
-        .ordinary_new_claim_ledger
-        .callable_result_class_claims_for_test()
-        .iter()
-        .find(|(key, _)| key.owner() == "Door" && key.name() == "give")
-        .expect("Door.give claims a result class");
-    assert_eq!(
-        *claim,
-        super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 },
-    );
+            "opaque formal return package",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = issue(source_text).expect(description);
+        let (_, claim) = package
+            .ordinary_new_claim_ledger
+            .callable_result_class_claims_for_test()
+            .iter()
+            .find(|(key, _)| key.owner() == "Door" && key.name() == "give")
+            .expect("Door.give claims a result class");
+        assert_eq!(
+            *claim,
+            super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 },
+        );
+    }
 }
 
 /// A `NullableForwarded` callee composes at the caller through the call

@@ -114,32 +114,52 @@ fn ignored_declared_formal_rejects_scalar_and_foreign_class_incoming() {
 }
 
 #[test]
-fn declared_object_never_mints_numeric_view_authority() {
-    for bridge in [
-        "if h > 0 { return 1 } return 0",
-        "local alias = h if alias > 0 { return 1 } return 0",
+fn declared_objects_do_not_seed_unproved_numeric_or_escaping_definitions() {
+    for (case_name, bridges, description) in [
+        (
+            "declared_object_never_mints_numeric_view_authority",
+            &[
+                "if h > 0 { return 1 } return 0",
+                "local alias = h if alias > 0 { return 1 } return 0",
+            ][..],
+            "outside transport profile",
+        ),
+        (
+            "declared_rebind_and_escape_stay_outside_the_closed_source_profile",
+            &[
+                "h = null return 0",
+                "return h",
+                "local alias = h alias = null return 0",
+                "local closure = fn() { return h } return 0",
+                "local alias = h local closure = fn() { return alias } return 0",
+            ],
+            "unselected source shape",
+        ),
     ] {
-        let package = issue(&source(bridge, "null")).expect("outside transport profile");
-        let prepared = package
-            .ordinary_new_claim_ledger
-            .borrowed_formal_source
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .unwrap();
-        let contract = package
-            .parameter_contracts
-            .iter()
-            .find(|row| {
-                row.parameters.iter().any(|row| {
-                    matches!(row.kind, CallableParameterContractKindV1::DeclaredObject(_))
+        println!("case: {case_name}");
+        for bridge in bridges {
+            let package = issue(&source(bridge, "null")).expect(description);
+            let prepared = package
+                .ordinary_new_claim_ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            let contract = package
+                .parameter_contracts
+                .iter()
+                .find(|row| {
+                    row.parameters.iter().any(|row| {
+                        matches!(row.kind, CallableParameterContractKindV1::DeclaredObject(_))
+                    })
                 })
-            })
-            .unwrap();
-        assert!(
-            !prepared.definitions.contains_key(&contract.owner),
-            "{bridge}"
-        );
+                .unwrap();
+            assert!(
+                !prepared.definitions.contains_key(&contract.owner),
+                "{bridge}"
+            );
+        }
     }
 }
 
@@ -362,39 +382,6 @@ fn array_index_requires_numeric_origin_even_with_an_exact_receiver_loan() {
             )),
             allowed,
             "index authority: {parameter} / {index}"
-        );
-    }
-}
-
-#[test]
-fn declared_rebind_and_escape_stay_outside_the_closed_source_profile() {
-    for bridge in [
-        "h = null return 0",
-        "return h",
-        "local alias = h alias = null return 0",
-        "local closure = fn() { return h } return 0",
-        "local alias = h local closure = fn() { return alias } return 0",
-    ] {
-        let package = issue(&source(bridge, "null")).expect("unselected source shape");
-        let prepared = package
-            .ordinary_new_claim_ledger
-            .borrowed_formal_source
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .unwrap();
-        let contract = package
-            .parameter_contracts
-            .iter()
-            .find(|row| {
-                row.parameters.iter().any(|row| {
-                    matches!(row.kind, CallableParameterContractKindV1::DeclaredObject(_))
-                })
-            })
-            .unwrap();
-        assert!(
-            !prepared.definitions.contains_key(&contract.owner),
-            "{bridge}"
         );
     }
 }

@@ -49,43 +49,37 @@ fn build_targets(
 }
 
 #[test]
-fn ordinary_exact_call_row_is_not_reclassified_as_the_bounded_requirement() {
-    let declarations = seal_declarations(SOURCE);
-    let targets = build_targets(&declarations);
-    let results = seal_with_targets(&declarations, &targets);
-    let caller = key(&declarations, "Caller", "exact", 1);
+fn exact_i64_requirement_rejects_ineligible_static_results() {
+    for (case_name, caller_name, expected_error) in [
+        (
+            "ordinary_exact_call_row_is_not_reclassified_as_the_bounded_requirement",
+            "exact",
+            StaticExactI64RequirementErrorV1::GeneralCallResultAlreadyAvailable,
+        ),
+        (
+            "unavailable_static_result_rejects_before_any_bounded_bridge",
+            "unavailable",
+            StaticExactI64RequirementErrorV1::TargetResultUnavailable,
+        ),
+    ] {
+        println!("case: {case_name}");
+        let declarations = seal_declarations(SOURCE);
+        let targets = build_targets(&declarations);
+        let results = seal_with_targets(&declarations, &targets);
+        let caller = key(&declarations, "Caller", caller_name, 1);
 
-    assert_eq!(
-        project_static_exact_i64_requirement_v1(
-            &declarations,
-            &caller,
-            &return_site(),
-            &targets,
-            &results,
-        )
-        .unwrap_err(),
-        StaticExactI64RequirementErrorV1::GeneralCallResultAlreadyAvailable
-    );
-}
-
-#[test]
-fn unavailable_static_result_rejects_before_any_bounded_bridge() {
-    let declarations = seal_declarations(SOURCE);
-    let targets = build_targets(&declarations);
-    let results = seal_with_targets(&declarations, &targets);
-    let caller = key(&declarations, "Caller", "unavailable", 1);
-
-    assert_eq!(
-        project_static_exact_i64_requirement_v1(
-            &declarations,
-            &caller,
-            &return_site(),
-            &targets,
-            &results,
-        )
-        .unwrap_err(),
-        StaticExactI64RequirementErrorV1::TargetResultUnavailable
-    );
+        assert_eq!(
+            project_static_exact_i64_requirement_v1(
+                &declarations,
+                &caller,
+                &return_site(),
+                &targets,
+                &results,
+            )
+            .unwrap_err(),
+            expected_error
+        );
+    }
 }
 
 #[test]

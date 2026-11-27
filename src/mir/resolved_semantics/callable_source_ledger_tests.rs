@@ -335,85 +335,81 @@ fn ledger_seals_expression_if_paths_consumers_and_nested_call_observations() {
         .contains_expression(row.else_tail()));
 }
 
+
 #[test]
-fn ledger_seals_expression_if_in_initializer_and_rhs_consumers() {
-    let tree = function(vec![
-        local(
-            "text",
-            conditional(literal(1), string_literal("a"), string_literal("b")),
+fn expression_if_ledger_records_every_consumer_role() {
+    for (case_name, statements, roles) in [
+        (
+            "ledger_seals_expression_if_in_initializer_and_rhs_consumers",
+            vec![
+                local(
+                    "text",
+                    conditional(literal(1), string_literal("a"), string_literal("b")),
+                ),
+                ASTNode::Return {
+                    value: Some(Box::new(ASTNode::BinaryOp {
+                        operator: crate::ast::BinaryOperator::Add,
+                        left: Box::new(literal(1)),
+                        right: Box::new(conditional(literal(1), literal(2), literal(3))),
+                        span: Span::unknown(),
+                    })),
+                    span: Span::unknown(),
+                },
+            ],
+            &[
+                SourcePathSegmentV1::Initializer(0),
+                SourcePathSegmentV1::Rhs,
+            ][..],
         ),
-        ASTNode::Return {
-            value: Some(Box::new(ASTNode::BinaryOp {
-                operator: crate::ast::BinaryOperator::Add,
-                left: Box::new(literal(1)),
-                right: Box::new(conditional(literal(1), literal(2), literal(3))),
-                span: Span::unknown(),
-            })),
-            span: Span::unknown(),
-        },
-    ]);
-    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let forest = session
-        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
-        .unwrap();
-    let owner = forest.roots()[0];
-    let view = forest.callable_source_ledger(owner).unwrap();
-    let rows = view.conditional_expression_sources().collect::<Vec<_>>();
-    assert_eq!(rows.len(), 2);
-    assert!(rows
-        .iter()
-        .any(|row| matches!(row.consumer().role(), SourcePathSegmentV1::Initializer(0))));
-    assert!(rows
-        .iter()
-        .any(|row| row.consumer().role() == &SourcePathSegmentV1::Rhs));
-}
-
-#[test]
-fn expression_if_relation_is_type_agnostic_for_string_consumers() {
-    let tree = function(vec![
-        local("number", conditional(literal(1), literal(2), literal(3))),
-        local("text", string_literal("seed")),
-        ASTNode::Assignment {
-            target: Box::new(variable("text")),
-            value: Box::new(conditional(
-                literal(1),
-                string_literal("a"),
-                string_literal("b"),
-            )),
-            span: Span::unknown(),
-        },
-        ASTNode::Return {
-            value: Some(Box::new(ASTNode::BinaryOp {
-                operator: crate::ast::BinaryOperator::Add,
-                left: Box::new(string_literal("prefix")),
-                right: Box::new(conditional(
-                    literal(1),
-                    string_literal("a"),
-                    string_literal("b"),
-                )),
-                span: Span::unknown(),
-            })),
-            span: Span::unknown(),
-        },
-    ]);
-    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let forest = session
-        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
-        .unwrap();
-    let owner = forest.roots()[0];
-    let view = forest.callable_source_ledger(owner).unwrap();
-    let rows = view.conditional_expression_sources().collect::<Vec<_>>();
-
-    assert_eq!(rows.len(), 3);
-    assert!(rows
-        .iter()
-        .any(|row| matches!(row.consumer().role(), SourcePathSegmentV1::Initializer(0))));
-    assert!(rows
-        .iter()
-        .any(|row| row.consumer().role() == &SourcePathSegmentV1::Value));
-    assert!(rows
-        .iter()
-        .any(|row| row.consumer().role() == &SourcePathSegmentV1::Rhs));
+        (
+            "expression_if_relation_is_type_agnostic_for_string_consumers",
+            vec![
+                local("number", conditional(literal(1), literal(2), literal(3))),
+                local("text", string_literal("seed")),
+                ASTNode::Assignment {
+                    target: Box::new(variable("text")),
+                    value: Box::new(conditional(
+                        literal(1),
+                        string_literal("a"),
+                        string_literal("b"),
+                    )),
+                    span: Span::unknown(),
+                },
+                ASTNode::Return {
+                    value: Some(Box::new(ASTNode::BinaryOp {
+                        operator: crate::ast::BinaryOperator::Add,
+                        left: Box::new(string_literal("prefix")),
+                        right: Box::new(conditional(
+                            literal(1),
+                            string_literal("a"),
+                            string_literal("b"),
+                        )),
+                        span: Span::unknown(),
+                    })),
+                    span: Span::unknown(),
+                },
+            ],
+            &[
+                SourcePathSegmentV1::Initializer(0),
+                SourcePathSegmentV1::Value,
+                SourcePathSegmentV1::Rhs,
+            ][..],
+        ),
+    ] {
+        println!("case: {case_name}");
+        let tree = function(statements);
+        let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+        let forest = session
+            .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+            .unwrap();
+        let owner = forest.roots()[0];
+        let view = forest.callable_source_ledger(owner).unwrap();
+        let rows = view.conditional_expression_sources().collect::<Vec<_>>();
+        assert_eq!(rows.len(), roles.len());
+        for role in roles {
+            assert!(rows.iter().any(|row| row.consumer().role() == role));
+        }
+    }
 }
 
 #[test]

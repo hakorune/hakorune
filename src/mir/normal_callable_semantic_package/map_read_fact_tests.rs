@@ -135,26 +135,40 @@ fn unrelated_map_lookup_does_not_claim_the_bounded_chain() {
 }
 
 #[test]
-fn source_issues_array_length_for_exact_params_array() {
-    let package = issue(ARRAY_LENGTH_READ_SOURCE).expect("bounded array length package");
-    let rows = package.map_read_facts().rows();
-    assert_eq!(rows.len(), 2);
-    let params = rows
-        .iter()
-        .find(|row| {
-            row.operation() == MapReadOperationV1::MapLookup
-                && row.operand() == &MapReadOperandV1::Key("params".into())
-        })
-        .expect("params read");
-    assert_eq!(params.operation(), MapReadOperationV1::MapLookup);
-    assert_eq!(params.result(), MapReadResultClassV1::ArrayView);
-    let length = rows
-        .iter()
-        .find(|row| row.operation() == MapReadOperationV1::ArrayLength)
-        .expect("array length read");
-    assert_eq!(length.operand(), &MapReadOperandV1::Key("params".into()));
-    assert_eq!(length.result(), MapReadResultClassV1::I64);
-    assert!(rows.iter().all(|row| !row.containment().is_empty()));
+fn map_array_length_facts_keep_lookup_result_and_containment() {
+    for (case_name, source, key) in [
+        (
+            "source_issues_array_length_for_exact_params_array",
+            ARRAY_LENGTH_READ_SOURCE,
+            "params",
+        ),
+        (
+            "source_issues_blocks_length_for_non_empty_all_map_local_array",
+            BLOCKS_LENGTH_READ_SOURCE,
+            "blocks",
+        ),
+    ] {
+        println!("case: {case_name}");
+        let package = issue(source).expect("bounded array length package");
+        let rows = package.map_read_facts().rows();
+        assert_eq!(rows.len(), 2);
+        let lookup = rows
+            .iter()
+            .find(|row| {
+                row.operation() == MapReadOperationV1::MapLookup
+                    && row.operand() == &MapReadOperandV1::Key(key.into())
+            })
+            .expect("array field read");
+        assert_eq!(lookup.operation(), MapReadOperationV1::MapLookup);
+        assert_eq!(lookup.result(), MapReadResultClassV1::ArrayView);
+        let length = rows
+            .iter()
+            .find(|row| row.operation() == MapReadOperationV1::ArrayLength)
+            .expect("array length read");
+        assert_eq!(length.operand(), &MapReadOperandV1::Key(key.into()));
+        assert_eq!(length.result(), MapReadResultClassV1::I64);
+        assert!(rows.iter().all(|row| !row.containment().is_empty()));
+    }
 }
 
 #[test]
@@ -180,29 +194,6 @@ fn source_issues_blocks_kind_for_non_empty_all_map_local_array() {
         .expect("kind read");
     assert_eq!(kind.operation(), MapReadOperationV1::MapLookup);
     assert_eq!(kind.result(), MapReadResultClassV1::TextView);
-    assert!(rows.iter().all(|row| !row.containment().is_empty()));
-}
-
-#[test]
-fn source_issues_blocks_length_for_non_empty_all_map_local_array() {
-    let package = issue(BLOCKS_LENGTH_READ_SOURCE).expect("bounded blocks length package");
-    let rows = package.map_read_facts().rows();
-    assert_eq!(rows.len(), 2);
-    let blocks = rows
-        .iter()
-        .find(|row| {
-            row.operation() == MapReadOperationV1::MapLookup
-                && row.operand() == &MapReadOperandV1::Key("blocks".into())
-        })
-        .expect("blocks read");
-    assert_eq!(blocks.operation(), MapReadOperationV1::MapLookup);
-    assert_eq!(blocks.result(), MapReadResultClassV1::ArrayView);
-    let length = rows
-        .iter()
-        .find(|row| row.operation() == MapReadOperationV1::ArrayLength)
-        .expect("blocks length read");
-    assert_eq!(length.operand(), &MapReadOperandV1::Key("blocks".into()));
-    assert_eq!(length.result(), MapReadResultClassV1::I64);
     assert!(rows.iter().all(|row| !row.containment().is_empty()));
 }
 
