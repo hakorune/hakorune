@@ -343,7 +343,7 @@ impl OriginalFormalSeedProductV1 {
             FormalDomainProjectionV1::SourceInteger
             | FormalDomainProjectionV1::SourceI64
             | FormalDomainProjectionV1::SourceObject => inventory.source_vetoed_owners_v1(),
-            FormalDomainProjectionV1::SelectedTransport { .. } => inventory.vetoed_owners(),
+            FormalDomainProjectionV1::SelectedTransport { .. } => inventory.collect_vetoes_v1(true),
         };
         let mut seeds: BTreeMap<BindingRefV1, Vec<FormalActualSeedV1>> = BTreeMap::new();
         let mut declared = BTreeSet::new();

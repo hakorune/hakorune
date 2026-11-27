@@ -71,15 +71,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(result)
     }
-    pub(super) fn verify_finished_borrowed_compare_carriers_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-        project: impl FnMut(&Binding) -> Result<Binding, String>,
-    ) -> Result<(), String> {
-        self.verify_carrier_consumers(owner, function, None, project)
-    }
-    fn verify_carrier_consumers(
+    pub(super) fn verify_carrier_consumers(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,

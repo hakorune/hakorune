@@ -382,7 +382,7 @@ pub(super) fn reference_operand(
             }
             Ok(Operand::Dynamic(value))
         }
-        Reference::ArgumentEntry(required) => text_entry_operand(required, read, producer, context),
+        Reference::ArgumentEntry(required) => entry_value(required, read, producer, context).map(Operand::BorrowedText),
         Reference::FiniteEntry {
             read: original,
             exclusion,
@@ -469,14 +469,6 @@ pub(super) fn prepare_dynamic_entry(
         read,
     )?;
     Ok(entry)
-}
-pub(super) fn text_entry_operand(
-    required: &crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1,
-    read: &ExactLexicalReadV1,
-    producer: &ReferenceProducerV1,
-    context: CallValidationContextV1<'_>,
-) -> Result<Operand, String> {
-    entry_value(required, read, producer, context).map(Operand::BorrowedText)
 }
 pub(super) fn entry_value(
     required: &crate::mir::normal_callable_semantic_package::BorrowedFormalEntryReadRequirementV1,

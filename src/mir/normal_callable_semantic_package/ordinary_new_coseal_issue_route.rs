@@ -48,16 +48,6 @@ pub(super) enum ScanRequestV1 {
 }
 
 impl ScanRequestV1 {
-    /// S3b-R3b: whether this request alone needs the verified walk. A Map literal needs
-    /// it only together with the facts the walk expression names.
-    const fn needs_walk(self) -> bool {
-        !matches!(self, Self::MapLiteral)
-    }
-    /// S3b-R3b: whether this request keeps the plain seed completion from being issued.
-    /// A direct call's owner loan does not stop it in the app main.
-    const fn blocks_plain_seed(self, is_app_main: bool) -> bool {
-        !matches!(self, Self::DirectCallOwnerLoan) || !is_app_main
-    }
 }
 
 /// The requests found in one function, collected in the order the queries run.
@@ -123,7 +113,7 @@ impl OwnershipRouteV1 {
         let child_result_ready = facts.seed_eligible && facts.has_result_sites;
         let map_literal = requests.has(R::MapLiteral);
         let seed = facts.seed_eligible
-            && !requests.0.iter().any(|request| request.blocks_plain_seed(facts.is_app_main))
+            && !requests.0.iter().any(|request| !matches!(request, ScanRequestV1::DirectCallOwnerLoan) || !facts.is_app_main)
             && !child_new_ready
             && !child_result_ready;
         let app_main_integer = main_integer(
@@ -136,7 +126,7 @@ impl OwnershipRouteV1 {
                 && !requests.has(R::TypedStaticCall),
             !map_literal && !requests.has(R::DirectCallOwnerLoan),
         );
-        let walk = requests.0.iter().any(|request| request.needs_walk())
+        let walk = requests.0.iter().any(|request| !matches!(request, ScanRequestV1::MapLiteral))
             || (facts.is_app_main && (facts.has_new_sites || map_literal || facts.has_result_sites))
             || (facts.seed_eligible && (map_literal || child_new_ready || child_result_ready));
         Self {

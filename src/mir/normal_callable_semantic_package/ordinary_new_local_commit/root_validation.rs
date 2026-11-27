@@ -356,15 +356,8 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(super) fn validate_terminal_scalar_literal_return(
-        &self,
-        owner: FunctionOwnerIdV1,
-        function: &MirFunction,
-    ) -> Result<(), String> {
-        self.validate_terminal_scalar_literal_return_projected(owner, function, None)
-    }
 
-    fn validate_terminal_scalar_literal_return_projected(
+    pub(super) fn validate_terminal_scalar_literal_return_projected(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,

@@ -64,6 +64,7 @@ impl CheckedFieldArrayReadSourceV1 {
         Ok(())
     }
     pub(crate) fn read(&self) -> &Rc<super::super::super::super::CheckedFieldArrayAccessSourceV1> { &self.read }
+    #[cfg(test)]
     pub(crate) fn return_sites(&self) -> &[OwnedExprSiteV1] { &self.return_sites }
 }
 impl std::ops::Deref for CheckedFieldArrayReadSourceV1 {
@@ -185,7 +186,7 @@ impl BorrowedI64ResultSourceV1 {
         exit: &crate::mir::resolved_semantics::SourceStmtSiteV1,
         census: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     ) -> Result<bool, String> {
-        let mut reads = self.field_array_reads.iter().filter(|read| read.return_sites().contains(site));
+        let mut reads = self.field_array_reads.iter().filter(|read| read.return_sites.contains(site));
         let read = reads.next();
         if reads.next().is_some() { return Err(freeze("borrowed-result/array-return-duplicate")); }
         // A Core `keys().length()` Return retains its own expression source.

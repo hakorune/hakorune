@@ -426,7 +426,6 @@ impl CallableScalarResultSourceLoanV1 {
         }
     }
     pub(crate) fn returns(&self) -> &[OwnedExprSiteV1] { &self.facts.returns }
-    pub(crate) fn field_array_reads(&self) -> &[Rc<pending::field_array_read::CheckedFieldArrayReadSourceV1>] { &self.facts.field_array_reads }
     pub(crate) fn same_facts(&self, other: &Self) -> bool {
         self.owner == other.owner && Rc::ptr_eq(&self.facts, &other.facts)
             && Rc::ptr_eq(&self.completion, &other.completion)
@@ -453,15 +452,10 @@ impl OrdinaryNewClaimLedgerV1 {
         validation.validate(loan, target)
     }
 
-    /// Original scalar terminal/Discard membership selects this responsibility.
-    /// Other result owners and their errors are not implicit scalar candidates.
-    pub(in crate::mir::normal_callable_semantic_package) fn callable_scalar_result_participant_v1(&self, owner: FunctionOwnerIdV1) -> Result<bool, String> {
-        self.callable_scalar_result_scope_v1(owner, false, None)
-    }
 
     /// One original membership walk serves passive selection and source issuance.
     /// Only the issuer requests proof verification; entry selection grants no result.
-    fn callable_scalar_result_scope_v1(&self, owner: FunctionOwnerIdV1, verify: bool,
+    pub(in crate::mir::normal_callable_semantic_package) fn callable_scalar_result_scope_v1(&self, owner: FunctionOwnerIdV1, verify: bool,
         validation: Option<&ScalarSourceValidationV1<'_>>) -> Result<bool, String> {
         let mut anchors = Vec::new();
         let mut participants = BTreeSet::new();
@@ -567,7 +561,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("callable-scalar/source-missing"))?;
         let validation = ScalarSourceValidationV1::new(ingress, &self.borrowed_i64_results);
         let source = self.checked_callable_scalar_result_source_v1(owner, &validation)?;
-        Ok(source.field_array_reads().to_vec())
+        Ok(source.facts.field_array_reads.to_vec())
     }
 
     /// Issue the `keys().length()` Return recipe once the whole scalar result

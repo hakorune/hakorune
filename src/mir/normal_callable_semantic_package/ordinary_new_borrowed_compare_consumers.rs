@@ -135,8 +135,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     .collect::<Result<Vec<_>, _>>()?;
                 check_group(geometry, &original, &copies, &branches)?;
             }
-            self.verify_finished_borrowed_compare_carriers_v1(owner, function, &mut project)?;
-            self.verify_finished_borrowed_compare_literals_v1(owner, function, project)?;
+            self.verify_carrier_consumers(owner, function, None, &mut project)?;
+            self.verify_literal_consumers(owner, function, None, project)?;
             Ok(())
         })
     }

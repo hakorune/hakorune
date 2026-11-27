@@ -38,13 +38,7 @@ pub(super) fn has_print_expression_v1(input: ResolvedFunctionLoweringInputV1<'_>
     })
 }
 
-pub(super) fn has_condition_expression_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
-    crate::mir::resolved_semantics::home_new_prefix::requires_condition_expression_walk_v1(input)
-}
 
-pub(super) fn has_nested_call_argument_walk_v1(input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
-    crate::mir::resolved_semantics::home_new_prefix::requires_nested_call_argument_walk_v1(input)
-}
 
 /// Candidate collection and the completion walk select the same original
 /// declarations. An unselected nested-call source still needs its own input
@@ -61,7 +55,7 @@ pub(super) fn needs_declaration_walk_v1(
     if batch.declarations().any(|row| row.batch_slot() == slot && omitted_static_callers.contains_key(&row.owner())) {
         return Ok(false);
     }
-    batch.with_lowering_input(slot, has_nested_call_argument_walk_v1)
+    batch.with_lowering_input(slot, crate::mir::resolved_semantics::home_new_prefix::requires_nested_call_argument_walk_v1)
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)
 }
 

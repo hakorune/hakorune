@@ -159,10 +159,11 @@ impl OrdinaryNewClaimLedgerV1 {
         site: OwnedExprSiteV1,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        self.record_local_call_binding_group(
+        self.prepare_local_call_binding_group(
             owner,
             RootLifecyclePrefixBindingGroupV1::new(site, bindings, None)?,
-        )
+        )?
+        .commit()
     }
 
     pub(crate) fn record_root_lexical_call_bindings(
@@ -195,14 +196,6 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(PreparedRootLexicalCallBindingGroupV1 { group, packet })
     }
 
-    fn record_local_call_binding_group(
-        &self,
-        owner: FunctionOwnerIdV1,
-        group: RootLifecyclePrefixBindingGroupV1,
-    ) -> Result<(), String> {
-        self.prepare_local_call_binding_group(owner, group)?
-            .commit()
-    }
 
     fn prepare_local_call_binding_group(
         &self,

@@ -242,14 +242,6 @@ impl FinalizedRootSourceHandoffV1 {
         original.borrowed_actuals_in_context(CallValidationContextV1::Finalized(self))
     }
 
-    pub(in crate::mir) fn borrowed_ordinary_entry_source_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> Result<super::super::lexical_instance_call::BorrowedOrdinaryEntrySourceRefV1<'_>, String>
-    {
-        self.ledger
-            .finalized_borrowed_ordinary_entry_source_v1(owner)
-    }
 
     pub(in crate::mir) fn borrowed_ordinary_entry_source_for_function_v1(
         &self,
@@ -257,7 +249,7 @@ impl FinalizedRootSourceHandoffV1 {
         function: &MirFunction,
     ) -> Result<super::super::lexical_instance_call::BorrowedOrdinaryEntrySourceRefV1<'_>, String>
     {
-        let source = self.borrowed_ordinary_entry_source_v1(owner)?;
+        let source = self.ledger.finalized_borrowed_ordinary_entry_source_v1(owner)?;
         let values = self.borrowed_ordinary_entry_values_v1(owner)?;
         let offset = usize::from(
             self.ledger

@@ -152,15 +152,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(teardown) = teardown else { return Ok(None); };
         if missing || rows.len() != exits.len() || !teardown.supports_direct_teardown(false) { return Ok(None); }
         let checked = VerifiedMixedCallResultV1 { source: source.clone(), completion: Rc::clone(completion), rows: rows.into_boxed_slice(), teardown };
-        self.recheck_mixed_call_result_v1(&checked)?;
+        self.recheck_mixed_call_result_using_v1(&checked, CallValidationContextV1::Lowering(self))?;
         Ok(Some(checked))
     }
 
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn recheck_mixed_call_result_v1(
-        &self, proof: &VerifiedMixedCallResultV1,
-    ) -> Result<(), String> {
-        self.recheck_mixed_call_result_using_v1(proof, CallValidationContextV1::Lowering(self))
-    }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn recheck_mixed_call_result_using_v1(
         &self, proof: &VerifiedMixedCallResultV1, context: CallValidationContextV1<'_>,

@@ -15,11 +15,6 @@ impl LexicalInstanceCallDispositionRowV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn mixed_call_teardown_v1<'a>(
-        &self, row: &'a LexicalInstanceCallDispositionRowV1,
-    ) -> Result<&'a super::super::completion_index::ObjectReturnTeardownDescriptorV1, String> {
-        self.mixed_call_teardown_using_v1(row, CallValidationContextV1::Lowering(self))
-    }
 
     pub(in crate::mir::normal_callable_semantic_package) fn mixed_call_teardown_using_v1<'a>(
         &self, row: &'a LexicalInstanceCallDispositionRowV1, context: CallValidationContextV1<'_>,

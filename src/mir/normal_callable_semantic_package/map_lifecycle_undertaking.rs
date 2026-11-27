@@ -106,6 +106,8 @@ impl MapSiteObligationV1 {
     pub(crate) fn operations(&self) -> impl Iterator<Item = MapLifecycleOperationV1> + '_ {
         self.operations.iter().copied()
     }
+
+    #[cfg(test)]
     pub(crate) fn borrows(&self) -> &[MapEntryBorrowV1] {
         &self.borrows
     }
@@ -174,9 +176,6 @@ impl MapLifecycleConsumerCapabilityV1 {
         Self {
             operations: operations.into_iter().collect(),
         }
-    }
-    pub(crate) fn covers(&self, operation: MapLifecycleOperationV1) -> bool {
-        self.operations.contains(&operation)
     }
 }
 
@@ -389,7 +388,7 @@ pub(crate) fn verify_map_lifecycle_undertaking(
                 )
             });
             for operation in site.operations() {
-                if !capability.covers(operation) {
+                if !capability.operations.contains(&operation) {
                     return Err(MapLifecycleUndertakingIssueV1::UncoveredOperation {
                         owner: owner_obligations.owner(),
                         site: site.site().clone(),
@@ -415,7 +414,7 @@ pub(crate) fn verify_map_lifecycle_undertaking(
             // precise BorrowedArray argument row below, whose physical
             // operation carries every child Map and whose edge is co-sealed
             // before catalog mutation.
-            if let Some(borrow) = site.borrows().first() {
+            if let Some(borrow) = site.borrows.first() {
                 // `OwnershipShare(MapLocal)` is meaningful only as the
                 // element-root evidence of the bounded BorrowedArray
                 // argument lane. A single borrowed Map entry still has no

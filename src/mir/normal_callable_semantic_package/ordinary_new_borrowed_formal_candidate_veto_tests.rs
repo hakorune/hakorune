@@ -59,7 +59,7 @@ fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {
     )
     .unwrap();
     assert_eq!(inventory.exact_rows().count(), 1);
-    assert!(inventory.vetoed_owners().contains(&contract.owner));
+    assert!(inventory.collect_vetoes_v1(true).contains(&contract.owner));
     let empty_loans =
         crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1::issue(Box::new([]));
     let original_seeds = source_seeds::prepare_original_formal_seeds_v1(
@@ -605,7 +605,7 @@ fn original_qualified_body_entry_shares_whole_native_input_owner() {
             assert_eq!(ledger.selected_original_object_input_owner_v1(source, first.callee).unwrap(), !scalar);
             if scalar {
                 ledger.borrowed_formal_actuals[&first.call].as_ref().unwrap().require_executable_v1().unwrap();
-                assert!(ledger.callable_scalar_result_participant_v1(first.callee).unwrap());
+                assert!(ledger.callable_scalar_result_scope_v1(first.callee, false, None).unwrap());
             }
             ledger.borrowed_formal_actuals.insert(unrelated, Err("unrelated-static-refusal".into()));
             let call_site = first.call.clone();

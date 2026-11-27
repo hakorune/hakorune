@@ -1,6 +1,7 @@
 //! The same received-call commit retains a conditional Fresh obligation.
 //! Its original sealed packet, never non-nullness, supplies the outcome role.
 use super::*;
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::instruction::InvokeCallResultKind;
 use std::rc::Rc;
 
@@ -8,7 +9,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn begin_mixed_call_emission_v1(
         &self, source: &super::super::lexical_instance_call::LexicalInstanceCallDispositionRowV1,
     ) -> Result<(), String> {
-        let descriptor = self.mixed_call_teardown_v1(source)?;
+        let descriptor = self.mixed_call_teardown_using_v1(source, CallValidationContextV1::Lowering(self))?;
         let site = source.call_site();
         let loan = source.source_target().mixed_local_source().ok_or_else(|| freeze("mixed-call/source-missing"))?;
         let observation = self.mixed_call_source_v1(site).ok_or_else(|| freeze("mixed-call/observation-missing"))?;

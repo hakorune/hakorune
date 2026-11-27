@@ -41,7 +41,6 @@ pub(crate) struct DeclaredFieldValueSourceV1 {
 }
 impl DeclaredFieldValueSourceV1 {
     pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.field }
-    pub(crate) fn declared_type_reference(&self) -> Option<&crate::ast::TypeReferenceV1> { self.declared_type_reference.as_ref() }
     pub(crate) fn declared_type_name(&self) -> Option<&str> { self.declared_type_name.as_deref() }
     pub(crate) fn writers(&self) -> impl Iterator<Item = &ObservedFieldWriteV1> {
         self.writers.iter().map(|index| &self.inventory.writes[*index])
@@ -64,7 +63,7 @@ impl DeclaredFieldValueSourceV1 {
     ) -> Option<(&'a ObservedFieldWriteV1, &'b ConstructionStoreV1)> {
         let mut writers = self.writers();
         let writer = writers.next()?;
-        if writers.next().is_some() || !writer.in_birth() || self.declared_type_reference().is_some() {
+        if writers.next().is_some() || !writer.in_birth() || self.declared_type_reference.is_some() {
             return None;
         }
         let store = self.birth_store(constructors, 0).ok()??;

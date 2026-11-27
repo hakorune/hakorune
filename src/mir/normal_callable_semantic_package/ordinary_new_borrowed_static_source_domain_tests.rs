@@ -347,7 +347,7 @@ fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee()
         assert!(matched, "method Arc belongs to original nested forest");
         assert_eq!(census.exact_rows().filter(|row| row.callee == owner).count(), 2);
         assert!(census.sum_vetoed_owners_v1().contains(&owner));
-        assert!(!census.vetoed_owners().contains(&owner));
+        assert!(!census.collect_vetoes_v1(true).contains(&owner));
         let receipt = census.source_refusals_v1();
         assert!(census.corroborates_refusals_v1(&receipt));
         let mut mutated = BorrowedIncomingInventoryV1 {
@@ -458,7 +458,7 @@ fn static_source_domain_missing_main_authority_keeps_good_row_and_callee_veto() 
     .unwrap();
     assert_eq!(inventory.exact_rows().count(), 1);
     let p = formal(&package, "Layout", "pick");
-    assert!(inventory.vetoed_owners().contains(&p.owner()));
+    assert!(inventory.collect_vetoes_v1(true).contains(&p.owner()));
     let Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(missing)) =
         inventory.project(&BTreeSet::from([p.owner()]))
     else {
@@ -663,7 +663,7 @@ fn static_source_domain_missing_static_authority_retains_instance_same_name_veto
     )
     .unwrap();
     assert_eq!(inventory.exact_rows().count(), 1);
-    assert!(inventory.vetoed_owners().contains(&contract.owner));
+    assert!(inventory.collect_vetoes_v1(true).contains(&contract.owner));
     assert!(matches!(
         inventory.project(&BTreeSet::from([contract.owner])),
         Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(_))

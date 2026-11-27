@@ -287,12 +287,7 @@ impl BorrowedIncomingInventoryV1 {
     ) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
         self.collect_vetoes_v1(false)
     }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn vetoed_owners(
-        &self,
-    ) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
-        self.collect_vetoes_v1(true)
-    }
-    fn collect_vetoes_v1(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn collect_vetoes_v1(
         &self,
         pending_execution_veto: bool,
     ) -> std::collections::BTreeSet<FunctionOwnerIdV1> {

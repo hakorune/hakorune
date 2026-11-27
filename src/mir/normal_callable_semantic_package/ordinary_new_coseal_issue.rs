@@ -410,7 +410,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // Print expressions need the same original Home scan even
                 // without constructions, borrowed calls or owned temporaries.
                 requests.require(ScanRequestV1::PrintOperand, walk_triggers::has_print_expression_v1(input));
-                requests.require(ScanRequestV1::ConditionOperand, walk_triggers::has_condition_expression_v1(input));
+                requests.require(ScanRequestV1::ConditionOperand, crate::mir::resolved_semantics::home_new_prefix::requires_condition_expression_walk_v1(input));
                 requests.require(ScanRequestV1::ValueExpression,
                     walk_triggers::has_dynamic_return_v1(input, dynamic_source_calls)
                         || walk_triggers::has_explicit_copy_source_v1(input)

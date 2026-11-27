@@ -6,7 +6,7 @@
 #[path = "home_field_source.rs"]
 mod field_source;
 pub(crate) use crate::mir::loop_recipe_contract::RetainedSourceLoopProductV1;
-use field_source::{
+pub(crate) use field_source::{
     HomeFieldSourceConsultV1, NoScalarFieldSourceV1,
 };
 

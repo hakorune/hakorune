@@ -324,7 +324,7 @@ impl PreparedBorrowedFormalIngressV1 {
                 .exact_rows()
                 .filter(|row| row.callee == owner)
                 .count(),
-            self.source_incoming.vetoed_owners().contains(&owner),
+            self.source_incoming.collect_vetoes_v1(true).contains(&owner),
         )
     }
 

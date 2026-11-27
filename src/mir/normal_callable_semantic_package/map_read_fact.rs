@@ -266,7 +266,7 @@ pub(super) fn issue_map_read_facts_v1(
         return Ok(MapReadFactsV1::default());
     };
     for loan in loans.iter() {
-        for (call_site, ordinal, callee_owner) in loan.map_formal_edges() {
+        for (call_site, ordinal, callee_owner) in loan.map_edges_v1(false) {
             if ledger.completion_for_owner(loan.owner()).is_none() {
                 return Err(MapReadFactIssueV1::CallerTerminalMissing {
                     owner: loan.owner(),

@@ -496,7 +496,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.seal_physical_observations_v1(owner)?;
         self.validate_new_emissions(owner, function, None)?;
         self.validate_field_reads(owner, function)?;
-        self.validate_terminal_scalar_literal_return(owner, function)?;
+        self.validate_terminal_scalar_literal_return_projected(owner, function, None)?;
 
         self.validate_root_home_exit(owner, function, None)?;
         self.validate_root_cleanup_shape(owner, function)?;

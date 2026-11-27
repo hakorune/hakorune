@@ -86,7 +86,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if kind == OriginalInstanceInputKindV1::SourceInstance
             && !source_result_request
             && !finite_input
-            && !self.callable_scalar_result_participant_v1(owner)?
+            && !self.callable_scalar_result_scope_v1(owner, false, None)?
         {
             return Ok(None);
         }
