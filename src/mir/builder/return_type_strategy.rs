@@ -28,22 +28,18 @@ pub(super) fn infer_return_type_from_phi(
         return None;
     }
 
-    // `function.blocks` is a HashMap: iteration order is nondeterministic.
-    // Collect every Return terminator in a fixed block-id order, then let a
-    // concrete (non-Void/Unknown) result win over a resolved Void/Unknown so
-    // multi-return functions infer the same type on every run.
-    let mut candidates: Vec<(crate::mir::BasicBlockId, ValueId)> = function
+    // Prefer a concrete result over Void or Unknown when scanning Return
+    // terminators in block order.
+    let candidates = function
         .blocks
-        .iter()
-        .filter_map(|(bid, bb)| match &bb.terminator {
-            Some(MirInstruction::Return { value: Some(value) }) => Some((*bid, *value)),
+        .values()
+        .filter_map(|block| match &block.terminator {
+            Some(MirInstruction::Return { value: Some(value) }) => Some(*value),
             _ => None,
-        })
-        .collect();
-    candidates.sort_by_key(|(bid, _)| bid.0);
+        });
 
     let mut inferred = None;
-    for (_bid, value) in candidates {
+    for value in candidates {
         if let Some(mt) = builder
             .function_state
             .type_ctx

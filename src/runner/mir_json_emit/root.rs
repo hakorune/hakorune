@@ -191,8 +191,7 @@ fn build_root_contents(
         let mut blocks = Vec::new();
         let mut export_blocks = Vec::new();
         let mut instruction_count = 0usize;
-        let mut ids: Vec<_> = f.blocks.keys().copied().collect();
-        ids.sort();
+        let ids = f.block_ids();
         for bid in ids {
             if let Some(bb) = f.blocks.get(&bid) {
                 let mut insts = Vec::new();

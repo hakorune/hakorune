@@ -25,8 +25,7 @@ pub(super) fn mir_schema_map_constructor_body_reject_reason(
     }
 
     let mut facts = MirSchemaMapConstructorFacts::default();
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
     for _ in 0..function
         .blocks
         .values()
@@ -86,8 +85,7 @@ pub(super) fn is_mir_schema_map_constructor_body_candidate(
     }
 
     let mut facts = MirSchemaMapWrapperCandidateFacts::default();
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
     for _ in 0..function
         .blocks
         .values()

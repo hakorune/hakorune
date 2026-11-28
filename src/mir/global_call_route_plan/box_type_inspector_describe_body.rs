@@ -34,8 +34,7 @@ pub(super) fn box_type_inspector_describe_body_reject_reason(
         facts.set_value(*param, InspectorValueClass::UnknownHandle, &mut false);
     }
 
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
     for _ in 0..function
         .blocks
         .values()

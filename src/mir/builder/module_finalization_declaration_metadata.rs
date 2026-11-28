@@ -8,11 +8,11 @@ use super::compilation_context::CompilationContext;
 use super::MirModule;
 use crate::mir::function::{MirEnumDecl, RecordDecl};
 use crate::mir::UserBoxFieldDecl;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 pub(super) struct PreparedModuleFinalizationDeclarationMetadataV1 {
-    user_box_decls: HashMap<String, Vec<String>>,
-    user_box_field_decls: HashMap<String, Vec<UserBoxFieldDecl>>,
+    user_box_decls: BTreeMap<String, Vec<String>>,
+    user_box_field_decls: BTreeMap<String, Vec<UserBoxFieldDecl>>,
     record_decls: BTreeMap<String, RecordDecl>,
     enum_decls: BTreeMap<String, MirEnumDecl>,
 }
@@ -38,7 +38,7 @@ impl PreparedModuleFinalizationDeclarationMetadataV1 {
             .collect();
 
         Self {
-            user_box_decls: context.user_defined_boxes.clone(),
+            user_box_decls: context.user_defined_boxes.clone().into_iter().collect(),
             user_box_field_decls,
             record_decls: context.record_decls.clone().into_iter().collect(),
             enum_decls: context.enum_decls_for_module_metadata(),

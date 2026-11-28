@@ -154,8 +154,7 @@ pub(crate) fn method_receiver_box_name(symbol: &str) -> Option<String> {
 }
 
 pub(crate) fn sorted_block_ids(function: &MirFunction) -> Vec<BasicBlockId> {
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
     block_ids
 }
 

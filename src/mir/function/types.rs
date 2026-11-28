@@ -220,7 +220,7 @@ pub struct MirFunction {
     pub signature: FunctionSignature,
 
     /// Basic blocks indexed by ID
-    pub blocks: HashMap<BasicBlockId, BasicBlock>,
+    pub blocks: BTreeMap<BasicBlockId, BasicBlock>,
 
     /// Entry basic block ID
     pub entry_block: BasicBlockId,
@@ -381,12 +381,12 @@ pub struct ModuleMetadata {
     pub dev_processed_markers: HashSet<String>,
 
     /// Phase 285LLVM-1.1: User-defined box declarations with fields
-    /// HashMap: box name -> field names (empty Vec for static boxes)
-    pub user_box_decls: HashMap<String, Vec<String>>,
+    /// Box name -> field names (empty Vec for static boxes)
+    pub user_box_decls: BTreeMap<String, Vec<String>>,
 
     /// Typed field declarations for user-defined boxes.
     /// This stays parallel to `user_box_decls` so names-only compatibility remains intact.
-    pub user_box_field_decls: HashMap<String, Vec<UserBoxFieldDecl>>,
+    pub user_box_field_decls: BTreeMap<String, Vec<UserBoxFieldDecl>>,
 
     /// One-way projection from exact object definitions; never a name resolver.
     pub(crate) canonical_object_membership:

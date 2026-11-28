@@ -23,8 +23,7 @@ fn is_buildbox_program_json_emit_body_function(function: &MirFunction) -> bool {
     }
 
     let mut state = ProgramJsonEmitBodyState::new(function.params[0]);
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
             return false;

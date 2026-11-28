@@ -139,8 +139,7 @@ pub(super) fn infer_same_module_static_helper_return_contract(
 }
 
 fn same_module_static_helper_sorted_block_ids(function: &MirFunction) -> Vec<BasicBlockId> {
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
     block_ids
 }
 

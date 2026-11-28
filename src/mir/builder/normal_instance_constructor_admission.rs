@@ -6,6 +6,7 @@
 //! source occurrence: each physical demand receives a fresh linear admission.
 
 use super::calls::LegacyFunctionPayloadPendingSessionV1;
+use super::instance_box_constructor_batch::constructors_in_key_order;
 use super::module_draft_collector::FunctionDraftKeyV1;
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
@@ -183,7 +184,7 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
             else {
                 continue;
             };
-            for (key, declaration) in constructors {
+            for (key, declaration) in constructors_in_key_order(constructors) {
                 if !matches!(declaration, ASTNode::FunctionDeclaration { .. }) {
                     return Err(
                         "[freeze:contract][mir/instance-constructor-source/non-function]"

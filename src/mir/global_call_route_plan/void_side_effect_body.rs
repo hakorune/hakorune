@@ -17,8 +17,7 @@ pub(super) fn is_void_side_effect_body_function(
     let mut void_values = BTreeSet::<ValueId>::new();
     let mut saw_return = false;
     let mut saw_route_backed_effect = false;
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     for _ in 0..8 {
         let mut changed = false;

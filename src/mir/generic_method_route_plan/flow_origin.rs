@@ -249,8 +249,7 @@ pub(super) fn generic_array_flow_origin_box_name(
             }
         }
     }
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
 
     for _ in 0..16 {
         let mut changed = false;
@@ -497,8 +496,7 @@ pub(super) struct GenericPureStringFlowAnalysis {
 impl GenericPureStringFlowAnalysis {
     pub(super) fn new(function: &MirFunction) -> Self {
         let mut string_values = BTreeSet::<ValueId>::new();
-        let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-        block_ids.sort();
+        let block_ids = function.block_ids();
 
         for _ in 0..16 {
             let mut changed = false;

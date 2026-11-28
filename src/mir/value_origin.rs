@@ -40,13 +40,7 @@ pub(in crate::mir) fn indexed_value_definitions(
         }
     }
 
-    // Deterministic iteration: function.blocks is a HashMap, and nondeterminism makes
-    // SSA/verify diagnosis harder (e.g. "first_block" can drift run-to-run).
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort_by_key(|b| b.0);
-
-    for block_id in &block_ids {
-        let block = &function.blocks[block_id];
+    for (block_id, block) in &function.blocks {
         for (inst_idx, instruction) in block.all_instructions().enumerate() {
             if let Some(dst) = instruction.dst_value() {
                 if let Some((first_block, _)) = definitions.insert(dst, (*block_id, inst_idx)) {

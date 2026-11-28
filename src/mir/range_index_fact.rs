@@ -72,8 +72,7 @@ fn append_modulo_range_index_facts(
     facts: &mut Vec<RangeIndexFact>,
 ) {
     let mut derived = Vec::new();
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
 
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
@@ -143,8 +142,7 @@ fn append_mir_counting_loop_range_index_facts(
     def_map: &ValueDefMap,
     facts: &mut Vec<RangeIndexFact>,
 ) {
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
 
     for header_id in block_ids {
         let Some(header) = function.blocks.get(&header_id) else {

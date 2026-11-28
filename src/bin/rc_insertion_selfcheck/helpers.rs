@@ -11,7 +11,6 @@ use nyash_rust::mir::{
     BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction,
     MirModule, MirType, ValueId,
 };
-use std::collections::HashMap;
 
 pub(super) const RC_PHI_EDGE_MISMATCH_TAG: &str =
     "[freeze:contract][rc_insertion/phi_edge_mismatch]";
@@ -29,7 +28,7 @@ pub(super) fn build_module_with_block(
     };
     let entry = block.id;
     let mut func = MirFunction::new(signature, entry);
-    func.blocks = HashMap::from([(entry, block)]);
+    func.blocks.insert(entry, block);
 
     let mut module = MirModule::new(mod_name.to_string());
     module.add_function(func);

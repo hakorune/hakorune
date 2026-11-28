@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct Stage1FieldDecl {
@@ -203,11 +203,11 @@ impl Stage1UserBoxDecls {
     pub(super) fn into_metadata_maps(
         self,
     ) -> (
-        HashMap<String, Vec<String>>,
-        HashMap<String, Vec<crate::mir::function::UserBoxFieldDecl>>,
+        BTreeMap<String, Vec<String>>,
+        BTreeMap<String, Vec<crate::mir::function::UserBoxFieldDecl>>,
     ) {
-        let mut fields = HashMap::new();
-        let mut field_decls = HashMap::new();
+        let mut fields = BTreeMap::new();
+        let mut field_decls = BTreeMap::new();
         for decl in self.decls {
             let names = decl.fields.clone();
             let name = decl.name.clone();

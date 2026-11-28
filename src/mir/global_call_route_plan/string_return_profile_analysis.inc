@@ -6,8 +6,7 @@ pub(super) fn build_generic_string_return_profile(
     let mut blockers = BTreeMap::<ValueId, GlobalCallShapeBlocker>::new();
     seed_generic_string_return_values(function, &mut values);
 
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
     for _ in 0..16 {
         let mut changed = false;
         for block_id in &block_ids {
@@ -256,8 +255,7 @@ fn unknown_param_passthrough_values(function: &MirFunction) -> BTreeSet<ValueId>
             values.insert(*param);
         }
     }
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
     for _ in 0..16 {
         let mut changed = false;
         for block_id in &block_ids {

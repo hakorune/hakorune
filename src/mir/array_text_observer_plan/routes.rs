@@ -22,8 +22,7 @@ pub fn refresh_module_array_text_observer_routes(module: &mut MirModule) {
 pub fn refresh_function_array_text_observer_routes(function: &mut MirFunction) {
     let def_map = build_value_def_map(function);
     let mut routes = Vec::new();
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
 
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
@@ -199,8 +198,7 @@ fn has_found_predicate_consumer(
     result_value: ValueId,
 ) -> bool {
     let result_root = root(function, def_map, result_value);
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
             continue;
@@ -310,8 +308,7 @@ fn has_non_observer_value_use(
 ) -> bool {
     let source_root = root(function, def_map, source_value);
     let observer_chain = copy_chain_values(function, def_map, observer_value);
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
             continue;
@@ -365,8 +362,7 @@ fn same_slot_const_suffix_store_source_values(
     let index_root = root(function, def_map, index_value);
     let mut covered = BTreeSet::new();
 
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
             continue;
@@ -425,8 +421,7 @@ fn has_same_slot_set_consumer(
     index_root: ValueId,
 ) -> bool {
     let value_root = root(function, def_map, value);
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
             continue;

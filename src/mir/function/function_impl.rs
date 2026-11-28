@@ -1,11 +1,11 @@
 use super::{FunctionMetadata, FunctionSignature, FunctionStats, MirFunction};
 use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 impl MirFunction {
     /// Create a new MIR function
     pub fn new(signature: FunctionSignature, entry_block: BasicBlockId) -> Self {
-        let mut blocks = HashMap::new();
+        let mut blocks = BTreeMap::new();
         blocks.insert(entry_block, BasicBlock::new(entry_block));
 
         // Reserve ValueIds exactly for `signature.params` (%0..%N-1).
@@ -105,11 +105,9 @@ impl MirFunction {
             .expect("Entry block must exist")
     }
 
-    /// Get all basic block IDs in insertion order
+    /// Get all basic block IDs in ascending order
     pub fn block_ids(&self) -> Vec<BasicBlockId> {
-        let mut ids: Vec<_> = self.blocks.keys().copied().collect();
-        ids.sort();
-        ids
+        self.blocks.keys().copied().collect()
     }
 
     /// Compute reachable blocks from entry

@@ -117,9 +117,7 @@ fn known_return_definition_typeop_policy_is_exact() {
 
 #[test]
 fn if_else_return_main_infers_integer_signature() {
-    // Regression: `function.blocks` is a HashMap, so a multi-return function
-    // must not take the first Return terminator in iteration order — the
-    // synthesized void tail must not beat the concrete branch returns.
+    // The synthesized void tail must not beat the concrete branch returns.
     let source = r#"
         static box Main {
             main() {
