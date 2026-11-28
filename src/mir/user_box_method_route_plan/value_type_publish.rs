@@ -1,4 +1,5 @@
 use crate::mir::route_value_type_publication::{
+    propagate_box_value_types,
     helper_param_type_publication_policy, route_return_shape_value_type,
     HelperParamTypePublicationPolicy,
 };
@@ -149,72 +150,7 @@ pub(super) fn publish_generic_route_result_value_types(module: &mut MirModule) -
 }
 
 pub(super) fn propagate_user_box_box_value_types(module: &mut MirModule) -> bool {
-    let mut changed = false;
-    for function in module.functions.values_mut() {
-        for _ in 0..function.blocks.len().saturating_mul(4).max(4) {
-            let mut pending = Vec::<(ValueId, MirType)>::new();
-            for block in function.blocks.values() {
-                for instruction in &block.instructions {
-                    match instruction {
-                        MirInstruction::Copy { dst, src } => {
-                            if value_has_concrete_box_type(function, *dst) {
-                                continue;
-                            }
-                            if let Some(ty) = concrete_box_value_type(function, *src) {
-                                pending.push((*dst, ty));
-                            }
-                        }
-                        MirInstruction::Phi { dst, inputs, .. } => {
-                            if value_has_concrete_box_type(function, *dst) {
-                                continue;
-                            }
-                            let mut inferred = None::<MirType>;
-                            let mut complete = true;
-                            for (_block, value) in inputs {
-                                let Some(ty) = concrete_box_value_type(function, *value) else {
-                                    complete = false;
-                                    break;
-                                };
-                                inferred = match inferred {
-                                    None => Some(ty),
-                                    Some(existing) if existing == ty => Some(existing),
-                                    Some(_) => {
-                                        complete = false;
-                                        break;
-                                    }
-                                };
-                            }
-                            if complete {
-                                if let Some(ty) = inferred {
-                                    pending.push((*dst, ty));
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            if pending.is_empty() {
-                break;
-            }
-            let mut pass_changed = false;
-            for (value, ty) in pending {
-                match function.metadata.value_types.get(&value) {
-                    Some(existing) if existing == &ty => {}
-                    Some(MirType::Unknown) | None => {
-                        function.metadata.value_types.insert(value, ty);
-                        pass_changed = true;
-                    }
-                    Some(_) => {}
-                }
-            }
-            if !pass_changed {
-                break;
-            }
-            changed = true;
-        }
-    }
-    changed
+    propagate_box_value_types(module, |_, _| false)
 }
 
 pub(super) fn publish_user_box_field_get_value_types(
@@ -372,18 +308,6 @@ fn publish_value_type(function: &mut MirFunction, value: ValueId, ty: MirType) -
             true
         }
         Some(_) => false,
-    }
-}
-
-fn value_has_concrete_box_type(function: &MirFunction, value: ValueId) -> bool {
-    concrete_box_value_type(function, value).is_some()
-}
-
-fn concrete_box_value_type(function: &MirFunction, value: ValueId) -> Option<MirType> {
-    match function.metadata.value_types.get(&value) {
-        Some(MirType::Box(name)) => Some(MirType::Box(name.clone())),
-        Some(MirType::String) => Some(MirType::Box("StringBox".to_string())),
-        _ => None,
     }
 }
 
