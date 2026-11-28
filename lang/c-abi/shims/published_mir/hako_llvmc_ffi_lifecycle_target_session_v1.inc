@@ -40,6 +40,7 @@ static int hako_lts_test_mode(const char* expected) {
 /* One invocation owns every LLVM resource through object publication. */
 typedef struct {
   void *lib, *machine, *data, *context;
+  uint32_t requested_opt_level, effective_opt_level, verify_count;
   char *triple, *data_layout;
   hako_llvmc_object_field_abi_v1 field;
   hako_lts_dispose_message_fn dispose_message;
@@ -138,11 +139,14 @@ done:
 }
 
 static int hako_lts_open(
-    const hako_llvmc_lifecycle_target_session_v2* in, hako_lts_session* out, char** err_out) {
+    const hako_llvmc_lifecycle_target_session_v2* in, uint32_t requested_opt_level,
+    hako_lts_session* out, char** err_out) {
   if (!out) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/output]");
   memset(out, 0, sizeof(*out));
+  out->requested_opt_level = requested_opt_level;
 #if defined(_WIN32)
   (void)in;
+  (void)requested_opt_level;
   return set_err_owned(err_out, "[freeze:contract][lifecycle-session/windows]");
 #else
   void *lib = NULL, *target = NULL, *machine = NULL, *data = NULL, *context = NULL;
@@ -177,6 +181,8 @@ static int hako_lts_open(
   hako_lts_element_offset_fn element_offset;
   hako_lts_init_fn init_info, init_target, init_mc, init_printer;
   int rc = -1;
+  /* LLVMCodeGenLevelNone = 0, LLVMCodeGenLevelLess = 1. */
+  uint32_t effective_opt_level = requested_opt_level == 1u ? 1u : 0u;
   if (!in || (in->revision != 2u && in->revision != 3u) || !in->target_triple || !in->target_triple[0])
     return set_err_owned(err_out, "[freeze:contract][lifecycle-session/input]");
   if (in->revision == 3u) {
@@ -273,7 +279,7 @@ static int hako_lts_open(
   init_info(); init_target(); init_mc(); init_printer();
   if (get_target(in->target_triple, &target, &diagnostic) != 0 || !target) goto cleanup;
   if (diagnostic) { dispose_message(diagnostic); diagnostic = NULL; }
-  machine = make_machine(target, in->target_triple, "generic", "", 0, 2, 0);
+  machine = make_machine(target, in->target_triple, "generic", "", effective_opt_level, 2, 0);
   data = machine ? make_data(machine) : NULL;
   actual_triple = machine ? machine_triple(machine) : NULL;
   data_layout = data ? data_layout_text(data) : NULL;
@@ -293,6 +299,7 @@ cleanup:
       out->field = ((const hako_llvmc_lifecycle_target_session_v3*)in)->field;
     out->lib = lib; out->machine = machine; out->data = data; out->context = context;
     out->triple = actual_triple; out->data_layout = data_layout;
+    out->effective_opt_level = effective_opt_level;
     out->dispose_message = dispose_message;
     out->dispose_machine = dispose_machine;
     out->dispose_data = dispose_data;
@@ -329,6 +336,48 @@ static void hako_lts_take_diagnostic(
     *diagnostic = NULL;
   }
 }
+
+#if !defined(_WIN32)
+static int hako_lts_verify_ir(hako_lts_session* session, void* module, char** err_out) {
+  char* diagnostic = NULL;
+  session->verify_count++;
+  int rc = session->verify_module(module, 2, &diagnostic);
+  if (rc != 0)
+    hako_lts_take_diagnostic(
+        session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/verify]");
+  if (diagnostic) session->dispose_message(diagnostic);
+  return rc;
+}
+
+static int hako_lts_run_o1(hako_lts_session* session, void* module, char** err_out) {
+  typedef void* (*hako_lts_make_pass_options_fn)(void);
+  typedef void (*hako_lts_dispose_pass_options_fn)(void*);
+  typedef void* (*hako_lts_run_passes_fn)(void*, const char*, void*, void*);
+  typedef char* (*hako_lts_pass_error_message_fn)(void*);
+  const char* emit_error = "[freeze:contract][lifecycle-session/emit]";
+  hako_lts_make_pass_options_fn make_options =
+      (hako_lts_make_pass_options_fn)dlsym(session->lib, "LLVMCreatePassBuilderOptions");
+  hako_lts_dispose_pass_options_fn dispose_options =
+      (hako_lts_dispose_pass_options_fn)dlsym(session->lib, "LLVMDisposePassBuilderOptions");
+  hako_lts_run_passes_fn run_passes =
+      (hako_lts_run_passes_fn)dlsym(session->lib, "LLVMRunPasses");
+  hako_lts_pass_error_message_fn error_message =
+      (hako_lts_pass_error_message_fn)dlsym(session->lib, "LLVMGetErrorMessage");
+  hako_lts_dispose_message_fn dispose_error_message =
+      (hako_lts_dispose_message_fn)dlsym(session->lib, "LLVMDisposeErrorMessage");
+  if (!make_options || !dispose_options || !run_passes || !error_message || !dispose_error_message)
+    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/emit] O1 pass symbols unavailable");
+  void* options = make_options();
+  if (!options) return set_err_owned(err_out, emit_error);
+  void* error = run_passes(module, "default<O1>", session->machine, options);
+  dispose_options(options);
+  if (!error) return 0;
+  char* message = error_message(error);
+  int rc = set_err_owned(err_out, message && *message ? message : emit_error);
+  if (message) dispose_error_message(message);
+  return rc;
+}
+#endif
 
 /* Parse, verify, and emit one file-backed module through the invocation-owned
  * target session.  LLVMParseIRInContext consumes its memory buffer on both
@@ -371,15 +420,11 @@ static int hako_lts_emit_object_from_ir(
       goto done;
     }
   }
-  if (session->verify_module(module, 2, &diagnostic) != 0) {
-    hako_lts_take_diagnostic(
-        session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/verify]");
-    goto done;
-  }
-  if (diagnostic && session->dispose_message) {
+  if (diagnostic) {
     session->dispose_message(diagnostic);
     diagnostic = NULL;
   }
+  if (hako_lts_verify_ir(session, module, err_out) != 0) goto done;
   {
     const char* module_target = session->module_target(module);
     const char* module_layout = session->module_data_layout(module);
@@ -390,6 +435,9 @@ static int hako_lts_emit_object_from_ir(
       goto done;
     }
   }
+  if (session->effective_opt_level == 1u &&
+      (hako_lts_run_o1(session, module, err_out) != 0 ||
+       hako_lts_verify_ir(session, module, err_out) != 0)) goto done;
   if (session->emit_to_file(session->machine, module, (char*)obj_path, 1, &diagnostic) != 0) {
     hako_lts_take_diagnostic(
         session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/emit]");

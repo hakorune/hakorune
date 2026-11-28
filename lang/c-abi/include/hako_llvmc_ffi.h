@@ -196,8 +196,22 @@ int hako_llvmc_static_compile_v2(hako_llvmc_static_invocation_v2* invocation,
     const hako_llvmc_published_static_frame_v2* frame, const char* output, char** error);
 void hako_llvmc_static_close_v2(hako_llvmc_static_invocation_v2* invocation);
 
-/* Selected physical Pair consumer; accepts only physical-program.v2.
- * Borrows input/session for one synchronous invocation; publishes obj_out only after llc succeeds. No compatibility retry. */
+#define HAKO_LLVMC_LIFECYCLE_OPTIONS_REVISION 1u
+typedef struct {
+    uint32_t revision;
+    uint32_t byte_size;
+    uint32_t opt_level;
+} hako_llvmc_lifecycle_options_v1;
+
+/* Selected physical Pair consumer for physical-program.v2. Borrows input,
+ * session and required options for one synchronous invocation. Publishes
+ * obj_out after LLVM TargetMachine code generation succeeds. Level 1 enables
+ * O1, and levels 0, 2 and 3 use O0. */
+int hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+    const char* json_in, const hako_llvmc_lifecycle_target_session_v2* session,
+    const hako_llvmc_lifecycle_options_v1* options, const char* obj_out, char** err_out);
+
+/* The four-argument entry uses O0 through the same compiler. */
 int hako_llvmc_compile_published_lifecycle_physical_v4(
     const char* json_in, const hako_llvmc_lifecycle_target_session_v2* session,
     const char* obj_out, char** err_out);

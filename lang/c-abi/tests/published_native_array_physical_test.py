@@ -690,16 +690,27 @@ uint32_t wrap_dispose(void* f) {
         started = time.monotonic()
         compile_input(data, True)
         object_seconds = time.monotonic() - started
-        started = time.monotonic()
         exe = work / "owned-array"
-        checked(["cc", obj, probe, archive, "-I" + str(ROOT / "include"),
-            *defines, *["-Wl,--wrap=" + kind for kind in wraps],
-            "-lpthread", "-ldl", "-lm", "-o", exe])
-        link_seconds = time.monotonic() - started
-        started = time.monotonic()
-        run = subprocess.run([str(exe)], text=True, capture_output=True,
-            env=dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off"))
-        run_seconds = time.monotonic() - started
+
+        def link_and_execute(selected):
+            started = time.monotonic()
+            checked(["cc", selected, probe, archive, "-I" + str(ROOT / "include"),
+                *defines, *["-Wl,--wrap=" + kind for kind in wraps],
+                "-lpthread", "-ldl", "-lm", "-o", exe])
+            link_seconds = time.monotonic() - started
+            started = time.monotonic()
+            run = subprocess.run([str(exe)], text=True, capture_output=True,
+                env=dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off"))
+            return run, link_seconds, time.monotonic() - started
+
+        run, link_seconds, run_seconds = link_and_execute(obj)
+        exe_sha256 = digest(exe)
+        if suppressed is not None:
+            explicit, optimized, invalid = (work / name for name in ("o0.o", "o1.o", "invalid.o"))
+            checked([driver, work / "input.json", obj, explicit, optimized, invalid])
+            optimized_run, _, _ = link_and_execute(optimized)
+            assert (optimized_run.returncode, optimized_run.stdout, optimized_run.stderr) == (
+                run.returncode, run.stdout, run.stderr)
         assert run.returncode == expected, (run.returncode, run.stdout, run.stderr)
         lines = run.stdout.splitlines()
         assert [line for line in lines if line.startswith("CHILD_END ")] == [f"CHILD_END {i}" for i in ends], lines
@@ -710,7 +721,7 @@ uint32_t wrap_dispose(void* f) {
         case = work / f"owned-case-{len(executions)}.json"
         case.write_text(json.dumps(data))
         executions.append({"input": str(case), "input_sha256": digest(case),
-            "object_sha256": digest(obj), "exe_sha256": digest(exe), "defines": list(defines),
+            "object_sha256": digest(obj), "exe_sha256": exe_sha256, "defines": list(defines),
             "exit": run.returncode, "stdout": run.stdout, "stderr": run.stderr,
             "object_seconds": object_seconds, "link_seconds": link_seconds, "run_seconds": run_seconds})
     for index, expected in [(0, 0), (1, 0), (2, 1), (-1, 1)]:

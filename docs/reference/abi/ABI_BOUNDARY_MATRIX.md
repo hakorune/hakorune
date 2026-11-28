@@ -56,11 +56,19 @@ Host-facing Core C ABI surface lock:
 
 ## 5. Compiler transport boundary (separate from runtime/plugin ABIs)
 
-Decision (2026-09-07): the selected constructor lifecycle compiler ingress is
-`hako_llvmc_compile_published_lifecycle_physical_v4`, declared in
+The selected constructor lifecycle compiler ingress with options is
+`hako_llvmc_compile_published_lifecycle_physical_v4_with_options`, declared in
 `lang/c-abi/include/hako_llvmc_ffi.h`. It borrows one completed
 `hako.published-lifecycle-physical-program.v2` input and explicit target/runtime
-session for a synchronous call. It publishes an object only after validation
+session for a synchronous call. The required options are also borrowed for the
+call. Revision 1 has three `uint32_t` fields, `revision`, `byte_size`, and
+`opt_level`. New Rust hosts require the options symbol from the shim. The
+four-argument `hako_llvmc_compile_published_lifecycle_physical_v4` still
+compiles at O0 through the same implementation. V4 applies LLVM 18's
+`default<O1>` pass pipeline and codegen `Less` for requested level 1.
+Requested levels 0, 2, and 3 use no IR passes and codegen `None`.
+
+V4 publishes an object only after validation
 and code generation succeed; selected failures do not retry compatibility.
 Rust host transport availability is gated by Cargo `plugins`, including this
 V4 entry. Without that feature the same Rust signature returns

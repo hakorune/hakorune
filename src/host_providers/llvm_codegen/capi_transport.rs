@@ -199,6 +199,14 @@ struct LifecycleTargetSessionCRowV3 {
 }
 
 #[cfg(feature = "plugins")]
+#[repr(C)]
+struct LifecycleOptionsCRowV1 {
+    revision: u32,
+    byte_size: u32,
+    opt_level: u32,
+}
+
+#[cfg(feature = "plugins")]
 fn resolve_ffi_library_path() -> Result<PathBuf, String> {
     let mut candidates: Vec<PathBuf> = Vec::new();
     if let Some(p) = crate::config::env::aot_ffi_lib_path() {
@@ -320,11 +328,19 @@ pub(super) fn compile_via_capi(json_in: &Path, obj_out: &Path, opts: &Opts) -> R
 pub(super) fn compile_published_lifecycle_physical_v4(
     input: &LifecycleInvocationInputV1<'_, '_>,
     obj_out: &Path,
+    opts: &Opts,
 ) -> Result<(), String> {
     use std::os::raw::{c_char, c_int, c_void};
     extern "C" {
         fn free(ptr: *mut c_void);
     }
+    let level = explicit_opt_level(opts)?;
+    validate_opt_level(&level)?;
+    let options = LifecycleOptionsCRowV1 {
+        revision: 1,
+        byte_size: std::mem::size_of::<LifecycleOptionsCRowV1>() as u32,
+        opt_level: u32::from(level.as_bytes()[0] - b'0'),
+    };
     let d = input.session().descriptor();
     let triple =
         CString::new(d.target_triple.as_str()).map_err(|_| "invalid lifecycle target triple")?;
@@ -361,18 +377,23 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         type CompileFn = unsafe extern "C" fn(
             *const c_char,
             *const LifecycleTargetSessionCRowV2,
+            *const LifecycleOptionsCRowV1,
             *const c_char,
             *mut *mut c_char,
         ) -> c_int;
         let func: libloading::Symbol<CompileFn> = lib
-            .get(b"hako_llvmc_compile_published_lifecycle_physical_v4\0")
-            .map_err(|e| format!("dlsym failed for lifecycle V4 ingress: {e}"))?;
+            .get(b"hako_llvmc_compile_published_lifecycle_physical_v4_with_options\0")
+            .map_err(|e| {
+                format!(
+                    "dlsym failed for hako_llvmc_compile_published_lifecycle_physical_v4_with_options: {e}"
+                )
+            })?;
         let input = CString::new(json_in.path().to_string_lossy().as_bytes())
             .map_err(|_| "invalid json path")?;
         let output =
             CString::new(obj_out.to_string_lossy().as_bytes()).map_err(|_| "invalid out path")?;
         let mut error: *mut c_char = std::ptr::null_mut();
-        if func(input.as_ptr(), &row.base, output.as_ptr(), &mut error) != 0 {
+        if func(input.as_ptr(), &row.base, &options, output.as_ptr(), &mut error) != 0 {
             let message = if error.is_null() {
                 "published lifecycle V4 compile failed".into()
             } else {
@@ -401,6 +422,7 @@ pub(super) fn compile_via_capi_keep(mir_json: &str, opts: &Opts) -> Result<PathB
 pub(super) fn compile_published_lifecycle_physical_v4(
     _input: &LifecycleInvocationInputV1<'_, '_>,
     _obj_out: &Path,
+    _opts: &Opts,
 ) -> Result<(), String> {
     Err("capi not available (plugins feature disabled)".into())
 }

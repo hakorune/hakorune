@@ -14,7 +14,7 @@ static uint32_t word(const unsigned char *p) {
 }
 static void rejects(hako_llvmc_lifecycle_target_session_v2 in, const char *reason) {
   hako_lts_session out = {0}; char *error = NULL;
-  assert(hako_lts_open(&in, &out, &error) != 0);
+  assert(hako_lts_open(&in, 0u, &out, &error) != 0);
   assert(error && strstr(error, reason)); free(error); hako_lts_close(&out);
 }
 int main(int argc, char **argv) {
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
     .outcome_size=word(bytes+224), .outcome_align=word(bytes+228), .outcome_revision=word(bytes+232)
   };
   hako_lts_session session = {0}; char *error = NULL;
-  assert(hako_lts_open(&in,&session,&error) == 0); assert(!error); hako_lts_close(&session);
+  assert(hako_lts_open(&in, 0u, &session,&error) == 0); assert(!error); hako_lts_close(&session);
   hako_llvmc_lifecycle_target_session_v2 bad = in; bad.revision=1; rejects(bad,"session/input");
 #define CHECK(name) \
   bad=in; bad.name##_size=0; rejects(bad,"opaque-" #name); \

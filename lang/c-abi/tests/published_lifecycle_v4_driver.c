@@ -53,10 +53,36 @@ int main(int argc, char** argv) {
 #undef FIELD_WORD
 #endif
   char* error = NULL;
-  if (argc != 3 && argc != 4) return 2;
+  /* With comparison outputs, keep argv[2] on the four-argument ABI. */
+  if (argc != 3 && argc != 4 && argc != 6) return 2;
   if (argc == 4) extended.base.frame_size++; /* Deliberately malformed session. */
   int rc = hako_llvmc_compile_published_lifecycle_physical_v4(
       argv[1], &extended.base, argv[2], &error);
+  if (rc == 0 && argc == 6) {
+    hako_llvmc_lifecycle_options_v1 options = {
+      HAKO_LLVMC_LIFECYCLE_OPTIONS_REVISION, sizeof(options), 0u,
+    };
+    rc = hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+        argv[1], &extended.base, &options, argv[3], &error);
+    if (rc == 0) {
+      options.opt_level = 1u;
+      rc = hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+          argv[1], &extended.base, &options, argv[4], &error);
+    }
+    if (rc == 0) {
+      options.opt_level = 4u;
+      rc = hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+          argv[1], &extended.base, &options, argv[5], &error);
+      if (rc == 0) rc = 1;
+      else if (error && strstr(error, "[compile-options/opt-level]")) {
+        FILE* unexpected = fopen(argv[5], "rb");
+        if (unexpected) fclose(unexpected);
+        else rc = 0;
+        free(error);
+        error = NULL;
+      }
+    }
+  }
   if (error) { fprintf(stderr, "%s\n", error); free(error); }
   return rc ? 1 : 0;
 }

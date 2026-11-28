@@ -6,6 +6,9 @@
 #include "../include/hako_llvmc_ffi.h"
 #include "../../../include/nyrt_fault_v1.h"
 
+static const hako_llvmc_lifecycle_options_v1 options = {
+  HAKO_LLVMC_LIFECYCLE_OPTIONS_REVISION, sizeof(options), 1u,
+};
 static const char* input_path = "/tmp/hako-lifecycle-v4-nested-call.json";
 static const char* output_path = "/tmp/hako-lifecycle-v4-nested-call.o";
 
@@ -36,8 +39,8 @@ static int compile(const hako_llvmc_lifecycle_target_session_v2* session,
     const char* json, char** error) {
   write_input(json);
   remove(output_path);
-  return hako_llvmc_compile_published_lifecycle_physical_v4(
-      input_path, session, output_path, error);
+  return hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+      input_path, session, &options, output_path, error);
 }
 
 int main(void) {
@@ -202,7 +205,7 @@ int main(void) {
       "{\"id\":5,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"const_i64\",\"dst\":4,\"value\":0}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"return\",\"value\":4}},\"edges\":[]},"
       "{\"id\":9,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return_fault\",\"fault_frame\":1}},\"edges\":[]},"
       "{\"id\":10,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"home_release\",\"object_id\":7,\"value\":2,\"site\":3},\"fault_frame\":1,\"normal\":9,\"fault\":9}},\"edges\":[{\"target\":9,\"args\":null},{\"target\":9,\"args\":null}]}]}"
-      "],\"layouts\":[{\"object_id\":7,\"runtime_type_id\":7,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}],\"owned_residences\":[]},{\"object_id\":8,\"runtime_type_id\":8,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}],\"owned_residences\":[0]}]}";
+      "],\"layouts\":[{\"object_id\":7,\"runtime_type_id\":7,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}],\"owned_residences\":[],\"owned_object_residences\":[{\"field_ordinal\":0,\"child_object_id\":8}]},{\"object_id\":8,\"runtime_type_id\":8,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}],\"owned_residences\":[0]}]}";
   error = NULL;
   rc = compile(&session, nested_release, &error);
   assert(rc == 0);
