@@ -407,18 +407,13 @@ fn prepare_arguments_with_prefix(
     for (position, (argument, site)) in source.iter().zip(row.argument_sites()).enumerate() {
         let projection = match argument {
             LocalCallArgumentV1::Integer(literal) => {
-                let block = builder
+                builder
                     .function_state
                     .current_block
                     .ok_or_else(|| freeze("no-block"))?;
-                let dst = crate::mir::builder::emission::constant::emit_integer(builder, *literal)?;
-                let producer = (
-                    block,
-                    MirInstruction::Const {
-                        dst,
-                        value: crate::mir::ConstValue::Integer(*literal),
-                    },
-                );
+                let completed =
+                    crate::mir::builder::emission::constant::emit_integer_recorded(builder, *literal)?;
+                let producer = completed.original().clone();
                 bindings.push(producer.clone());
                 ArgumentProjection::Integer(producer)
             }

@@ -3,7 +3,7 @@
 //! This module owns only the legacy raw construction route. It does not issue
 //! semantic plans or alter the canonical Dynamic production path.
 
-use super::{ConstValue, MirBuilder, MirInstruction, ValueId};
+use super::{MirBuilder, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
@@ -245,17 +245,7 @@ impl MirBuilder {
         // Phase 9.78a: Unified Box creation using NewBox instruction
         let dst = match route {
             PreparedRawNewExpressionRouteV1::IntegerLiteral { value } => {
-                // Optimization: Primitive wrappers → emit Const directly when possible
-                let dst = self.next_value_id();
-                self.emit_instruction(MirInstruction::Const {
-                    dst,
-                    value: ConstValue::Integer(value),
-                })?;
-                self.function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, super::MirType::Integer);
-                dst
+                super::emission::constant::emit_integer(self, value)?
             }
             PreparedRawNewExpressionRouteV1::Ordinary { arguments } => match plan {
                 PreparedNewPlanV1::Selected(SelectedNewPlanV1::OwnedArray(array)) => {
