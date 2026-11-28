@@ -65,8 +65,7 @@ fn p0_real_declfield_fixture_has_exact_same_root_shapes() {
 }
 
 fn item_field_base_shapes(module: &MirModule, function: &MirFunction) -> Vec<String> {
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     let mut shapes = Vec::new();
     for block_id in block_ids {
         let block = function.blocks.get(&block_id).expect("fixture block");

@@ -39,8 +39,7 @@ pub(super) fn refresh_function_user_box_method_routes_with_context(
     user_box_names.extend(typed_plan_type_ids.keys().cloned());
     let def_map = build_value_def_map(function);
     let route_result_lookup = build_route_result_box_lookup(function);
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {

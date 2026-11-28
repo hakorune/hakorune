@@ -55,8 +55,7 @@ pub(crate) struct VerifiedExactNoneControlEdgeArgsV1 {
 
 impl VerifiedExactNoneControlEdgeArgsV1 {
     pub(crate) fn verify(function: &MirFunction) -> Result<Self, ExactNoneControlEdgeArgsErrorV1> {
-        let mut blocks: Vec<_> = function.blocks.keys().copied().collect();
-        blocks.sort();
+        let blocks = function.block_ids();
         for block_id in blocks {
             let block = &function.blocks[&block_id];
             for (index, instruction) in block.instructions.iter().enumerate() {

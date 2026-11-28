@@ -86,8 +86,7 @@ pub(super) fn generic_pure_string_body_reject_reason(
     seed_generic_pure_string_return_param_values(function, &mut return_param_values);
     seed_generic_pure_string_corridor_method_values(function, &mut values, &mut has_string_surface);
     let non_void_string_values = generic_pure_string_non_void_guard_phi_values(function);
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     let max_iterations = generic_pure_string_iteration_limit(function);
     for _ in 0..max_iterations {
@@ -227,8 +226,7 @@ pub(super) fn generic_string_void_sentinel_body_reject_reason(
     seed_generic_pure_values(function, &mut values);
     seed_generic_pure_string_corridor_method_values(function, &mut values, &mut has_string_surface);
     let non_void_string_values = generic_pure_string_non_void_guard_phi_values(function);
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     for _ in 0..16 {
         let mut changed = false;

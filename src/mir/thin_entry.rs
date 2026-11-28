@@ -162,8 +162,7 @@ pub fn refresh_function_thin_entry_candidates(
 ) {
     function.metadata.thin_entry_candidates.clear();
 
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
 
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {

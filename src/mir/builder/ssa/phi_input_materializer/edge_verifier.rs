@@ -143,7 +143,7 @@ impl PreparedUnusedPhiNormalizationV1 {
         function: &MirFunction,
     ) -> Result<Self, UnusedPhiNormalizationErrorV1> {
         let mut used = BTreeSet::new();
-        for block_id in sorted_block_ids(function) {
+        for block_id in function.block_ids() {
             let block = &function.blocks[&block_id];
             for instruction in block.all_instructions() {
                 used.extend(instruction.used_values());
@@ -151,7 +151,7 @@ impl PreparedUnusedPhiNormalizationV1 {
         }
 
         let mut candidates = Vec::new();
-        for block_id in sorted_block_ids(function) {
+        for block_id in function.block_ids() {
             let block = &function.blocks[&block_id];
             for (instruction_index, instruction) in block.instructions.iter().enumerate() {
                 let MirInstruction::Phi { dst, .. } = instruction else {
@@ -208,7 +208,7 @@ pub(in crate::mir::builder) fn verify_phi_edges_v1(
     let definitions = definitions(function);
     let dominators = terminator_dominators(function, &predecessors, &reachable);
 
-    for block_id in sorted_block_ids(function) {
+    for block_id in function.block_ids() {
         if !reachable.contains(&block_id) {
             continue;
         }
@@ -290,7 +290,7 @@ fn terminator_cfg(
 ) {
     let mut predecessors = BTreeMap::new();
     let mut errors = Vec::new();
-    for block_id in sorted_block_ids(function) {
+    for block_id in function.block_ids() {
         let block = &function.blocks[&block_id];
         let successors = block.successors_from_terminator();
         if check_successor_cache && successors != block.successors {
@@ -339,7 +339,7 @@ fn definitions(function: &MirFunction) -> BTreeMap<ValueId, BasicBlockId> {
     for parameter in &function.params {
         definitions.insert(*parameter, function.entry_block);
     }
-    for block_id in sorted_block_ids(function) {
+    for block_id in function.block_ids() {
         let block = &function.blocks[&block_id];
         for instruction in block.all_instructions() {
             if let Some(destination) = instruction.dst_value() {
@@ -397,12 +397,6 @@ fn terminator_dominators(
         }
     }
     dominators
-}
-
-fn sorted_block_ids(function: &MirFunction) -> Vec<BasicBlockId> {
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|block_id| block_id.0);
-    block_ids
 }
 
 #[cfg(test)]

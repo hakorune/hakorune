@@ -302,8 +302,7 @@ impl MirPrinter {
         }
 
         // Print blocks in order
-        let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-        block_ids.sort();
+        let block_ids = function.block_ids();
 
         for (i, block_id) in block_ids.iter().enumerate() {
             if let Some(block) = function.blocks.get(block_id) {

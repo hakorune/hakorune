@@ -499,8 +499,7 @@ fn refresh_function_global_call_routes_with_targets(
     let mut builtin_routes = Vec::new();
     let const_null_sentinels = collect_const_null_sentinels(function);
     let def_map = build_value_def_map(function);
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {

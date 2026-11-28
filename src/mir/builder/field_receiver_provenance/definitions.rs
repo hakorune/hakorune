@@ -66,8 +66,7 @@ impl ExactDefinitionIndexV1 {
             )?;
         }
 
-        let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-        block_ids.sort();
+        let block_ids = function.block_ids();
         let mut phi_input_count = 0usize;
         for block_id in block_ids {
             let block = function

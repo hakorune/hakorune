@@ -335,8 +335,7 @@ pub(in crate::mir::compiler::normal_default_pipeline) fn ordinary_call_site_v1(
 
 fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<OrdinaryCallSite>, String> {
     let mut calls = Vec::new();
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         let block = function
             .blocks
@@ -463,8 +462,7 @@ fn issue_function_with_module<'module>(
                 .any(|(bound_block, bound)| *bound_block == block && bound == instruction)
     };
     let dynamic_operations = dispatch::published_operations_v1(selected_view, function, &role)?;
-    let mut ids: Vec<_> = function.blocks.keys().copied().collect();
-    ids.sort();
+    let ids = function.block_ids();
     if ids.is_empty() || !function.blocks.contains_key(&function.entry_block) {
         return Err(fault("function-block-membership"));
     }

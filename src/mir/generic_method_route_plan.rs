@@ -119,8 +119,7 @@ fn refresh_function_generic_method_routes_with_context(
     let mut routes = Vec::new();
     let def_map = build_value_def_map(function);
     let pure_string_flow = GenericPureStringFlowAnalysis::new(function);
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
 
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {

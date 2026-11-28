@@ -23,8 +23,7 @@ impl fmt::Display for MirFunction {
         }
 
         // Show blocks in order
-        let mut block_ids: Vec<_> = self.blocks.keys().copied().collect();
-        block_ids.sort();
+        let block_ids = self.block_ids();
 
         for block_id in block_ids {
             if let Some(block) = self.blocks.get(&block_id) {

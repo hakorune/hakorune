@@ -128,8 +128,7 @@ pub fn build_function_boxed_sum_site_plan_map(
 ) -> BTreeMap<(BasicBlockId, usize), BoxedSumSitePlan> {
     let mut site_plans = BTreeMap::new();
     let mut value_plans: HashMap<ValueId, BoxedSumSitePlan> = HashMap::new();
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
 
     for block_id in &block_ids {
         let Some(block) = function.blocks.get(block_id) else {

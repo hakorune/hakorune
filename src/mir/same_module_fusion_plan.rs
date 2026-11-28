@@ -74,8 +74,7 @@ pub fn build_function_same_module_fusion_plans(
 ) -> Vec<SameModuleFusionPlan> {
     let def_map = build_value_def_map(function);
     let mut plans = Vec::new();
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
             continue;

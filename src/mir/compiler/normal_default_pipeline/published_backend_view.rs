@@ -202,8 +202,7 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut has_non_lifecycle_unsupported = false;
         let mut has_intrinsic_maps = false;
         for (function_name, function) in &module.functions {
-            let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-            block_ids.sort();
+            let block_ids = function.block_ids();
             for block_id in block_ids {
                 let block = function
                     .blocks
@@ -514,8 +513,7 @@ impl<'module> PublishedMirBackendView<'module> {
         // sibling; other legacy kinds keep the mixed-shape rule.
         let mut legacy_global = false;
         for (function_name, function) in &module.functions {
-            let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-            block_ids.sort();
+            let block_ids = function.block_ids();
             for block_id in block_ids {
                 let block = function
                     .blocks

@@ -31,8 +31,7 @@ pub(super) fn infer_user_box_method_return(
 ) -> Option<UserBoxMethodInferredReturn> {
     let mut values = BTreeMap::<ValueId, ValueClass>::new();
     let mut fields = BTreeMap::<String, ValueClass>::new();
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     for _ in 0..function.blocks.len().saturating_mul(8).max(8) {
         let mut changed = false;

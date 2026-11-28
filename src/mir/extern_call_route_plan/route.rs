@@ -167,8 +167,7 @@ pub(super) fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 .flat_map(|instruction| instruction.used_values())
         })
         .collect::<BTreeSet<_>>();
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     for block_id in block_ids {
         let Some(block) = function.blocks.get_mut(&block_id) else {

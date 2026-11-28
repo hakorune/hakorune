@@ -46,8 +46,7 @@ pub(super) fn generic_string_void_logging_body_reject_reason(
     let mut has_void_sentinel_const = false;
     seed_generic_pure_values(function, &mut values);
     let non_void_string_values = generic_pure_string_non_void_guard_phi_values(function);
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     let max_iterations = generic_pure_string_iteration_limit(function);
     for _ in 0..max_iterations {

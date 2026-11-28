@@ -36,8 +36,7 @@ pub(super) fn is_generic_i64_body_function(
     if !seed_generic_i64_values(function, &mut values) {
         return false;
     }
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     for _ in 0..16 {
         let mut changed = false;

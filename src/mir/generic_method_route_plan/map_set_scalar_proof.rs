@@ -91,8 +91,7 @@ fn prove_covered_dynamic_i64_key_map_get(
     let dominators = compute_dominators(function);
     let mut candidate_sets = Vec::new();
 
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         if !candidate_block_can_precede_get(&dominators, block_id, get_block_id) {
             continue;
@@ -290,8 +289,7 @@ fn prove_dominating_scalar_i64_map_get(
     let dominators = compute_dominators(function);
     let mut candidates = Vec::new();
 
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         if block_id == get_block_id || !dominators.dominates(block_id, get_block_id) {
             continue;
@@ -339,8 +337,7 @@ fn dominating_candidate_has_no_same_receiver_escape(
     candidate: MapSetCandidate,
     receiver_root: ValueId,
 ) -> bool {
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         if !dominators.dominates(candidate.block, block_id) {
             continue;
@@ -371,8 +368,7 @@ fn no_unknown_same_receiver_escape_after_candidate(
     receiver_root: ValueId,
     modulus: i64,
 ) -> bool {
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         if !candidate_scan_contains_block(dominators, candidate.block, block_id, get_block_id) {
             continue;

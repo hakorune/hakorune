@@ -38,8 +38,7 @@ pub fn build_record_state_field_access_plans(
     }
 
     let mut plans = Vec::new();
-    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = function.block_ids();
     for block_id in block_ids {
         let Some(block) = function.blocks.get(&block_id) else {
             continue;

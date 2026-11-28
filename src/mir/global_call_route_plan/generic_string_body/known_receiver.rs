@@ -6,8 +6,7 @@ pub(super) fn generic_pure_string_known_receiver_return_blocker(
     function: &MirFunction,
 ) -> Option<super::super::generic_string_reject::GenericPureStringReject> {
     let mut blockers = BTreeMap::<ValueId, String>::new();
-    let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
-    block_ids.sort_by_key(|id| id.as_u32());
+    let block_ids = function.block_ids();
 
     for _ in 0..16 {
         let mut changed = false;

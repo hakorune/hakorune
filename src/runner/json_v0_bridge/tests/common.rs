@@ -43,8 +43,7 @@ pub(super) fn option_some_null_ctor() -> serde_json::Value {
 
 pub(super) fn main_instructions(module: &MirModule) -> Vec<&MirInstruction> {
     let func = module.get_function("main").expect("main exists");
-    let mut block_ids: Vec<_> = func.blocks.keys().copied().collect();
-    block_ids.sort();
+    let block_ids = func.block_ids();
     let mut out = Vec::new();
     for block_id in block_ids {
         let block = func

@@ -300,16 +300,10 @@ impl MirBuilder {
                 f.signature.return_type = expected;
             } else if returns_value && matches!(f.signature.return_type, MirType::Void | MirType::Unknown)
             {
-                // `f.blocks` is a HashMap: iteration order is
-                // nondeterministic. Collect every Return operand in a
-                // fixed block-id order and let a concrete result win over
-                // a Void/Unknown one, so multi-return functions infer the
-                // same type on every run — the same ordering rule
-                // `return_type_strategy` applies to the module root.
+                // Collect Return operands in block order and prefer a concrete
+                // result over Void or Unknown, as on the module root path.
                 let mut candidates: Vec<crate::mir::ValueId> = Vec::new();
-                let mut ordered: Vec<_> = f.blocks.iter().collect();
-                ordered.sort_by_key(|(bid, _)| bid.0);
-                for (_bid, bb) in ordered {
+                for bb in f.blocks.values() {
                     for inst in bb.instructions.iter() {
                         if let MirInstruction::Return { value: Some(v) } = inst {
                             candidates.push(*v);

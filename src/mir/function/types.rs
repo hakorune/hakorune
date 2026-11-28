@@ -220,7 +220,7 @@ pub struct MirFunction {
     pub signature: FunctionSignature,
 
     /// Basic blocks indexed by ID
-    pub blocks: HashMap<BasicBlockId, BasicBlock>,
+    pub blocks: BTreeMap<BasicBlockId, BasicBlock>,
 
     /// Entry basic block ID
     pub entry_block: BasicBlockId,
