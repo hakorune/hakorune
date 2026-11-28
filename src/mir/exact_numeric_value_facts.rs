@@ -19,7 +19,7 @@ pub use binary_op_routes::{
     ExactNumericBinaryOpRouteRejectionKind,
 };
 mod compare_routes;
-use compare_routes::{collect_compare_route_facts, collect_compare_route_rejections};
+use compare_routes::collect_compare_routes;
 pub use compare_routes::{
     ExactNumericCompareRouteFact, ExactNumericCompareRouteRejection,
     ExactNumericCompareRouteRejectionKind,
@@ -151,8 +151,7 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     let rejections = collect_control_merge_rejections(function, &facts);
     let binary_op_route_facts = collect_binary_op_route_facts(function, &facts);
     let binary_op_route_rejections = collect_binary_op_route_rejections(function, &facts);
-    let compare_route_facts = collect_compare_route_facts(function, &facts);
-    let compare_route_rejections = collect_compare_route_rejections(function, &facts);
+    let (compare_route_facts, compare_route_rejections) = collect_compare_routes(function, &facts);
     let shift_route_facts = collect_shift_route_facts(function, &facts);
     let shift_route_rejections = collect_shift_route_rejections(function, &facts);
     let return_fact = exact_numeric_return_fact(function);

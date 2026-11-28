@@ -381,18 +381,18 @@ fn emit_body_with_prefix(builder: &mut MirBuilder, state: &mut CallableSemanticL
             continue;
         }
         if let Node::Literal(Literal::Bool(literal)) = node.source() {
-            let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-            let value = crate::mir::builder::emission::constant::emit_bool(builder, *literal)?;
-            bindings.push((block, MirInstruction::Const { dst: value, value: crate::mir::ConstValue::Bool(*literal) }));
+            builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+            let value = crate::mir::builder::emission::constant::emit_bool_recorded(builder, *literal)?
+                .into_recorded_value(&mut bindings);
             values[index] = Some(EvaluatedExpressionValueV1::Bool(value));
             continue;
         }
         let value = match node.source() {
             Node::Literal(Literal::String(text)) => Operand::StaticText { utf8: text.to_string() },
             Node::Literal(Literal::Integer(literal)) => {
-                let block = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
-                let value = crate::mir::builder::emission::constant::emit_integer(builder, *literal)?;
-                bindings.push((block, MirInstruction::Const { dst: value, value: crate::mir::ConstValue::Integer(*literal) }));
+                builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+                let value = crate::mir::builder::emission::constant::emit_integer_recorded(builder, *literal)?
+                    .into_recorded_value(&mut bindings);
                 Operand::NormalInteger(value)
             }
             Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {

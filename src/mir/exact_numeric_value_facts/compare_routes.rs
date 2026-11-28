@@ -29,46 +29,14 @@ pub struct ExactNumericCompareRouteRejection {
     pub kind: ExactNumericCompareRouteRejectionKind,
 }
 
-pub(super) fn collect_compare_route_facts(
+pub(super) fn collect_compare_routes(
     function: &MirFunction,
     facts: &BTreeMap<ValueId, ExactNumericValueFact>,
-) -> Vec<ExactNumericCompareRouteFact> {
+) -> (
+    Vec<ExactNumericCompareRouteFact>,
+    Vec<ExactNumericCompareRouteRejection>,
+) {
     let mut route_facts = Vec::new();
-    for block_id in function.block_ids() {
-        let Some(block) = function.get_block(block_id) else {
-            continue;
-        };
-        for (instruction_index, spanned) in block.all_spanned_instructions_enumerated() {
-            let MirInstruction::Compare { dst, op, lhs, rhs } = spanned.inst else {
-                continue;
-            };
-            let incoming = [
-                facts.get(lhs).and_then(exact_numeric_type_for_value_fact),
-                facts.get(rhs).and_then(exact_numeric_type_for_value_fact),
-            ];
-            let Ok(Some(ty)) =
-                unify_exact_numeric_inputs(ExactNumericMergeSite::Compare, &incoming)
-            else {
-                continue;
-            };
-            route_facts.push(ExactNumericCompareRouteFact {
-                block: block_id,
-                instruction_index,
-                dst: *dst,
-                op: *op,
-                lhs: *lhs,
-                rhs: *rhs,
-                declared_type_name: ty.source_name,
-            });
-        }
-    }
-    route_facts
-}
-
-pub(super) fn collect_compare_route_rejections(
-    function: &MirFunction,
-    facts: &BTreeMap<ValueId, ExactNumericValueFact>,
-) -> Vec<ExactNumericCompareRouteRejection> {
     let mut rejections = Vec::new();
     for block_id in function.block_ids() {
         let Some(block) = function.get_block(block_id) else {
@@ -82,23 +50,30 @@ pub(super) fn collect_compare_route_rejections(
                 facts.get(lhs).and_then(exact_numeric_type_for_value_fact),
                 facts.get(rhs).and_then(exact_numeric_type_for_value_fact),
             ];
-            let Some(error) =
-                unify_exact_numeric_inputs(ExactNumericMergeSite::Compare, &incoming).err()
-            else {
-                continue;
-            };
-            rejections.push(ExactNumericCompareRouteRejection {
-                block: block_id,
-                instruction_index,
-                dst: *dst,
-                op: *op,
-                lhs: *lhs,
-                rhs: *rhs,
-                kind: compare_route_rejection_kind(error),
-            });
+            match unify_exact_numeric_inputs(ExactNumericMergeSite::Compare, &incoming) {
+                Ok(Some(ty)) => route_facts.push(ExactNumericCompareRouteFact {
+                    block: block_id,
+                    instruction_index,
+                    dst: *dst,
+                    op: *op,
+                    lhs: *lhs,
+                    rhs: *rhs,
+                    declared_type_name: ty.source_name,
+                }),
+                Err(error) => rejections.push(ExactNumericCompareRouteRejection {
+                    block: block_id,
+                    instruction_index,
+                    dst: *dst,
+                    op: *op,
+                    lhs: *lhs,
+                    rhs: *rhs,
+                    kind: compare_route_rejection_kind(error),
+                }),
+                Ok(None) => {}
+            }
         }
     }
-    rejections
+    (route_facts, rejections)
 }
 
 fn compare_route_rejection_kind(

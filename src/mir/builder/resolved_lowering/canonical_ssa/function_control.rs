@@ -47,63 +47,6 @@ impl FunctionControlV1 {
             .get_or_insert_with(|| BindingSsaBuilderV1::with_keys(Some(owner)));
         Ok((bindings, transaction))
     }
-    pub(in crate::mir::builder) fn validate_source_bindings(&mut self) -> Result<(), String> {
-        self.source_parts()?
-            .0
-            .validate_finish()
-            .map_err(|error| error.to_string())
-    }
-    pub(in crate::mir::builder) fn read_source(
-        &mut self,
-        builder: &mut MirBuilder,
-        binding: BindingRefV1,
-        block: BasicBlockId,
-        deferred: Option<BasicBlockId>,
-    ) -> Result<ValueId, String> {
-        let (bindings, transaction) = self.source_parts()?;
-        let mut adapter = match deferred {
-            Some(entry) => {
-                MirBindingSsaAdapterV1::new_with_deferred_reachable(builder, transaction, entry)
-            }
-            None => MirBindingSsaAdapterV1::new(builder, transaction),
-        };
-        bindings
-            .read(&mut adapter, FunctionSsaKeyV1::Source(binding), block)
-            .map_err(|error| error.to_string())
-    }
-    pub(in crate::mir::builder) fn seal_source(
-        &mut self,
-        builder: &mut MirBuilder,
-        block: BasicBlockId,
-        witness: &super::super::canonical_cfg::VerifiedPredecessorsV1,
-    ) -> Result<(), String> {
-        let (bindings, transaction) = self.source_parts()?;
-        bindings
-            .seal(
-                &mut MirBindingSsaAdapterV1::new(builder, transaction),
-                block,
-                witness,
-            )
-            .map_err(|error| error.to_string())
-    }
-    pub(in crate::mir::builder) fn require_transaction_settled(
-        &mut self,
-        builder: &mut MirBuilder,
-    ) -> Result<(), String> {
-        let pending = self
-            .transaction
-            .as_ref()
-            .is_some_and(|transaction| transaction.pending_tokens_v1().next().is_some());
-        if pending {
-            return self
-                .transaction
-                .take()
-                .ok_or_else(inactive)?
-                .commit(builder)
-                .map_err(|error| error.to_string());
-        }
-        Ok(())
-    }
     pub(in crate::mir::builder) fn is_empty_for_commit(&self) -> bool {
         self.owner.is_none()
             && self.bindings.is_none()
@@ -285,16 +228,6 @@ impl MirBuilder {
         let control = Rc::clone(&self.function_state.canonical_control);
         control.borrow_mut().bind_owner(owner)?;
         Ok(control)
-    }
-    pub(in crate::mir::builder) fn finish_projected_function_control_v1(
-        &mut self,
-        projected: &crate::mir::MirFunction,
-    ) -> Result<(), String> {
-        let control = std::mem::take(&mut self.function_state.canonical_control);
-        let result = control
-            .borrow_mut()
-            .finish_against_graph(self, Some(projected.clone()));
-        result
     }
     pub(in crate::mir::builder) fn finish_function_control_v1(&mut self) -> Result<(), String> {
         let control = std::mem::take(&mut self.function_state.canonical_control);

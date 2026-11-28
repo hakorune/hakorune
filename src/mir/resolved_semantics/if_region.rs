@@ -101,14 +101,6 @@ impl VerifiedResolvedFunctionV1 {
             .ok_or_else(|| ResolvedIfRegionLookupErrorV1::MissingExactBundle(site.clone()))
     }
 
-    /// Returns only the sealed bundle cardinality for flow/site bijection.
-    ///
-    /// RegionFlow still has to prove every exact source site by point lookup;
-    /// this count does not expose arena or index iteration as another authority.
-    pub(crate) fn if_region_bundle_count(&self) -> usize {
-        self.core.if_regions.len()
-    }
-
     /// Lends the exact sealed If row whose condition is `condition`.
     ///
     /// The index owns statement identity. Consumers cannot reconstruct an If

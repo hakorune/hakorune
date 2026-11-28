@@ -54,15 +54,8 @@ impl LoopFactsPolicyFrameV1 {
         self.strict
     }
 
-    pub(in crate::mir) const fn strict_or_dev(self) -> bool {
-        self.strict_or_dev
-    }
-
     pub(in crate::mir) const fn debug_enabled(self) -> bool {
         self.debug_enabled
     }
 
-    pub(in crate::mir) const fn planner_required(self) -> bool {
-        self.planner_required
-    }
 }

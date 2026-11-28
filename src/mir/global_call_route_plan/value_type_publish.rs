@@ -5,7 +5,8 @@
 //! semantics or teach the backend new source-level rules.
 
 use crate::mir::route_value_type_publication::{
-    helper_param_type_publication_policy, route_return_shape_value_type,
+    concrete_box_name_from_value_type, helper_param_type_publication_policy,
+    propagate_box_value_types, route_return_shape_value_type,
     HelperParamTypePublicationPolicy,
 };
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
@@ -114,59 +115,7 @@ pub(super) fn publish_global_call_route_result_value_types(module: &mut MirModul
 }
 
 pub(super) fn propagate_global_call_box_value_types(module: &mut MirModule) -> bool {
-    let mut changed = false;
-    for function in module.functions.values_mut() {
-        for _ in 0..function.blocks.len().saturating_mul(4).max(4) {
-            let mut pending = Vec::<(ValueId, MirType)>::new();
-            for block in function.blocks.values() {
-                for instruction in &block.instructions {
-                    match instruction {
-                        MirInstruction::Copy { dst, src } => {
-                            if value_has_concrete_box_type(function, *dst) {
-                                continue;
-                            }
-                            if let Some(ty) = concrete_box_value_type(function, *src) {
-                                pending.push((*dst, ty));
-                            }
-                        }
-                        MirInstruction::Phi { dst, inputs, .. } => {
-                            if value_has_concrete_box_type(function, *dst) {
-                                continue;
-                            }
-                            if let Some(ty) = concrete_phi_box_value_type(function, inputs) {
-                                pending.push((*dst, ty));
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-            if pending.is_empty() {
-                break;
-            }
-
-            let mut pass_changed = false;
-            for (value, ty) in pending {
-                match function.metadata.value_types.get(&value) {
-                    Some(existing) if existing == &ty => {}
-                    Some(existing) if can_refine_placeholder_to_box_type(existing, &ty) => {
-                        function.metadata.value_types.insert(value, ty);
-                        pass_changed = true;
-                    }
-                    Some(MirType::Unknown) | None => {
-                        function.metadata.value_types.insert(value, ty);
-                        pass_changed = true;
-                    }
-                    Some(_) => {}
-                }
-            }
-            if !pass_changed {
-                break;
-            }
-            changed = true;
-        }
-    }
-    changed
+    propagate_box_value_types(module, can_refine_placeholder_to_box_type)
 }
 
 fn value_scalar_or_mixed_type_for_value(
@@ -281,38 +230,6 @@ fn value_scalar_or_mixed_type(ty: Option<&MirType>) -> Option<MirType> {
         }
         Some(MirType::String) | Some(MirType::Box(_)) | Some(MirType::Unknown)
         | Some(MirType::TextOperand | MirType::DynamicCarrier) | None => None,
-    }
-}
-
-fn concrete_phi_box_value_type(
-    function: &MirFunction,
-    inputs: &[(crate::mir::BasicBlockId, ValueId)],
-) -> Option<MirType> {
-    let mut inferred = None::<MirType>;
-    for (_block, value) in inputs {
-        let ty = concrete_box_value_type(function, *value)?;
-        inferred = match inferred {
-            None => Some(ty),
-            Some(existing) if existing == ty => Some(existing),
-            Some(_) => return None,
-        };
-    }
-    inferred
-}
-
-fn value_has_concrete_box_type(function: &MirFunction, value: ValueId) -> bool {
-    concrete_box_value_type(function, value).is_some()
-}
-
-fn concrete_box_value_type(function: &MirFunction, value: ValueId) -> Option<MirType> {
-    concrete_box_name_from_value_type(function.metadata.value_types.get(&value)).map(MirType::Box)
-}
-
-fn concrete_box_name_from_value_type(ty: Option<&MirType>) -> Option<String> {
-    match ty {
-        Some(MirType::Box(name)) => Some(name.clone()),
-        Some(MirType::String) => Some("StringBox".to_string()),
-        _ => None,
     }
 }
 

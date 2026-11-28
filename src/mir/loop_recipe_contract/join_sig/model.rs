@@ -40,9 +40,6 @@ pub(crate) struct LoopJoinPortBinding<C> {
     pub(crate) class: C,
 }
 
-pub(crate) type LoopJoinPortBindingV2 =
-    LoopJoinPortBinding<super::super::schema_v2::LoopValueClassV2>;
-
 /// A verified logical identity at a loop's After port.
 ///
 /// This is deliberately not Clone: later consumers must request and consume
@@ -81,8 +78,6 @@ pub(crate) struct LoopJoinEdge<C> {
     pub(crate) role: LoopJoinEdgeRoleV1,
     pub(crate) payload: Vec<LoopJoinPayload<C>>,
 }
-
-pub(crate) type LoopJoinEdgeV2 = LoopJoinEdge<super::super::schema_v2::LoopValueClassV2>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LoopJoinLoop<C> {

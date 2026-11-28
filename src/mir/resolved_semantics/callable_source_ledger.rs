@@ -201,12 +201,6 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.assignment_targets()
     }
 
-    pub(crate) fn binary_expression_sources(
-        &self,
-    ) -> impl Iterator<Item = &super::ResolvedBinaryExpressionSourceV1> {
-        self.function.expression_source().binaries()
-    }
-
     pub(crate) fn initializer_relations(
         &self,
     ) -> impl Iterator<Item = &super::ResolvedInitializerRelationV1> {
@@ -363,16 +357,8 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
             .with_if_region_for_condition(condition, callback)
     }
 
-    pub(crate) fn region_parent(&self, region: RegionId) -> Option<RegionId> {
-        self.function.region(region).and_then(|row| row.parent())
-    }
-
     pub(crate) fn function_region(&self) -> RegionId {
         self.function.lowering_roots().function_pair().region()
-    }
-
-    pub(crate) fn root_body_region(&self) -> RegionId {
-        self.function.lowering_roots().body_pair().region()
     }
 
     /// Returns the resolver's existing capture boundary for this owner.

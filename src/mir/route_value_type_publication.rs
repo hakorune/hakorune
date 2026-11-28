@@ -4,7 +4,7 @@
 //! route return shapes and helper parameter publication policy to MIR value
 //! type facts.
 
-use crate::mir::MirType;
+use crate::mir::{BasicBlockId, MirFunction, MirInstruction, MirModule, MirType, ValueId};
 
 pub(crate) const BOX_HELPERS_EXPECT_I64: &str = "BoxHelpers.expect_i64/2";
 pub(crate) const BOX_HELPERS_IS_ARRAY: &str = "BoxHelpers.is_array/1";
@@ -57,6 +57,98 @@ pub(crate) fn route_return_shape_value_type(return_shape: Option<&str>) -> Optio
         Some("map_handle") => Some(MirType::Box("MapBox".to_string())),
         Some("object_handle") | Some("mixed_runtime_i64_or_handle") | None => None,
         Some(_) => None,
+    }
+}
+
+/// Publish a snapshot of Copy/PHI facts in scan order before the next pass.
+pub(crate) fn propagate_box_value_types(
+    module: &mut MirModule,
+    refine_placeholder: impl Fn(&MirType, &MirType) -> bool,
+) -> bool {
+    let mut changed = false;
+    for function in module.functions.values_mut() {
+        for _ in 0..function.blocks.len().saturating_mul(4).max(4) {
+            let mut pending = Vec::<(ValueId, MirType)>::new();
+            for block in function.blocks.values() {
+                for instruction in &block.instructions {
+                    match instruction {
+                        MirInstruction::Copy { dst, src } => {
+                            if value_has_concrete_box_type(function, *dst) {
+                                continue;
+                            }
+                            if let Some(ty) = concrete_box_value_type(function, *src) {
+                                pending.push((*dst, ty));
+                            }
+                        }
+                        MirInstruction::Phi { dst, inputs, .. } => {
+                            if value_has_concrete_box_type(function, *dst) {
+                                continue;
+                            }
+                            if let Some(ty) = concrete_phi_box_value_type(function, inputs) {
+                                pending.push((*dst, ty));
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            if pending.is_empty() {
+                break;
+            }
+
+            let mut pass_changed = false;
+            for (value, ty) in pending {
+                match function.metadata.value_types.get(&value) {
+                    Some(existing) if existing == &ty => {}
+                    Some(existing) if refine_placeholder(existing, &ty) => {
+                        function.metadata.value_types.insert(value, ty);
+                        pass_changed = true;
+                    }
+                    Some(MirType::Unknown) | None => {
+                        function.metadata.value_types.insert(value, ty);
+                        pass_changed = true;
+                    }
+                    Some(_) => {}
+                }
+            }
+            if !pass_changed {
+                break;
+            }
+            changed = true;
+        }
+    }
+    changed
+}
+
+fn concrete_phi_box_value_type(
+    function: &MirFunction,
+    inputs: &[(BasicBlockId, ValueId)],
+) -> Option<MirType> {
+    let mut inferred = None::<MirType>;
+    for (_block, value) in inputs {
+        let ty = concrete_box_value_type(function, *value)?;
+        inferred = match inferred {
+            None => Some(ty),
+            Some(existing) if existing == ty => Some(existing),
+            Some(_) => return None,
+        };
+    }
+    inferred
+}
+
+fn value_has_concrete_box_type(function: &MirFunction, value: ValueId) -> bool {
+    concrete_box_value_type(function, value).is_some()
+}
+
+fn concrete_box_value_type(function: &MirFunction, value: ValueId) -> Option<MirType> {
+    concrete_box_name_from_value_type(function.metadata.value_types.get(&value)).map(MirType::Box)
+}
+
+pub(crate) fn concrete_box_name_from_value_type(ty: Option<&MirType>) -> Option<String> {
+    match ty {
+        Some(MirType::Box(name)) => Some(name.clone()),
+        Some(MirType::String) => Some("StringBox".to_string()),
+        _ => None,
     }
 }
 

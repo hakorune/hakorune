@@ -19,8 +19,7 @@ pub(crate) use model::{
 };
 #[cfg(test)]
 pub(crate) use model::{
-    LoopJoinBranchArmV2, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1,
-    LoopJoinPortBindingV2,
+    LoopJoinBranchArmV2, LoopJoinExitOccurrenceV1,
 };
 pub(crate) use transfer_view_v2::{
     LoopJoinBoundaryTransferRefV2, LoopJoinBranchArmTransferRefV2,

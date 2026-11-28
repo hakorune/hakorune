@@ -3,7 +3,6 @@
 guard_joinir_logical_demand_contract() {
   local root_dir="$1"
   local tag="$2"
-  local route_id="$root_dir/src/mir/loop_recipe_contract/route_id.rs"
   local portable_recipe_dir="$root_dir/src/mir/loop_recipe_contract"
   local producer_id="$portable_recipe_dir/producer_id.rs"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
@@ -36,7 +35,6 @@ guard_joinir_logical_demand_contract() {
   local loop_break_facts="$root_dir/src/mir/builder/control_flow/plan/loop_break/facts/types.rs"
   local if_phi_join="$root_dir/src/mir/builder/control_flow/facts/if_phi_join_facts.rs"
   local files=(
-    "$route_id"
     "$projection"
     "$simple_while"
     "$accum_const"

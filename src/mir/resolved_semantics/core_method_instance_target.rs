@@ -485,10 +485,6 @@ impl VerifiedCoreMethodInstanceTargetV1 {
         self.target_brand
     }
 
-    pub(crate) const fn relation_brand(&self) -> HomeRelationBrandV1 {
-        self.relation_brand
-    }
-
     pub(crate) const fn schema(&self) -> CoreMethodHomeSchemaV1 {
         self.schema
     }

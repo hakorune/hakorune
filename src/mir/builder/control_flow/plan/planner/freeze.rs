@@ -36,19 +36,6 @@ impl Freeze {
             hint: None,
         }
     }
-
-    pub(in crate::mir::builder) fn bug(message: impl Into<String>) -> Self {
-        Self {
-            tag: "bug",
-            message: message.into(),
-            hint: None,
-        }
-    }
-
-    pub(in crate::mir::builder) fn with_hint(mut self, hint: impl Into<String>) -> Self {
-        self.hint = Some(hint.into());
-        self
-    }
 }
 
 impl fmt::Display for Freeze {
