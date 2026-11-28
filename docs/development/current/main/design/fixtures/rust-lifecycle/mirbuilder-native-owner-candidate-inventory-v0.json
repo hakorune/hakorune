@@ -53,40 +53,6 @@
       "status": "adopted_complete"
     },
     {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2233-MIRBUILDER-ARRAY-GETSET-MICRO-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "array_getset_micro_seed_proof_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "array_getset_micro_seed_proof_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2228-MIRBUILDER-ARRAY-RMW-ADD1-LEAF-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "array_rmw_add1_leaf_seed_proof_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "array_rmw_add1_leaf_seed_proof_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
-    },
-    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2223-MIRBUILDER-ARRAY-RMW-WINDOW-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-rmw-window-proof-label-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "label_formatter",
@@ -139,38 +105,6 @@
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-string-len-window-mode-formatter-rust-oracle-v0.json",
       "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-105",
       "status": "adopted_complete"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2727-MIRBUILDER-ARRAY-STRING-STORE-MICRO-SEED-PROOF-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "formatter",
-      "hako_source": "lang/src/compiler/lib/array_string_store_micro_seed_proof_formatter.hako",
-      "logical_owner": "array_string_store_micro_seed_proof_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "adoption_fixture"
-      ],
-      "owner": "array_string_store_micro_seed_proof_formatter",
-      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_string_store_micro_seed_proof_formatter_parity_gate.sh",
-      "rust_oracle_fixture": null,
-      "status": "partial_artifact"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2238-MIRBUILDER-ARRAY-STRING-STORE-MICRO-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "array_string_store_micro_seed_proof_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "array_string_store_micro_seed_proof_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
     },
     {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2627-MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-ADD-CONST-ONE-FROM-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
@@ -697,21 +631,6 @@
       "status": "adopted_complete"
     },
     {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2178-MIRBUILDER-ARRAY-TEXT-STATE-RESIDENCE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": "lang/src/compiler/lib/array_text_state_residence_label_formatter.hako",
-      "logical_owner": "array_text_state_residence_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "adoption_fixture"
-      ],
-      "owner": "array_text_state_residence_label_formatter",
-      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_state_residence_label_formatter_parity_gate.sh",
-      "rust_oracle_fixture": null,
-      "status": "partial_artifact"
-    },
-    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2637-MIRBUILDER-BASIC-BLOCK-EMPTY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-basic-block-empty-classifier-hako-adoption-decision-v0.json",
       "candidate_kind": "classifier",
@@ -1123,23 +1042,6 @@
       "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_compare_rhs_symbolref_lookup_contract_parity_gate.sh",
       "rust_oracle_fixture": null,
       "status": "partial_artifact"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2243-MIRBUILDER-CONCAT-CONST-SUFFIX-MICRO-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "concat_const_suffix_micro_seed_proof_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "concat_const_suffix_micro_seed_proof_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
     },
     {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2732-MIRBUILDER-CONDITION-TRUE-LITERAL-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
@@ -1880,23 +1782,6 @@
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-index-target-kind-formatter-rust-oracle-v0.json",
       "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-061",
       "status": "adopted_complete"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2288-MIRBUILDER-INDEXOF-SEARCH-MICRO-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "indexof_search_micro_seed_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "indexof_search_micro_seed_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
     },
     {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2323-MIRBUILDER-INLINE-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
@@ -4227,23 +4112,6 @@
       "status": "partial_artifact"
     },
     {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2263-MIRBUILDER-SUBSTRING-VIEWS-MICRO-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "substring_views_micro_seed_proof_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "substring_views_micro_seed_proof_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
-    },
-    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2168-MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-sum-local-aggregate-layout-tag-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "tag_formatter",
@@ -4282,23 +4150,6 @@
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-sum-placement-path-label-formatter-rust-oracle-v0.json",
       "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-041",
       "status": "adopted_complete"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2188-MIRBUILDER-SUM-VARIANT-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "sum_variant_seed_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "sum_variant_seed_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
     },
     {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2752-MIRBUILDER-SUPPORTED-BOOL-EXPR-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
@@ -4470,57 +4321,6 @@
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-user-box-method-type-label-formatter-rust-oracle-v0.json",
       "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-006",
       "status": "adopted_complete"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2278-MIRBUILDER-USERBOX-KNOWN-RECEIVER-METHOD-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "userbox_known_receiver_method_seed_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "userbox_known_receiver_method_seed_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2283-MIRBUILDER-USERBOX-LOCAL-SCALAR-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "userbox_local_scalar_seed_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "userbox_local_scalar_seed_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
-    },
-    {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2268-MIRBUILDER-USERBOX-LOOP-MICRO-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
-      "candidate_kind": "label_formatter",
-      "hako_source": null,
-      "logical_owner": "userbox_loop_micro_seed_label_formatter",
-      "missing": [
-        "rust_oracle_fixture",
-        "hako_source",
-        "parity_gate",
-        "adoption_fixture"
-      ],
-      "owner": "userbox_loop_micro_seed_label_formatter",
-      "parity_gate": null,
-      "rust_oracle_fixture": null,
-      "status": "unknown"
     },
     {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2118-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-ADOPTION-DECISION-001.md",
@@ -5553,7 +5353,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "unstructured_tag_formats_as_expected",
-      "line": 71,
+      "line": 58,
       "path": "src/mir/builder/control_flow/plan/planner/freeze.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6523,7 +6323,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_empty_for_commit",
-      "line": 107,
+      "line": 50,
       "path": "src/mir/builder/resolved_lowering/canonical_ssa/function_control.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6531,7 +6331,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_active",
-      "line": 113,
+      "line": 56,
       "path": "src/mir/builder/resolved_lowering/canonical_ssa/function_control.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6685,16 +6485,8 @@
     },
     {
       "candidate_kind": "boolean_classifier",
-      "function": "is_installed_for",
-      "line": 69,
-      "path": "src/mir/builder/vars/resolved_binding_state.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
       "function": "is_installed",
-      "line": 74,
+      "line": 70,
       "path": "src/mir/builder/vars/resolved_binding_state.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6814,7 +6606,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_ordinary",
-      "line": 513,
+      "line": 500,
       "path": "src/mir/callable_semantic_batch/model.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -6822,7 +6614,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "name",
-      "line": 521,
+      "line": 508,
       "path": "src/mir/callable_semantic_batch/model.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -7425,7 +7217,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "rejection_kind",
-      "line": 608,
+      "line": 607,
       "path": "src/mir/exact_numeric_value_facts.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8161,7 +7953,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "class",
-      "line": 63,
+      "line": 60,
       "path": "src/mir/loop_recipe_contract/join_sig/model.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8177,7 +7969,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "after_class",
-      "line": 60,
+      "line": 52,
       "path": "src/mir/loop_recipe_contract/join_sig/v2.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -8196,15 +7988,6 @@
       "function": "Display::fmt",
       "line": 44,
       "path": "src/mir/loop_recipe_contract/producer_id.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "LoopRouteId",
-      "function": "Display::fmt",
-      "line": 81,
-      "path": "src/mir/loop_recipe_contract/route_id.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -9902,7 +9685,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "tagged_on_left",
-      "line": 191,
+      "line": 189,
       "path": "src/mir/resolved_semantics/borrowed_integer_comparison.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -10726,7 +10509,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_complete",
-      "line": 55,
+      "line": 76,
       "path": "src/mir/resolved_semantics/source_value_flow.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -13300,7 +13083,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "declared_type_name",
-      "line": 517,
+      "line": 504,
       "path": "src/mir/callable_semantic_batch/model.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -13310,7 +13093,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "construction_class",
-      "line": 577,
+      "line": 564,
       "path": "src/mir/callable_semantic_batch/model.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -13867,7 +13650,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "compare_route_rejection_kind",
-      "line": 104,
+      "line": 79,
       "path": "src/mir/exact_numeric_value_facts/compare_routes.rs",
       "reject_reasons": [
         "depends_on_route_selection"
@@ -15310,7 +15093,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "value_box_name",
-      "line": 195,
+      "line": 144,
       "path": "src/mir/global_call_route_plan/value_type_publish.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -15322,7 +15105,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "box_name_from_origin_instruction",
-      "line": 206,
+      "line": 155,
       "path": "src/mir/global_call_route_plan/value_type_publish.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -15333,17 +15116,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "param_box_name",
-      "line": 234,
-      "path": "src/mir/global_call_route_plan/value_type_publish.rs",
-      "reject_reasons": [
-        "carrier_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "concrete_box_name_from_value_type",
-      "line": 311,
+      "line": 183,
       "path": "src/mir/global_call_route_plan/value_type_publish.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -15547,16 +15320,6 @@
       "path": "src/mir/loop_recipe_contract/producer_id_migration_tests.rs",
       "reject_reasons": [
         "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "as_str",
-      "line": 56,
-      "path": "src/mir/loop_recipe_contract/route_id.rs",
-      "reject_reasons": [
-        "phi_or_localssa_surface"
       ],
       "status": "rejected"
     },
@@ -18524,7 +18287,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_exact_integer",
-      "line": 151,
+      "line": 149,
       "path": "src/mir/resolved_semantics/borrowed_integer_comparison.rs",
       "reject_reasons": [
         "depends_on_lowering",
@@ -18535,7 +18298,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "scalar_comparison_class_v1",
-      "line": 206,
+      "line": 204,
       "path": "src/mir/resolved_semantics/borrowed_integer_comparison.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -18567,21 +18330,11 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "expression_result_class_v1",
-      "line": 521,
+      "line": 517,
       "path": "src/mir/resolved_semantics/core_method_instance_target.rs",
       "reject_reasons": [
         "carrier_surface",
         "depends_on_resolution"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "declared_payload_type_name",
-      "line": 37,
-      "path": "src/mir/resolved_semantics/enum_variant_demand.rs",
-      "reject_reasons": [
-        "carrier_surface"
       ],
       "status": "rejected"
     },
@@ -19295,6 +19048,16 @@
       "path": "src/mir/route_dependency_graph.rs",
       "reject_reasons": [
         "depends_on_route_selection"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "concrete_box_name_from_value_type",
+      "line": 147,
+      "path": "src/mir/route_value_type_publication.rs",
+      "reject_reasons": [
+        "carrier_surface"
       ],
       "status": "rejected"
     },
@@ -20154,8 +19917,8 @@
       "by_candidate_kind": {
         "classifier": 63,
         "collector": 1,
-        "formatter": 36,
-        "label_formatter": 50,
+        "formatter": 35,
+        "label_formatter": 39,
         "tag_formatter": 7,
         "unknown": 148,
         "vocabulary": 1
@@ -20163,16 +19926,15 @@
       "by_status": {
         "adopted_complete": 138,
         "adopted_incomplete_inventory": 48,
-        "partial_artifact": 110,
-        "unknown": 10
+        "partial_artifact": 108
       },
-      "incomplete_owner_count": 168,
-      "owner_count": 306
+      "incomplete_owner_count": 156,
+      "owner_count": 294
     },
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 20,
-        "carrier_surface": 388,
+        "carrier_surface": 387,
         "depends_on_builder": 51,
         "depends_on_collection": 94,
         "depends_on_context": 48,
@@ -20182,15 +19944,15 @@
         "depends_on_resolution": 212,
         "depends_on_route_selection": 89,
         "may_mutate_state": 167,
-        "phi_or_localssa_surface": 66,
+        "phi_or_localssa_surface": 65,
         "takes_mut_self": 27
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 865,
-        "rejected": 791
+        "candidate": 863,
+        "rejected": 789
       },
-      "surface_count": 1657
+      "surface_count": 1653
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

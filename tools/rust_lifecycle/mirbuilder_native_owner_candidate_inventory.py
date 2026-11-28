@@ -34,6 +34,22 @@ ADOPTION_SUFFIX = "-hako-adoption-decision-v0.json"
 GATE_PREFIX = "rust_lifecycle_mirbuilder_"
 GATE_SUFFIX = "_parity_gate.sh"
 
+# R2 retired these formatters. Their adoption cards document past ownership.
+RETIRED_FORMATTER_OWNERS = {
+    "array_getset_micro_seed_proof_label_formatter",
+    "array_rmw_add1_leaf_seed_proof_label_formatter",
+    "array_string_store_micro_seed_proof_formatter",
+    "array_string_store_micro_seed_proof_label_formatter",
+    "array_text_state_residence_label_formatter",
+    "concat_const_suffix_micro_seed_proof_label_formatter",
+    "indexof_search_micro_seed_label_formatter",
+    "substring_views_micro_seed_proof_label_formatter",
+    "sum_variant_seed_label_formatter",
+    "userbox_known_receiver_method_seed_label_formatter",
+    "userbox_local_scalar_seed_label_formatter",
+    "userbox_loop_micro_seed_label_formatter",
+}
+
 OWNER_SUFFIXES = (
     "label_formatter",
     "tag_formatter",
@@ -164,6 +180,8 @@ def collect_existing_rows() -> list[dict[str, Any]]:
         if not match:
             continue
         logical_owner = match.group(1)
+        if logical_owner in RETIRED_FORMATTER_OWNERS:
+            continue
         paths = CARD_PATH_RE.findall(text)
         artifact_owners: list[str] = []
         for raw in paths:
