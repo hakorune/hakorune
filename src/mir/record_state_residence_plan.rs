@@ -113,20 +113,11 @@ pub fn build_record_state_field_access_plans(
 }
 
 pub fn build_record_state_residence_plans(module: &MirModule) -> Vec<RecordStateResidencePlan> {
-    let mut names: Vec<_> = module
+    module
         .metadata
         .user_box_field_decls
-        .keys()
-        .cloned()
-        .collect();
-    names.sort();
-
-    names
-        .into_iter()
-        .filter_map(|box_name| {
-            let fields = module.metadata.user_box_field_decls.get(&box_name)?;
-            build_record_state_residence_plan(module, box_name, fields)
-        })
+        .iter()
+        .filter_map(|(name, fields)| build_record_state_residence_plan(module, name.clone(), fields))
         .collect()
 }
 

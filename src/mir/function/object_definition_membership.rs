@@ -3,7 +3,7 @@
 
 use super::{MirModule, UserBoxFieldDecl};
 use hakorune_mir_defs::CanonicalObjectIdV1;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 impl MirModule {
     /// Resolve a declared nominal child without changing the retained spelling.
@@ -19,8 +19,8 @@ impl MirModule {
 
     pub(in crate::mir) fn prepare_object_definition_membership(
         &self,
-        names: &HashMap<String, Vec<String>>,
-        fields: &HashMap<String, Vec<UserBoxFieldDecl>>,
+        names: &BTreeMap<String, Vec<String>>,
+        fields: &BTreeMap<String, Vec<UserBoxFieldDecl>>,
     ) -> Result<Option<BTreeMap<String, CanonicalObjectIdV1>>, String> {
         let Some(definitions) = self.canonical_object_definitions() else {
             return Ok(None);
