@@ -4,7 +4,7 @@
 //! It does not create another expression matcher, source navigation path, or
 //! call terminal.
 
-use crate::ast::{ASTNode, AssignStmt};
+use crate::ast::ASTNode;
 use crate::mir::builder::compound_assignment::{
     lower_prepared_raw_compound_assignment_with_port_v1, PreparedRawCompoundAssignmentV1,
 };
@@ -59,59 +59,68 @@ enum PreparedRawOrdinaryAssignmentRouteV1 {
 }
 
 impl PreparedRawOrdinaryAssignmentV1 {
-    fn prepare(
+    fn prepare<Port: RawExpressionDispatchPortV1>(
         builder: &MirBuilder,
-        statement: AssignStmt,
-        sources: Option<PreparedRawOrdinaryAssignmentSourcesV1>,
+        port: &mut Port,
+        statement: ASTNode,
     ) -> Result<Self, String> {
-        let AssignStmt { target, value, .. } = statement;
-        let value = *value;
-        let route = match *target {
-            ASTNode::Variable { name, .. } => PreparedRawOrdinaryAssignmentRouteV1::Variable {
-                input: RawLegacyVariableAssignmentInputV1::new(name, value),
-                value_source: match sources {
-                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Variable { value }) => value,
-                    _ => {
-                        return Err(
-                            "[freeze:contract][raw-assignment/missing-variable-source]".to_owned()
-                        )
-                    }
-                },
-            },
-            ASTNode::FieldAccess { object, field, .. } => {
-                let (receiver_source, value_source) = match sources {
-                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Field { receiver, value }) => {
-                        (receiver, value)
-                    }
-                    _ => {
-                        return Err(
-                            "[freeze:contract][raw-assignment/missing-field-source]".to_owned()
-                        )
-                    }
+        let ASTNode::Assignment { target, .. } = &statement else {
+            unreachable!("ordinary assignment dispatch")
+        };
+        let route = match target.as_ref() {
+            ASTNode::Variable { .. } => {
+                let value_source = port.prepare_expression_child_source_v1(
+                    &statement,
+                    ExprChildRoleV1::AssignmentValue,
+                )?;
+                let ASTNode::Assignment { target, value, .. } = statement else {
+                    unreachable!()
+                };
+                let ASTNode::Variable { name, .. } = *target else {
+                    unreachable!()
+                };
+                PreparedRawOrdinaryAssignmentRouteV1::Variable {
+                    input: RawLegacyVariableAssignmentInputV1::new(name, *value),
+                    value_source,
+                }
+            }
+            ASTNode::FieldAccess { .. } => {
+                let (receiver_source, value_source) = prepare_field_write_child_sources_v1(
+                    port,
+                    &statement,
+                    target,
+                    ExprChildRoleV1::AssignmentTarget,
+                    ExprChildRoleV1::AssignmentValue,
+                )?;
+                let ASTNode::Assignment { target, value, .. } = statement else {
+                    unreachable!()
+                };
+                let ASTNode::FieldAccess { object, field, .. } = *target else {
+                    unreachable!()
                 };
                 PreparedRawOrdinaryAssignmentRouteV1::Field {
-                    prepared: PreparedRawFieldAssignmentV1::prepare(
-                        builder, *object, field, value,
-                    )?,
+                    prepared: PreparedRawFieldAssignmentV1::prepare(builder, *object, field, *value)?,
                     receiver_source,
                     value_source,
                 }
             }
-            ASTNode::Index { target, index, .. } => {
-                let (target_source, index_source, value_source) = match sources {
-                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Index {
+            ASTNode::Index { .. } => {
+                let (target_source, index_source, value_source) =
+                    prepare_index_write_child_sources_v1(
+                        port,
+                        &statement,
                         target,
-                        index,
-                        value,
-                    }) => (target, index, value),
-                    _ => {
-                        return Err(
-                            "[freeze:contract][raw-assignment/missing-index-source]".to_owned()
-                        )
-                    }
+                        ExprChildRoleV1::AssignmentTarget,
+                        ExprChildRoleV1::AssignmentValue,
+                    )?;
+                let ASTNode::Assignment { target, value, .. } = statement else {
+                    unreachable!()
+                };
+                let ASTNode::Index { target, index, .. } = *target else {
+                    unreachable!()
                 };
                 PreparedRawOrdinaryAssignmentRouteV1::Index {
-                    prepared: PreparedRawIndexAssignmentV1::prepare(*target, *index, value),
+                    prepared: PreparedRawIndexAssignmentV1::prepare(*target, *index, *value),
                     target_source,
                     index_source,
                     value_source,
@@ -121,21 +130,6 @@ impl PreparedRawOrdinaryAssignmentV1 {
         };
         Ok(Self { route })
     }
-}
-
-enum PreparedRawOrdinaryAssignmentSourcesV1 {
-    Variable {
-        value: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
-    },
-    Field {
-        receiver: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
-        value: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
-    },
-    Index {
-        target: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
-        index: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
-        value: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
-    },
 }
 
 fn with_write_target_source_v1<Port, Output>(
@@ -417,50 +411,7 @@ where
                 };
                 return Ok(StatementSurfaceDispatch::Lowered(rhs));
             }
-            let sources = match &node {
-                ASTNode::Assignment { target, .. }
-                    if matches!(target.as_ref(), ASTNode::Variable { .. }) =>
-                {
-                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Variable {
-                        value: port.prepare_expression_child_source_v1(
-                            &node,
-                            ExprChildRoleV1::AssignmentValue,
-                        )?,
-                    })
-                }
-                ASTNode::Assignment { target, .. }
-                    if matches!(target.as_ref(), ASTNode::FieldAccess { .. }) =>
-                {
-                    let (receiver, value) = prepare_field_write_child_sources_v1(
-                        port,
-                        &node,
-                        target,
-                        ExprChildRoleV1::AssignmentTarget,
-                        ExprChildRoleV1::AssignmentValue,
-                    )?;
-                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Field { receiver, value })
-                }
-                ASTNode::Assignment { target, .. }
-                    if matches!(target.as_ref(), ASTNode::Index { .. }) =>
-                {
-                    let (index_target, index_subscript, value) =
-                        prepare_index_write_child_sources_v1(
-                            port,
-                            &node,
-                            target,
-                            ExprChildRoleV1::AssignmentTarget,
-                            ExprChildRoleV1::AssignmentValue,
-                        )?;
-                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Index {
-                        target: index_target,
-                        index: index_subscript,
-                        value,
-                    })
-                }
-                _ => None,
-            };
-            let statement = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");
-            let prepared = PreparedRawOrdinaryAssignmentV1::prepare(builder, statement, sources)?;
+            let prepared = PreparedRawOrdinaryAssignmentV1::prepare(builder, port, node)?;
             Ok(StatementSurfaceDispatch::Lowered(
                 lower_prepared_raw_ordinary_assignment_with_port_v1(builder, port, prepared)?,
             ))

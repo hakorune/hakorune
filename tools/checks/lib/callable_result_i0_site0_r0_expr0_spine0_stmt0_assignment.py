@@ -178,7 +178,7 @@ def check_asn0_s0(root: Path) -> str:
             "private ordinary Assignment route",
         ),
         (
-            "fn prepare(\n        builder: &MirBuilder,\n        statement: AssignStmt,\n        sources: Option<PreparedRawOrdinaryAssignmentSourcesV1>,",
+            "fn prepare<Port: RawExpressionDispatchPortV1>(",
             1,
             "source-only ordinary Assignment prepare",
         ),
@@ -188,7 +188,7 @@ def check_asn0_s0(root: Path) -> str:
             "consuming ordinary Assignment terminal",
         ),
         (
-            "PreparedRawOrdinaryAssignmentV1::prepare(builder, statement, sources)?",
+            "PreparedRawOrdinaryAssignmentV1::prepare(builder, port, node)?",
             1,
             "sole ordinary Assignment route issuer",
         ),
@@ -198,7 +198,7 @@ def check_asn0_s0(root: Path) -> str:
             "sole ordinary Assignment route consumer",
         ),
         (
-            "RawLegacyVariableAssignmentInputV1::new(name, value)",
+            "RawLegacyVariableAssignmentInputV1::new(name, *value)",
             1,
             "exact Variable route owned input",
         ),
@@ -209,6 +209,8 @@ def check_asn0_s0(root: Path) -> str:
         ),
     ):
         _require_count(selector, needle, expected, label)
+    _require_count(selector, "let route = match target.as_ref() {", 1, "single ordinary target dispatch")
+    _require_count(selector, "PreparedRawOrdinaryAssignmentSourcesV1", 0, "retired source-only route")
     for route in ("Variable", "Field", "Index", "Unsupported"):
         _require_count(
             selector,
@@ -227,7 +229,7 @@ def check_asn0_s0(root: Path) -> str:
             1,
             "Field prepared consumer",
         ),
-        ("PreparedRawIndexAssignmentV1::prepare(*target, *index, value)", 1, "Index prepare issuer"),
+        ("PreparedRawIndexAssignmentV1::prepare(*target, *index, *value)", 1, "Index prepare issuer"),
         (
             "lower_prepared_raw_index_assignment_with_port_v1(builder, &mut scoped, prepared)",
             1,
