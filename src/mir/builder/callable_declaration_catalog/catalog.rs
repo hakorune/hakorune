@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::mir::builder::instance_box_constructor_batch::constructors_in_key_order;
 
 use super::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1,
@@ -259,7 +260,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                 }
             }
 
-            for declaration in constructors.values() {
+            for (_, declaration) in constructors_in_key_order(constructors) {
                 let ASTNode::FunctionDeclaration {
                     name: ctor_name,
                     params,

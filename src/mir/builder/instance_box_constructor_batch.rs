@@ -39,14 +39,20 @@ struct PreparedInstanceBoxConstructorV1 {
     declaration: ASTNode,
 }
 
+pub(super) fn constructors_in_key_order(
+    constructors: &HashMap<String, ASTNode>,
+) -> Vec<(&str, &ASTNode)> {
+    let mut entries: Vec<_> = constructors
+        .iter()
+        .map(|(key, node)| (key.as_str(), node))
+        .collect();
+    entries.sort_unstable_by_key(|&(key, _)| key);
+    entries
+}
+
 impl PreparedInstanceBoxConstructorBatchV1 {
     pub(super) fn prepare(owner: &str, constructors: &HashMap<String, ASTNode>) -> Self {
-        let mut entries: Vec<(&str, &ASTNode)> = constructors
-            .iter()
-            .map(|(key, constructor)| (key.as_str(), constructor))
-            .collect();
-        entries.sort_by(|(lhs, _), (rhs, _)| lhs.cmp(rhs));
-        let constructors = entries
+        let constructors = constructors_in_key_order(constructors)
             .into_iter()
             .filter_map(|(constructor_key, constructor)| {
                 let ASTNode::FunctionDeclaration {
