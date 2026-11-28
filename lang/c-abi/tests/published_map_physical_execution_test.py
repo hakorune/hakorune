@@ -59,7 +59,7 @@ class Graph:
             block["edges"] = [dict(target=instruction[k], args=None) for k in ("normal", "fault")]
 
     def invoke_term(self, block, op, normal, fault):
-        op = dict(op) if op["kind"] == "birth_call" else dict(op, site=self.site)
+        op = dict(op) if op["kind"] in ("birth_call", "ordinary_call") else dict(op, site=self.site)
         self.site += 1
         self.term(block, dict(op="invoke", operation=op, fault_frame=0, normal=normal, fault=fault))
 
@@ -280,13 +280,16 @@ def array_text_fault_program():
     return data
 
 
-def borrowed_array_program():
+def borrowed_array_program(read_child=False):
     """Install duplicate borrowed MapLocal roots, then end the caller roots."""
     graph = Graph()
     parent = graph.invoke(dict(kind="map_new"), [], True)
     parent_end = dict(kind="map_end", map=parent)
     child = graph.invoke(dict(kind="map_new"), [parent_end], True)
     child_end = dict(kind="map_end", map=child)
+    if read_child:
+        install_entry(graph, child, "name", [child_end, parent_end],
+                      dict(kind="map_install_text", utf8="main"))
     key = graph.invoke(dict(kind="map_prepare_key", utf8="functions"),
                        [child_end, parent_end], True)
     outcome = graph.invoke(
@@ -295,8 +298,118 @@ def borrowed_array_program():
         [child_end, parent_end], True)
     graph.invoke(dict(kind="map_end_outcome", outcome=outcome),
                  [child_end, parent_end])
+    if read_child:
+        graph.invoke(dict(kind="ordinary_call", result="i64",
+                          call=dict(target=1, dst=None, args=[dict(kind="map", value=parent)])),
+                     [child_end, parent_end], True)
     graph.invoke(parent_end, [child_end])
     graph.invoke(child_end, [])
+    graph.term(graph.current, dict(op="return", value=1))
+    data = program(["unused"])
+    data["functions"][0]["blocks"] = graph.blocks
+    data["process_result_site"] = graph.site
+    if read_child:
+        callee = Graph()
+        callee.site = graph.site
+        callee.current["instructions"][0]["instruction"]["mode"] = "borrowed"
+        formal = 10
+        view = callee.invoke(dict(kind="map_array_index_map", map=formal, utf8="functions", index=1), [], True)
+        callee.invoke(dict(kind="map_get_text", map=view, utf8="name"), [], True)
+        callee.term(callee.current, dict(op="return", value=1))
+        data["functions"].append(dict(name="Work.read_child/1", role="ordinary_i64", entry=0,
+                                      receiver=None, receiver_object=None, blocks=callee.blocks,
+                                      params=[dict(value=formal, representation="map")]))
+        data["process_result_site"] = callee.site
+    return data
+
+
+def map_case_roots(graph):
+    parent = graph.invoke(dict(kind="map_new"), [], True)
+    parent_end = dict(kind="map_end", map=parent)
+    child = graph.invoke(dict(kind="map_new"), [parent_end], True)
+    return parent, child, parent_end, dict(kind="map_end", map=child)
+
+
+def install_entry(graph, parent, name, cleanup, operation):
+    key = graph.invoke(dict(kind="map_prepare_key", utf8=name), cleanup, True)
+    outcome = graph.invoke(dict(operation, map=parent, key=key), cleanup, True)
+    graph.invoke(dict(kind="map_end_outcome", outcome=outcome), cleanup)
+
+
+def support_case_branch(graph):
+    # The comparison of both edges is an admission obligation. The process
+    # can only take the safe side, and negative inputs are compile-only.
+    condition = graph.value
+    graph.value += 1
+    graph.row(graph.current, dict(op="const_bool", dst=condition, value=True))
+    taken, other = graph.block(), graph.block()
+    graph.term(graph.current, {"op": "branch", "condition": condition,
+                               "then": taken["id"], "else": other["id"],
+                               "then_args": None, "else_args": None})
+    graph.current["edges"] = [dict(target=target["id"], args=None) for target in (taken, other)]
+    return taken, other
+
+
+def borrowed_return_case(reject):
+    graph = Graph()
+    graph.site = 1  # Root ends the returned Map at site 0.
+    graph.current["instructions"][0]["instruction"]["mode"] = "borrowed"
+    parent, child, parent_end, child_end = map_case_roots(graph)
+    for side, block in enumerate(support_case_branch(graph)):
+        graph.current = block
+        operation = (dict(kind="map_install_borrowed_array", elements=[child, child])
+                     if reject and side else dict(kind="map_install_empty_array"))
+        install_entry(graph, parent, "functions", [child_end, parent_end], operation)
+        graph.invoke(child_end, [parent_end])
+        graph.term(graph.current, dict(op="return", value=parent))
+    data = call_program()
+    data["functions"][1]["blocks"] = graph.blocks
+    data["process_result_site"] = graph.site
+    return data
+
+
+def borrowed_view_case(reject):
+    graph = Graph()
+    parent, child, parent_end, child_end = map_case_roots(graph)
+    cleanup = [child_end, parent_end]
+    install_entry(graph, child, "name", cleanup, dict(kind="map_install_text", utf8="main"))
+    install_entry(graph, parent, "functions", cleanup,
+                  dict(kind="map_install_borrowed_array", elements=[child, child]))
+    for side, block in enumerate(support_case_branch(graph)):
+        graph.current = block
+        view = graph.invoke(dict(kind="map_array_index_map", map=parent, utf8="functions", index=side),
+                            cleanup, True)
+        if reject and side:
+            graph.invoke(child_end, [parent_end])
+        graph.invoke(dict(kind="map_get_text", map=view, utf8="name"),
+                     [parent_end] if reject and side else cleanup, True)
+        if not (reject and side):
+            graph.invoke(child_end, [parent_end])
+        graph.invoke(parent_end, [])
+        graph.term(graph.current, dict(op="return", value=1))
+    data = program(["unused"])
+    data["functions"][0]["blocks"] = graph.blocks
+    data["process_result_site"] = graph.site
+    return data
+
+
+def borrowed_join_case(reject):
+    graph = Graph()
+    parent, child, parent_end, child_end = map_case_roots(graph)
+    cleanup = [child_end, parent_end]
+    install_entry(graph, parent, "functions", cleanup,
+                  dict(kind="map_install_borrowed_array", elements=[child, child]))
+    join = graph.block()
+    for side, block in enumerate(support_case_branch(graph)):
+        graph.current = block
+        if not (reject and side):
+            install_entry(graph, parent, "functions", cleanup, dict(kind="map_install_empty_array"))
+        graph.invoke(child_end, [parent_end])
+        graph.term(graph.current, dict(op="jump", target=join["id"], args=None))
+        graph.current["edges"] = [dict(target=join["id"], args=None)]
+    graph.current = join
+    graph.invoke(dict(kind="map_array_length", map=parent, utf8="functions"), [parent_end], True)
+    graph.invoke(parent_end, [])
     graph.term(graph.current, dict(op="return", value=1))
     data = program(["unused"])
     data["functions"][0]["blocks"] = graph.blocks
@@ -458,11 +571,12 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     main.write_text("extern long ny_main(void); int main(void) { return (int)ny_main(); }\n")
     env = dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off")
 
-    def compile_input(data, success=True):
+    def compile_input(data, success=True, *, opt_level=None):
         path = work / "input.json"
         path.write_text(json.dumps(data))
         before = obj.read_bytes() if obj.exists() else None
-        result = run([driver, path, obj], env=env)
+        options = [] if opt_level is None else ["--opt-level", opt_level]
+        result = run([driver, path, obj, *options], env=env)
         assert (result.returncode == 0) == success, (result.stdout, result.stderr, data)
         assert not list(work.glob("map.o.*")), "temporary artifact leak"
         if not success:
@@ -474,6 +588,29 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
         result = compile_input(data, False)
         assert marker in result.stderr, (marker, result.stderr)
         return result
+
+    # A rejection must be the common physical flow check before publication.
+    support_cases = (borrowed_return_case, borrowed_view_case, borrowed_join_case)
+    for case in support_cases:
+        outputs = []
+        for level in (0, 1):
+            good, bad = [work / f"{case.__name__}-{level}-{status}.json" for status in ("good", "bad")]
+            good.write_text(json.dumps(case(False)))
+            bad.write_text(json.dumps(case(True)))
+            candidate = good.with_suffix(".o")
+            checked([driver, good, candidate, "--opt-level", level], env=env)
+            checked(["cc", main, candidate, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+            result = run([exe], env=env)
+            assert result.returncode == 30, (case.__name__, level, result.stdout, result.stderr)
+            outputs.append((result.stdout, result.stderr, result.returncode))
+            rejected = bad.with_suffix(".o")
+            result = run([driver, bad, rejected, "--opt-level", level], env=env)
+            assert result.returncode == 1, (case.__name__, level, result.stderr)
+            assert "[freeze:contract][published-lifecycle-v4/unsupported-cohort]" in result.stderr, result.stderr
+            assert "phase=flow" in result.stderr, result.stderr
+            assert not rejected.exists() and not list(work.glob(rejected.name + ".*"))
+            print(f"{case.__name__}: O{level} EXE30, flow rejection without object", flush=True)
+        assert outputs[0] == outputs[1], (case.__name__, outputs)
 
     # The same nullable Map Get selects the correct branch, and only the
     # nonnull branch can read a child field. These are physical inputs.
@@ -585,10 +722,17 @@ int main(void) { return (int)ny_main(); }
     assert run([exe], env=env).returncode == 70
     print("ArrayIndexMap -> MapGetText on missing entry -> named Fault105 -> EXE70")
 
-    compile_input(borrowed_array_program())
-    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
-    assert run([exe], env=env).returncode == 30
-    print("duplicate MapLocal roots -> InstallBorrowedArray -> caller-owned cleanup -> EXE30")
+    for read_child in (False, True):
+        duplicate_results = []
+        for level in (0, 1):
+            compile_input(borrowed_array_program(read_child), opt_level=level)
+            checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+            result = run([exe], env=env)
+            assert result.returncode == 30
+            duplicate_results.append((result.stdout, result.stderr))
+            operation = "borrowed formal reads child" if read_child else "caller-owned cleanup"
+            print(f"O{level} duplicate MapLocal roots -> {operation} -> EXE30")
+        assert duplicate_results[0] == duplicate_results[1]
 
     # The actual transaction must consume the candidate once on precommit
     # Fault and must leave a committed candidate with the slot on old-End Fault.

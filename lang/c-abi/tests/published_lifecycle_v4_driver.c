@@ -53,6 +53,17 @@ int main(int argc, char** argv) {
 #undef FIELD_WORD
 #endif
   char* error = NULL;
+  if (argc == 5 && !strcmp(argv[3], "--opt-level") &&
+      (!strcmp(argv[4], "0") || !strcmp(argv[4], "1"))) {
+    hako_llvmc_lifecycle_options_v1 options = {
+      HAKO_LLVMC_LIFECYCLE_OPTIONS_REVISION, sizeof(options),
+      (uint32_t)(argv[4][0] - '0'),
+    };
+    int rc = hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+        argv[1], &extended.base, &options, argv[2], &error);
+    if (error) { fprintf(stderr, "%s\n", error); free(error); }
+    return rc ? 1 : 0;
+  }
   /* With comparison outputs, keep argv[2] on the four-argument ABI. */
   if (argc != 3 && argc != 4 && argc != 6) return 2;
   if (argc == 4) extended.base.frame_size++; /* Deliberately malformed session. */

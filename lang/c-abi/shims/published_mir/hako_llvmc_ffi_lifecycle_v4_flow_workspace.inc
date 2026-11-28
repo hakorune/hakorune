@@ -120,7 +120,7 @@ static int lv4_sole_home_rank_join(const hako_lv4_state* saved, const hako_lv4_s
 }
 
 static int lv4_indexed_deliver(hako_lv4_worklist* work, size_t target,
-    const hako_lv4_state* state, int faulted) {
+    const hako_lv4_state* state, size_t leases, int faulted) {
   if (target >= work->count || target == work->entry) return 0;
   hako_lv4_state* saved = work->states + target * work->stride;
   if (work->faults[target] >= 0) {
@@ -128,6 +128,16 @@ static int lv4_indexed_deliver(hako_lv4_worklist* work, size_t target,
     int changed = 0;
     for (size_t i = 0; i < work->stride; i++) {
       if (saved[i] == state[i]) continue;
+      if (i >= leases) {
+        hako_lv4_state joined = saved[i] | state[i];
+        changed |= joined != saved[i]; saved[i] = joined;
+        continue;
+      }
+      if ((saved[i] == LV4_MAP_VIEW_EXPIRED && state[i] == LV4_LIVE) ||
+          (state[i] == LV4_MAP_VIEW_EXPIRED && saved[i] == LV4_LIVE)) {
+        changed |= saved[i] != LV4_MAP_VIEW_EXPIRED; saved[i] = LV4_MAP_VIEW_EXPIRED;
+        continue;
+      }
       if (lv4_sole_home_rank_join(saved, state, work->count, i)) continue;
       if (i < work->count || !(saved[i] & LV4_STRING_POSSIBLE) || !(state[i] & LV4_STRING_POSSIBLE) ||
           ((saved[i] ^ state[i]) & ~LV4_STRING_POSSIBLE)) return 0;
