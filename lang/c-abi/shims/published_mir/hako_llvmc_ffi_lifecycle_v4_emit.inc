@@ -28,6 +28,31 @@ static int lv4_emit_pair_actual(FILE* f, const hako_lv4_input* in, yyjson_val* a
   return 1;
 }
 
+/* A rejected Integer view has no payload to publish. The admitted Fault
+ * destination is selected by the caller, including any MIR cleanup edge. */
+static void lv4_emit_tagged_integer_check(FILE* f, uint32_t value, uint32_t block,
+    size_t row, size_t operand, const char* fault_label, int record_type_error) {
+  char prefix[96];
+  snprintf(prefix, sizeof(prefix), "integer_kind_%u_%zu_%zu", block, row, operand);
+  fprintf(f, "  %%%s_ok = icmp eq i32 %%k%u, 1\n", prefix, value);
+  if (record_type_error) {
+    fprintf(f,
+        "  br i1 %%%s_ok, label %%%s_next, label %%%s_fault\n%s_fault:\n"
+        "  %%%s_status = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 %u, i64 0, i64 0, i64 0)\n"
+        "  switch i32 %%%s_status, label %%invalid [ i32 1, label %%%s ]\n",
+        prefix, prefix, prefix, prefix, prefix,
+        NYRT_FAULT_REASON_STRING_TYPE_ERROR_V1, prefix, fault_label);
+  } else {
+    fprintf(f, "  br i1 %%%s_ok, label %%%s_next, label %%%s\n",
+        prefix, prefix, fault_label);
+  }
+  fprintf(f, "%s_next:\n", prefix);
+}
+
+static int lv4_bare_tagged_fault_recordable(const hako_lv4_block* block, size_t row) {
+  return block && (!block->tagged_fault_with_cleanup || !block->tagged_fault_with_cleanup[row]);
+}
+
 /* Shared bare/Invoke usize check. The caller owns the exact Fault edge. */
 static void lv4_emit_usize_field_range(FILE* f, uint32_t b, size_t ri,
     uint32_t fstored, unsigned long long site, const char* fault_label) {
@@ -199,6 +224,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     yyjson_val* edges = yyjson_obj_get(block, "edges");
     lv4_edge_label(normal_label, in, fi, b, 0, lv4_u(yyjson_arr_get(edges, 0), "target"));
     lv4_edge_label(fault_label, in, fi, b, 1, lv4_u(yyjson_arr_get(edges, 1), "target"));
+    const hako_lv4_block* indexed = in->native ? NULL : lv4_index_block(&in->index[fi], b);
     fprintf(f, "bb%u:\n", b);
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
@@ -257,14 +283,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         /* A dominated arithmetic operand may read the same lent Integer view;
            the kind==1 branch proves the i64 read at the use site and any
            other kind is a semantic Fault, uniform with the compare. */
+        int record_type_error = lv4_bare_tagged_fault_recordable(indexed, ri);
         if (lv4_input_type(in, fn, alhs) == LV4_TAGGED)
-          fprintf(f, "  %%aok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
-              "  br i1 %%aok%u_%u_%zu, label %%as%u_%u_%zu, label %%fault\nas%u_%u_%zu:\n",
-              alhs, b, ri, alhs, alhs, b, ri, alhs, b, ri, alhs, b, ri);
+          lv4_emit_tagged_integer_check(f, alhs, b, ri, 0, "fault", record_type_error);
         if (arhs != alhs && lv4_input_type(in, fn, arhs) == LV4_TAGGED)
-          fprintf(f, "  %%aok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
-              "  br i1 %%aok%u_%u_%zu, label %%as%u_%u_%zu, label %%fault\nas%u_%u_%zu:\n",
-              arhs, b, ri, arhs, arhs, b, ri, arhs, b, ri, arhs, b, ri);
+          lv4_emit_tagged_integer_check(f, arhs, b, ri, 1, "fault", record_type_error);
         fprintf(f, "  %%v%u = %s i64 %%v%u, %%v%u\n", dst,
             lv4_is(ins, "op", "mul") ? "mul" : "add", alhs, arhs);
       } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div") || lv4_is(ins, "op", "mod")) {
@@ -282,14 +305,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         /* A borrowed tagged operand may lend the checked-compare Integer
            view only while its kind lane is exactly 1 at the use site;
            any other kind is a semantic Fault, never a silent rewrap. */
+        int record_type_error = lv4_bare_tagged_fault_recordable(indexed, ri);
         if (lv4_input_type(in, fn, clhs) == LV4_TAGGED)
-          fprintf(f, "  %%cok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
-              "  br i1 %%cok%u_%u_%zu, label %%cs%u_%u_%zu, label %%fault\ncs%u_%u_%zu:\n",
-              clhs, b, ri, clhs, clhs, b, ri, clhs, b, ri, clhs, b, ri);
+          lv4_emit_tagged_integer_check(f, clhs, b, ri, 0, "fault", record_type_error);
         if (crhs != clhs && lv4_input_type(in, fn, crhs) == LV4_TAGGED)
-          fprintf(f, "  %%cok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
-              "  br i1 %%cok%u_%u_%zu, label %%cs%u_%u_%zu, label %%fault\ncs%u_%u_%zu:\n",
-              crhs, b, ri, crhs, crhs, b, ri, crhs, b, ri, crhs, b, ri);
+          lv4_emit_tagged_integer_check(f, crhs, b, ri, 1, "fault", record_type_error);
         fprintf(f, "  %%cmp%u = icmp %s i64 %%v%u, %%v%u\n"
             "  %%v%u = zext i1 %%cmp%u to i64\n", dst,
             yyjson_get_str(yyjson_obj_get(ins, "predicate")),
@@ -427,9 +447,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
            view; the kind==1 branch proves the i64 payload at the use site,
            uniform with the checked compare and the dominated `+`. */
         if (lv4_input_type(in, fn, svalue) == LV4_TAGGED)
-          fprintf(f, "  %%vok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
-              "  br i1 %%vok%u_%u_%zu, label %%vs%u_%u_%zu, label %%fault\nvs%u_%u_%zu:\n",
-              svalue, b, ri, svalue, svalue, b, ri, svalue, b, ri, svalue, b, ri);
+          lv4_emit_tagged_integer_check(f, svalue, b, ri, 0, "fault",
+              lv4_bare_tagged_fault_recordable(indexed, ri));
         fprintf(f,
             "  %%aset%u_%zu = call i32 @\"nyash.array.checked_set_i64_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i64 %%v%u, i64 %%v%u)\n"
             "  switch i32 %%aset%u_%zu, label %%invalid [ i32 0, label %%asd%u_%zu i32 1, label %%fault ]\nasd%u_%zu:\n",
@@ -458,7 +477,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     } else if (lv4_is(term, "op", "return_fault")) {
       fprintf(f, "  br label %%fault\n");
     } else if (lv4_is(term, "op", "return")) {
-      if (!lv4_emit_return(f, in, fn, term, b, birth, ordinary_map, ordinary)) return 0;
+      if (!lv4_emit_return(f, in, fn, term, b, yyjson_arr_size(rows), birth, ordinary_map, ordinary)) return 0;
     } else {
       yyjson_val* op = yyjson_obj_get(term, "operation");
       unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
@@ -498,7 +517,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "ordinary_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
-        lv4_emit_call_operand_preparation(f, in, fi, call, args, b, site, fault_label);
+        lv4_emit_call_operand_preparation(f, in, fi, call, args, b, yyjson_arr_size(rows), site, fault_label);
         if (lv4_is(op, "result", "unit"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame",
               b, lv4_u(call, "target"));
@@ -632,9 +651,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           yyjson_val* arg = yyjson_arr_get(args, i);
           uint32_t value = lv4_u(arg, "value");
           if (lv4_is(arg, "kind", "tagged"))
-            fprintf(f, "  %%bok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
-                "  br i1 %%bok%u_%u_%zu, label %%bs%u_%u_%zu, label %%fault\nbs%u_%u_%zu:\n",
-                value, b, i, value, value, b, i, value, b, i, value, b, i);
+            lv4_emit_tagged_integer_check(f, value, b, yyjson_arr_size(rows), i, fault_label, 1);
         }
       }
       if (lv4_is(op, "kind", "object_field_set") &&

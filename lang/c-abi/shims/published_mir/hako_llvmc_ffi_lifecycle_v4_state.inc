@@ -2,6 +2,11 @@
  * are unchanged. Indexed origins fit int; tags cannot overlap those payloads. */
 #include <limits.h>
 typedef uint64_t hako_lv4_state;
+
+static int lv4_state_empty(const hako_lv4_state* state, size_t count) {
+  for (size_t i = 0; i < count; i++) if (state[i]) return 0;
+  return 1;
+}
 #define LV4_TRANSFER_BASE (UINT64_C(1) << 32)
 #define LV4_STRING_RANK_BASE (UINT64_C(2) << 32)
 /* A carrier lease uses its exact SSA origin slot. The kind table distinguishes

@@ -15,6 +15,22 @@ static int lv4_dynamic_carrier_readable(const hako_lv4_value* value,
       state[value->origin] == LV4_DYNAMIC_CARRIER_LIVE;
 }
 
+/* Bare integer guards have no MIR Fault edge. Remember any verified visit
+ * whose implicit function exit would skip a live cleanup obligation. */
+static int lv4_mark_tagged_fault_cleanup(hako_lv4_function_index* fn,
+    yyjson_val* block, size_t ri, const hako_lv4_state* state, int faulted) {
+  if (!faulted && lv4_state_empty(state, lv4_state_count(fn))) return 1;
+  hako_lv4_block* indexed = lv4_index_block(fn, lv4_u(block, "id"));
+  if (!indexed) return 0;
+  if (!indexed->tagged_fault_with_cleanup) {
+    indexed->tagged_fault_with_cleanup = calloc(
+        yyjson_arr_size(yyjson_obj_get(block, "instructions")), 1);
+    if (!indexed->tagged_fault_with_cleanup) return 0;
+  }
+  indexed->tagged_fault_with_cleanup[ri] = 1;
+  return 1;
+}
+
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
     yyjson_val* block, hako_lv4_state* state, int faulted, int birth) {
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
@@ -117,6 +133,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (!lhs || !rhs ||
           (lhs->kind != LV4_I64 && !(lhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, lhs))) ||
           (rhs->kind != LV4_I64 && !(rhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, rhs)))) return 0;
+      if ((lhs->kind == LV4_TAGGED || rhs->kind == LV4_TAGGED) &&
+          !lv4_mark_tagged_fault_cleanup(fn, block, ri, state, faulted)) return 0;
     } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div") || lv4_is(ins, "op", "mod")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
@@ -148,6 +166,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (!lhs || !rhs ||
           (lhs->kind != LV4_I64 && !(lhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, lhs))) ||
           (rhs->kind != LV4_I64 && !(rhs->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, rhs)))) return 0;
+      if ((lhs->kind == LV4_TAGGED || rhs->kind == LV4_TAGGED) &&
+          !lv4_mark_tagged_fault_cleanup(fn, block, ri, state, faulted)) return 0;
     } else if (lv4_is(ins, "op", "borrowed_null_compare")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
@@ -189,6 +209,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           !lv4_field_array_readable(in, fn, array->id, state, lv4_u(block, "id")) ||
           !index || index->kind != LV4_I64 ||
           !value || (value->kind != LV4_I64 && !(value->kind == LV4_TAGGED && !lv4_borrowed_text_formal(fn, value)))) return 0;
+      if (value->kind == LV4_TAGGED && !lv4_mark_tagged_fault_cleanup(fn, block, ri, state, faulted)) return 0;
     } else if (hako_physical_text_read_arity(ins)) {
       /* Both operands borrow at this row; no state or ownership transfer. */
       if (faulted || lv4_string_pending(state, lv4_state_count(fn)) ||

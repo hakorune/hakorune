@@ -1,7 +1,7 @@
 /* Return output from the existing admitted function. This child issues no
  * identity, lease, result role, or source permission; ferror stays with owner. */
 static int lv4_emit_return(FILE* f, const hako_lv4_input* in,
-    yyjson_val* fn, yyjson_val* term, uint32_t b,
+    yyjson_val* fn, yyjson_val* term, uint32_t b, size_t ri,
     int birth, int ordinary_map, int ordinary) {
   if (birth || lv4_is(fn, "role", "ordinary_unit")) fprintf(f, "  ret i32 0\n");
   else if (lv4_is(fn, "role", "ordinary_nullable_text") &&
@@ -40,10 +40,8 @@ static int lv4_emit_return(FILE* f, const hako_lv4_input* in,
     uint32_t value = lv4_u(term, "value");
     if (lv4_is(fn, "role", "ordinary_i64") &&
         lv4_input_type(in, fn, value) == LV4_TAGGED) {
-      fprintf(f,
-          "  %%return_int%u = icmp eq i32 %%k%u, 1\n"
-          "  br i1 %%return_int%u, label %%return_payload%u, label %%fault\nreturn_payload%u:\n",
-          b, value, b, b, b);
+      /* Return admission has already discharged the function's obligations. */
+      lv4_emit_tagged_integer_check(f, value, b, ri, 0, "fault", 1);
     }
     if (hako_physical_object_result_role(fn) && !lv4_emit_object_return_outcome(f, in, fn, term, b)) return 0;
     fprintf(f, "  store i64 %%v%u, ptr %%out_i64, align 8\n  ret i32 0\n", value);

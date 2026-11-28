@@ -14,6 +14,7 @@ typedef struct {
   uint32_t id;
   size_t ordinal;
   yyjson_val* block;
+  unsigned char* tagged_fault_with_cleanup;
 } hako_lv4_block;
 
 typedef struct hako_lv4_function_index {
@@ -481,6 +482,8 @@ static size_t lv4_pred_count(hako_lv4_function_index* fn, uint32_t id) {
 static void lv4_index_close(hako_lv4_input* in) {
   for (size_t fi = 0; fi < in->index_count; fi++) {
     free(in->index[fi].values);
+    for (size_t bi = 0; in->index[fi].blocks && bi < in->index[fi].block_count; bi++)
+      free(in->index[fi].blocks[bi].tagged_fault_with_cleanup);
     free(in->index[fi].blocks);
     free(in->index[fi].pred_count);
     free(in->index[fi].pred_off);
@@ -579,7 +582,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     for (size_t bi = 0; bi < fn->block_count; bi++) {
       yyjson_val* block = yyjson_arr_get(blocks, bi);
       yyjson_val* rows = yyjson_obj_get(block, "instructions");
-      fn->blocks[bi] = (hako_lv4_block){lv4_u(block, "id"), bi, block};
+      fn->blocks[bi] = (hako_lv4_block){lv4_u(block, "id"), bi, block, NULL};
       for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
         yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
         yyjson_val* dst = hako_physical_instruction_dst(ins);

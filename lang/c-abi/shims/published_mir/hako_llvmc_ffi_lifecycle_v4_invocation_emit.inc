@@ -217,7 +217,8 @@ static int lv4_invocation_emit(FILE* f, const hako_lv4_input* in, yyjson_val* op
 
 /* Ordinary Call actual preparation; preserves the exact source operand order. */
 static void lv4_emit_call_operand_preparation(FILE* f, const hako_lv4_input* in,
-    size_t fi, yyjson_val* call, yyjson_val* args, uint32_t b, unsigned long long site, const char* fault_label) {
+    size_t fi, yyjson_val* call, yyjson_val* args, uint32_t b, size_t ri,
+    unsigned long long site, const char* fault_label) {
   /* Checked Call never dispatches a null receiver. It records one source
      TypeError and uses the operation's existing caller-owned Fault cleanup. */
   if (yyjson_is_uint(yyjson_obj_get(call, "receiver"))) {
@@ -242,11 +243,12 @@ static void lv4_emit_call_operand_preparation(FILE* f, const hako_lv4_input* in,
           yyjson_val* arg = yyjson_arr_get(args, i);
           if (!lv4_is(arg, "kind", "tagged") ||
               !yyjson_is_true(yyjson_obj_get(yyjson_arr_get(formals, i), "integer_view"))) continue;
-          /* Preserve the borrowed pair, checking its Integer use before
-             the Call. Failure owns the same MIR Fault cleanup edge. */
-          fprintf(f, "  %%call_int%u_%zu = icmp eq i32 %%k%u, 1\n"
-              "  br i1 %%call_int%u_%zu, label %%call_int_next%u_%zu, label %%%s\ncall_int_next%u_%zu:\n",
-              b, i, lv4_u(arg, "value"), b, i, b, i, fault_label, b, i);
+          /* A take actual is modeled as consumed on both call edges, but
+             a failing guard never enters the callee. Keep that case on
+             its existing path until it has a pre-entry cleanup edge. */
+          int record_type_error = !in->index[lv4_u(call, "target")].has_owned_parameters;
+          lv4_emit_tagged_integer_check(f, lv4_u(arg, "value"), b, ri, i,
+              fault_label, record_type_error);
         }
 
 }
