@@ -49,7 +49,7 @@ Initial inventory:
 | P1 | `hako_llvmc_ffi_string_chain_policy.inc` | concat chain route is classified from consumers and const suffix shape | `route_policy` | string route planner / value consumer facts |
 | P1 | `hako_llvmc_ffi_object_storage_plan.inc` | object storage names are still used as interpretation inputs | `object_storage_inference` | object storage plan |
 | P1 | `hako_llvmc_ffi_same_module_value_metadata.inc` | `__hako_sum_` prefix publishes sum handles | `value_class_derivation` | boxed-sum site/value fact |
-| P2 | `hako_llvmc_ffi_pure_compile.inc` and seed emitters | exact seed tags dispatch legacy routes by string | `exact_seed_fallback` | exact-route rows or retirement |
+| P2 | `hako_llvmc_ffi_pure_compile.inc` and seed emitters | exact seed tags dispatch legacy routes by string | `exact_seed_fallback` | R2 retired the group B emitters. The ASCII substring concat loop keeps one exact row. |
 | P2 | `hako_llvmc_ffi_generic_method_len_policy.inc` | length route uses known string length / placement windows before runtime len | `value_class_derivation` | string corridor facts / lowering route facts |
 
 Pure glue / generated outputs:
@@ -115,7 +115,7 @@ P0. C-ABI-SHIM-RESPONSIBILITY-INVENTORY-001
         hako_llvmc_ffi_object_storage_plan.inc HakoAlloc alignment-result method/key mapping
       exact_seed_fallback:
         hako_llvmc_ffi_pure_compile.inc exact_seed_backend_route tag dispatch
-        hako_llvmc_ffi_user_box_micro_seed_*.inc benchmark/userbox shape policy
+        R2 retired the benchmark/UserBox shape-specific emitters.
       remaining boxed-sum local lookup:
         hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc boxed_sum_unit_binding_plan_index enum-name lookup
       already drained:

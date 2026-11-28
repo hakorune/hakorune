@@ -425,8 +425,6 @@ def bundle_scope(args: argparse.Namespace) -> int:
         f"- function: {args.function or 'unknown'}",
         f"- selector: {selector.kind}",
         f"- MIR JSON: {mir_json_path}",
-        f"- selected routes: {route_rows['array_text_selected_route_count']}",
-        f"- compat helper calls: {route_rows['array_text_compat_string_indexof_hisi_count']}",
         f"- mapping: source->MIR exact, MIR->LLVM {'block' if emit_llvm_actual else 'missing'}, LLVM->ASM {'symbol' if emit_asm_actual else 'missing'}",
     ]
 
@@ -554,7 +552,6 @@ def bundle_route(args: argparse.Namespace) -> int:
         ("selected_route_filter", selected_route or "all"),
         ("route_row_count", str(len(selected_rows))),
         ("typed_object_exact_route_decision_count", str(route_rows["typed_object_exact_route_decision_count"])),
-        ("array_text_state_residence_route_count", str(route_rows["array_text_state_residence_route_count"])),
         ("array_text_observer_route_count", str(route_rows["array_text_observer_route_count"])),
         ("summary", "ok"),
     ]

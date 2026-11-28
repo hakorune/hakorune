@@ -66,7 +66,9 @@ PY
 
 bash "$HAKO_BIN" --backend mir --verify "$HAKO_IMPL" >/dev/null
 
-if ! bash "$HAKO_BIN" --backend mir --emit-exe "$EXE" "$APP" >"$EMIT_LOG" 2>&1; then
+runtime="${NYASH_EMIT_EXE_NYRT:-$ROOT_DIR/target/release}"
+if ! bash "$HAKO_BIN" --backend mir --emit-exe "$EXE" --emit-exe-nyrt "$runtime" \
+    "$APP" >"$EMIT_LOG" 2>&1; then
   tail -n 120 "$EMIT_LOG" || true
   guard_fail "$TAG" "failed to emit parity executable"
 fi
@@ -105,7 +107,7 @@ output_contract=rust-lifecycle-mirbuilder-exact-seed-backend-route-label-formatt
 owner=exact_seed_backend_route_label_formatter
 rust_oracle_fixture=mirbuilder-exact-seed-backend-route-label-formatter-rust-oracle-v0.json
 hako_implementation=lang/src/compiler/lib/exact_seed_backend_route_label_formatter.hako
-parity_rows=24
+parity_rows=2
 parity_status=green
 source_selfhost_claim=0
 hako_adopted_decision=0

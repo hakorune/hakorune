@@ -16,7 +16,7 @@
   },
   "accepted_scope": {
     "surface": "Exact seed backend route tag/source-field vocabulary formatting",
-    "parity_rows": 24,
+    "parity_rows": 2,
     "rust_bootstrap_retained": 1,
     "rust_oracle_retained": 1
   },

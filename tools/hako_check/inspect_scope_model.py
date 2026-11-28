@@ -30,23 +30,6 @@ def function_metadata_rows(data: dict[str, Any], key: str) -> list[dict[str, Any
     return rows
 
 
-def function_metadata_object_rows(
-    data: dict[str, Any], key: str
-) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    for function in root_list(data, "functions"):
-        metadata = function.get("metadata")
-        if not isinstance(metadata, dict):
-            continue
-        value = metadata.get(key)
-        if not isinstance(value, dict):
-            continue
-        copied = dict(value)
-        copied.setdefault("function", function.get("name", "unknown"))
-        rows.append(copied)
-    return rows
-
-
 def typed_object_route_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for function in root_list(data, "functions"):
@@ -84,32 +67,11 @@ def read_bundle_report(path: Path) -> dict[str, str]:
 
 def route_counts(mir: dict[str, Any]) -> dict[str, int]:
     route_decisions = typed_object_route_rows(mir)
-    array_text_state_routes = function_metadata_object_rows(
-        mir, "array_text_state_residence_route"
-    )
     array_text_sessions = function_metadata_rows(mir, "array_text_residence_sessions")
     array_text_observer_routes = function_metadata_rows(mir, "array_text_observer_routes")
 
     return {
         "typed_object_exact_route_decision_count": len(route_decisions),
-        "array_text_state_residence_route_count": len(array_text_state_routes),
-        "array_text_selected_route_count": sum(
-            1
-            for row in array_text_state_routes
-            if str(row.get("selected_route", "")).startswith("hako.array_text.")
-        ),
-        "array_text_selected_bridge_symbol_count": sum(
-            1
-            for row in array_text_state_routes
-            if str(row.get("selected_bridge_symbol", "")).startswith("hako.array_text.")
-        ),
-        "array_text_compat_string_indexof_hisi_count": sum(
-            1
-            for row in array_text_state_routes
-            if str(row.get("fallback_route", "")).startswith(
-                "nyash.array.string_indexof_"
-            )
-        ),
         "array_text_session_count": len(array_text_sessions),
         "array_text_session_begin_count": sum(
             1
@@ -133,11 +95,6 @@ def route_counts(mir: dict[str, Any]) -> dict[str, int]:
             for row in array_text_sessions
             if "registry" in str(row.get("carrier", "")).lower()
         ),
-        "array_text_silent_fallback_after_selected_route_count": sum(
-            1
-            for row in array_text_state_routes
-            if str(row.get("fallback_policy", "")) != "fail_fast"
-        ),
         "array_text_observer_route_count": len(array_text_observer_routes),
         "array_text_observer_selected_route_count": sum(
             1
@@ -154,7 +111,6 @@ def route_counts(mir: dict[str, Any]) -> dict[str, int]:
 
 def selected_route_rows(mir: dict[str, Any]) -> list[dict[str, Any]]:
     rows = typed_object_route_rows(mir)
-    rows.extend(function_metadata_object_rows(mir, "array_text_state_residence_route"))
     rows.extend(function_metadata_rows(mir, "array_text_residence_sessions"))
     rows.extend(function_metadata_rows(mir, "array_text_observer_routes"))
     return rows
