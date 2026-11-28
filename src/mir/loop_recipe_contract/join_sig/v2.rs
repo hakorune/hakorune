@@ -1,6 +1,6 @@
 //! Typed V2 closure over the one neutral JoinSig engine.
 
-use super::super::ids::{LoopBindingKeyV1, LoopNodeKeyV1};
+use super::super::ids::LoopNodeKeyV1;
 use super::super::schema_v2::LoopValueClassV2;
 use super::super::typed_schema_v2::VerifiedLoopRecipeV2;
 use super::flow::elaborate_view;
@@ -47,14 +47,6 @@ impl VerifiedLoopJoinClosureV2 {
 
     pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV2 {
         &self.join_sig
-    }
-
-    pub(crate) fn after_loop_key(&self) -> LoopNodeKeyV1 {
-        self.after.loop_key()
-    }
-
-    pub(crate) fn after_binding(&self) -> LoopBindingKeyV1 {
-        self.after.binding()
     }
 
     pub(crate) fn after_class(&self) -> LoopValueClassV2 {

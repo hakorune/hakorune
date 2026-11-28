@@ -20,7 +20,6 @@ mod join_sig;
 // Main0 Continue and the selected variable-bound Mul producer use this owner.
 mod join_sig_branch;
 mod producer_id;
-pub(crate) mod route_id;
 // Caller-zero source-to-Recipe/Join Return binding; no physical effect.
 // Caller-zero product-first JOINIR input façade; no physical consumer.
 // Caller-zero logical output product and typed consumer; no JoinIR/MIR materialization.
@@ -93,8 +92,8 @@ pub(crate) use join_sig::{
 #[cfg(test)]
 pub(crate) use join_sig::{
     LoopJoinBranchArmTransferRefV2, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2,
-    LoopJoinEdgeRoleV1, LoopJoinEdgeV2, LoopJoinExitOccurrenceV1, LoopJoinPayloadV2,
-    LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
+    LoopJoinEdgeRoleV1, LoopJoinExitOccurrenceV1, LoopJoinPayloadV2,
+    LoopJoinPortV1, LoopJoinSigRejectReasonV1,
 };
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 pub(crate) use schema::{

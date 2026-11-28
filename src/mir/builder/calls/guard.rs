@@ -175,17 +175,6 @@ impl<'a> CalleeGuardBox<'a> {
         // No guard needed, return as-is
         Ok(callee)
     }
-
-    /// receiver型の取得（ヘルパー）
-    ///
-    /// 指定されたreceiverのBox型名を返す（存在しない場合はNone）
-    pub fn get_box_type(&self, receiver: ValueId) -> Option<&String> {
-        match self.value_types.get(&receiver) {
-            Some(MirType::Box(box_name)) => Some(box_name),
-            _ => None,
-        }
-    }
-
 }
 
 #[cfg(test)]

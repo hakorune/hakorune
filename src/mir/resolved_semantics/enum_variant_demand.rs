@@ -34,9 +34,6 @@ impl EnumVariantAdmissionV1 {
         self.argument_count
     }
 
-    pub(crate) fn declared_payload_type_name(&self) -> Option<&str> {
-        self.declared_payload_type_name.as_deref()
-    }
 }
 
 /// Source-only positive proof supplied by the Program declaration-facts owner.

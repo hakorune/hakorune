@@ -464,25 +464,12 @@ impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
         self.body_shape.as_ref()
     }
 
-    pub(crate) fn body_shape_arc(&self) -> Arc<VerifiedResolvedBodyShapeInventoryV1> {
-        Arc::clone(self.body_shape)
-    }
-
     pub(crate) fn parameters(&self) -> Option<&[VerifiedResolvedCallableParameterSourceRefV1<'_>]> {
         self.parameters.as_deref()
     }
 
     pub(crate) fn borrowed_result(&self) -> Option<&Arc<ResolvedCallableBorrowedResultDeclarationV1>> {
         self.semantic.borrowed_result.as_ref()
-    }
-
-    pub(super) fn source_ledger(
-        &self,
-    ) -> Result<
-        crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
-        crate::mir::resolved_semantics::CallableSourceLedgerRejectV1,
-    > {
-        self.semantic.forest.callable_source_ledger(self.owner())
     }
 
     #[cfg(test)]

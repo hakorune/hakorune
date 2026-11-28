@@ -246,30 +246,6 @@ impl<'a> FunctionSourceViewV1<'a> {
         self.child_expr(parent.owner(), parent.site().node(), parent.node(), role)
     }
 
-    /// Rebrand a body item whose syntax is an expression without changing its
-    /// exact source path. This is the only safe-code statement/expression
-    /// carrier conversion and never searches syntax by pointer, location, or name.
-    pub(crate) fn statement_expression(
-        self,
-        statement: &LocatedStmtV1<'a>,
-    ) -> Result<LocatedExprV1<'a>, SourceNavigationErrorV1> {
-        self.require_owner(statement.owner())?;
-        if !crate::mir::resolved_semantics::is_statement_expression_surface_v1(statement.node()) {
-            return Err(SourceNavigationErrorV1::InvalidSite {
-                owner: self.owner,
-                site: statement.site().node().clone(),
-                reason: "statement_is_not_expression",
-            });
-        }
-        let seal = SourceViewSealV1::new();
-        Ok(LocatedExprV1::new(
-            self.owner,
-            SourceExprSiteV1::from_node(statement.site().node().clone()),
-            statement.node(),
-            seal,
-        ))
-    }
-
     pub(crate) fn child_expr_from_expr(
         self,
         parent: &LocatedExprV1<'a>,

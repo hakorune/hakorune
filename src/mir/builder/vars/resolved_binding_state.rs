@@ -66,10 +66,6 @@ impl ResolvedBindingLoweringStateV1 {
         }
     }
 
-    pub(in crate::mir::builder) fn is_installed_for(&self, owner: FunctionOwnerIdV1) -> bool {
-        self.installed_owner == Some(owner) && !self.completion_verified
-    }
-
     #[cfg(test)]
     pub(in crate::mir::builder) const fn is_installed(&self) -> bool {
         self.installed_owner.is_some()
