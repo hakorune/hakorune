@@ -3,8 +3,29 @@
 use super::shadow::{ShadowBindingOrdinalV0, ShadowRegionIdV0};
 use super::{
     BindingRefV1, FunctionOwnerIdV1, ResolvedLexicalRefV1, SourceExprSiteV1, SourceStmtSiteV1,
+    VerifiedResolvedFunctionV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
+
+impl VerifiedResolvedFunctionV1 {
+    /// Distinguish an inconsistent read identity from a read with no entry provenance.
+    pub(crate) fn entry_read_origin(
+        &self,
+        site: &SourceExprSiteV1,
+        binding: BindingRefV1,
+    ) -> Result<Option<(Arc<VerifiedSourceValueFlowV1>, SourceValueRefV1, BindingRefV1)>, ()> {
+        if self.variable_ref(site) != Some(ResolvedLexicalRefV1::Local(binding)) {
+            return Err(());
+        }
+        Ok((|| {
+            let flow = self.expression_source().value_flow()?;
+            let value = flow.read(site, binding)?;
+            let origin = flow.alias_entry_origin(value, |site| self.variable_ref(site))?;
+            Some((Arc::clone(flow), value, origin))
+        })())
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct SourceValueRefV1 {

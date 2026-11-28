@@ -69,9 +69,7 @@ impl BorrowedIntegerComparisonSourceV1 {
         let ResolvedLexicalRefV1::Local(binding) = function.variable_ref(read)? else {
             return None;
         };
-        let flow = expressions.value_flow()?;
-        let value = flow.read(read, binding)?;
-        let formal = flow.alias_entry_origin(value, |site| function.variable_ref(site))?;
+        let (_, _, formal) = function.entry_read_origin(read, binding).ok()??;
         let BindingKindV1::Parameter { index: ordinal } = function.binding(formal)?.kind() else {
             return None;
         };

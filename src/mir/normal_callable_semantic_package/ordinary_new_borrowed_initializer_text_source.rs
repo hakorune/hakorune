@@ -229,19 +229,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
         || !original_root
         || root.owner() != input.owner()
         || binding.owner() != input.owner()
-        || input.function().variable_ref(read) != Some(ResolvedLexicalRefV1::Local(binding))
     {
         return Err(reject());
     }
-    let Some(flow) = input.function().expression_source().value_flow() else {
+    let Some((flow, value, _)) = input
+        .function()
+        .entry_read_origin(read, binding)
+        .map_err(|()| reject())?
+        .filter(|(_, _, origin)| *origin == root)
+    else {
         return Ok(None);
     };
-    let Some(value) = flow.read(read, binding) else {
-        return Ok(None);
-    };
-    if flow.alias_entry_origin(value, |site| input.function().variable_ref(site)) != Some(root) {
-        return Ok(None);
-    }
     let Some(contract) =
         opaque_entry_contract_v1(contracts, input.owner(), root).map_err(|()| reject())?
     else {
@@ -262,7 +260,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_dynamic_entry_read_
         )?;
     Ok(Some(DynamicEntryReadV1 {
         requirement,
-        flow: std::sync::Arc::clone(flow),
+        flow,
         value,
         integer_order: integer_order.cloned(),
     }))
@@ -322,19 +320,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
         || !original_root
         || root.owner() != input.owner()
         || binding.owner() != input.owner()
-        || input.function().variable_ref(read) != Some(ResolvedLexicalRefV1::Local(binding))
     {
         return Err(reject());
     }
-    let Some(flow) = input.function().expression_source().value_flow() else {
+    let Some((flow, value, _)) = input
+        .function()
+        .entry_read_origin(read, binding)
+        .map_err(|()| reject())?
+        .filter(|(_, _, origin)| *origin == root)
+    else {
         return Ok(None);
     };
-    let Some(value) = flow.read(read, binding) else {
-        return Ok(None);
-    };
-    if flow.alias_entry_origin(value, |site| input.function().variable_ref(site)) != Some(root) {
-        return Ok(None);
-    }
     // A source read must select the same whole original entry membership as
     // its physical consumer. This grants no domain or completed actuals.
     let Some(contract) =
@@ -389,7 +385,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_finite_entry_read_v
     Ok(Some(FiniteEntryReadV1 {
         requirement,
         sum,
-        flow: std::sync::Arc::clone(flow),
+        flow,
         value,
         null_compare,
         materialized_return,
