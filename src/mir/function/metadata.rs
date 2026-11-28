@@ -23,19 +23,14 @@ use super::types::{RecordValueContract, ReturnExitContract};
 use crate::mir::{
     a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptSlotV1,
     agg_local_scalarization::AggLocalScalarizationRoute,
-    array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
-    array_rmw_add1_leaf_seed_plan::ArrayRmwAdd1LeafSeedRoute,
     array_rmw_window_plan::ArrayRmwWindowRoute,
     array_string_len_window_plan::ArrayStringLenWindowRoute,
-    array_string_store_micro_seed_plan::ArrayStringStoreMicroSeedRoute,
     array_text_combined_region_plan::ArrayTextCombinedRegionRoute,
     array_text_edit_plan::ArrayTextEditRoute,
     array_text_loop_session_plan::{ArrayTextIndexOfConstRegionPlan, ArrayTextLoopSessionPlan},
     array_text_loopcarry_plan::ArrayTextLoopCarryLenStoreRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
-    array_text_state_residence_plan::ArrayTextStateResidenceRoute,
-    concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     direct_array_access_plan::DirectArrayAccessPlan,
     direct_exact_hotcore_call_plan::DirectExactHotCoreCallPlan,
     effect_capability_plan::{CapabilityPlan, EffectPlan},
@@ -71,19 +66,13 @@ use crate::mir::{
     string_dead_text_region_plan::StringDeadTextRegionPlan,
     string_direct_set_window_plan::StringDirectSetWindowRoute,
     string_kernel_plan::StringKernelPlan,
-    substring_views_micro_seed_plan::SubstringViewsMicroSeedRoute,
     sum_placement::SumPlacementFact,
     sum_placement_layout::SumPlacementLayout,
     sum_placement_selection::SumPlacementSelection,
-    sum_variant_project_seed_plan::SumVariantProjectSeedRoute,
-    sum_variant_tag_seed_plan::SumVariantTagSeedRoute,
     thin_entry::ThinEntryCandidate,
     thin_entry_selection::ThinEntrySelection,
     type_contracts::proof::TypeContractProof,
     user_box_method_route_plan::UserBoxMethodRoute,
-    userbox_known_receiver_method_seed_plan::UserBoxKnownReceiverMethodSeedRoute,
-    userbox_local_scalar_seed_plan::UserBoxLocalScalarSeedRoute,
-    userbox_loop_micro_seed_plan::UserBoxLoopMicroSeedRoute,
     value_consumer::ValueConsumerFacts,
     value_representation_fact::ValueRepresentationFact,
     MirType, ValueId,
@@ -526,67 +515,6 @@ pub struct FunctionMetadata {
     /// These own read-side observer legality/provenance/consumer facts in MIR;
     /// backend shims may only map the metadata to local helper calls.
     pub array_text_observer_routes: Vec<ArrayTextObserverRoute>,
-
-    /// Backend-consumable array/text state residence route plan.
-    /// This keeps the generic residence contract separate from its explicit
-    /// temporary payload, so backend consumers do not read a second exact route.
-    pub array_text_state_residence_route: Option<ArrayTextStateResidenceRoute>,
-
-    /// Backend-consumable exact array/string-store micro seed route.
-    /// This quarantines the temporary kilo micro exact-shape bridge in MIR
-    /// metadata so the C backend can select an emitter without re-planning raw
-    /// MIR JSON.
-    pub array_string_store_micro_seed_route: Option<ArrayStringStoreMicroSeedRoute>,
-
-    /// Backend-consumable exact array get/set micro seed route.
-    /// The inner RMW window proof remains in `array_rmw_window_routes`; this
-    /// route carries the temporary whole-function exact seed payload for the C
-    /// backend emitter selector.
-    pub array_getset_micro_seed_route: Option<ArrayGetSetMicroSeedRoute>,
-
-    /// Backend-consumable exact array RMW add1 leaf seed route.
-    /// This route owns the current whole-function temporary exact bridge and
-    /// references the inner `array_rmw_window_routes` proof instead of asking
-    /// the C backend to rescan raw MIR JSON blocks.
-    pub array_rmw_add1_leaf_seed_route: Option<ArrayRmwAdd1LeafSeedRoute>,
-
-    /// Backend-consumable exact concat-const-suffix micro seed route.
-    /// This keeps the current temporary exact bridge proof in MIR metadata so
-    /// the C backend can remain an emitter selector instead of a route planner.
-    pub concat_const_suffix_micro_seed_route: Option<ConcatConstSuffixMicroSeedRoute>,
-
-    /// Backend-consumable exact substring-views micro seed route.
-    /// Borrowed-slice windows stay in `string_kernel_plans`; this only carries
-    /// the temporary emitter payload that generic plans do not expose yet.
-    pub substring_views_micro_seed_route: Option<SubstringViewsMicroSeedRoute>,
-
-    /// Backend-consumable exact Sum variant_tag seed route.
-    /// Sum placement metadata owns the local aggregate proof; this route only
-    /// owns the temporary whole-function exact seed payload for the C backend.
-    pub sum_variant_tag_seed_route: Option<SumVariantTagSeedRoute>,
-
-    /// Backend-consumable exact Sum variant_project seed route.
-    /// Sum placement metadata owns the local aggregate proof; this route carries
-    /// the temporary literal payload required by the exact backend helper.
-    pub sum_variant_project_seed_route: Option<SumVariantProjectSeedRoute>,
-
-    /// Backend-consumable exact UserBox local scalar seed route.
-    /// Thin-entry metadata owns the primitive field surface proof; this route
-    /// only carries the temporary Point local/copy exact seed payload for the C
-    /// backend.
-    pub userbox_local_scalar_seed_route: Option<UserBoxLocalScalarSeedRoute>,
-
-    /// Backend-consumable exact UserBox loop micro seed route.
-    /// Thin-entry metadata owns the primitive field surface proof; this route
-    /// carries the current point-add / flag-toggle loop micro seed payload so
-    /// the C backend can stay an emitter selector.
-    pub userbox_loop_micro_seed_route: Option<UserBoxLoopMicroSeedRoute>,
-
-    /// Backend-consumable exact UserBox known-receiver method seed route.
-    /// Thin-entry metadata owns the method and primitive field surface proof;
-    /// this route carries the current local/copy Counter.step and Point.sum
-    /// exact seed payloads so the C backend can stay an emitter selector.
-    pub userbox_known_receiver_method_seed_route: Option<UserBoxKnownReceiverMethodSeedRoute>,
 
     /// Function-level backend route tag for one already-proven exact seed.
     /// Payload legality remains owned by the selected `*_micro_seed_route`;

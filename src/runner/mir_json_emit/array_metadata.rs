@@ -1,4 +1,3 @@
-use super::route_json::build_array_text_state_residence_route_json;
 use crate::mir::function::FunctionMetadata;
 use serde_json::json;
 
@@ -169,52 +168,6 @@ pub(super) fn insert_array_metadata_json(
     obj.insert(
         "array_text_combined_regions".to_string(),
         build_array_text_combined_regions_json(metadata),
-    );
-    obj.insert(
-        "array_string_store_micro_seed_route".to_string(),
-        json!(metadata
-            .array_string_store_micro_seed_route
-            .as_ref()
-            .map(|route| {
-                json!({
-                    "seed": route.seed(),
-                    "seed_len": route.seed_len(),
-                    "size": route.size(),
-                    "ops": route.ops(),
-                    "suffix": route.suffix(),
-                    "store_len": route.store_len(),
-                    "next_text_window_start": route.next_text_window_start(),
-                    "next_text_window_len": route.next_text_window_len(),
-                    "proof": route.proof(),
-                    "consumer_capability": "direct_stack_array_string_store",
-                    "publication_boundary": "none",
-                })
-            })),
-    );
-    obj.insert(
-        "array_rmw_add1_leaf_seed_route".to_string(),
-        json!(metadata.array_rmw_add1_leaf_seed_route.as_ref().map(|route| {
-            json!({
-                "size": route.size(),
-                "ops": route.ops(),
-                "init_push_count": route.init_push_count(),
-                "final_get_count": route.final_get_count(),
-                "selected_rmw_block": route.selected_rmw_block().as_u32(),
-                "selected_rmw_instruction_index": route.selected_rmw_instruction_index(),
-                "selected_rmw_set_instruction_index": route.selected_rmw_set_instruction_index(),
-                "proof": route.proof(),
-                "rmw_proof": route.rmw_proof().to_string(),
-                "consumer_capability": "direct_stack_array_rmw_add1_leaf",
-                "publication_boundary": "none",
-            })
-        })),
-    );
-    obj.insert(
-        "array_text_state_residence_route".to_string(),
-        json!(metadata
-            .array_text_state_residence_route
-            .as_ref()
-            .map(build_array_text_state_residence_route_json)),
     );
 }
 

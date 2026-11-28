@@ -8,15 +8,12 @@
 
 use super::{
     agg_local_scalarization::refresh_function_agg_local_scalarization_routes,
-    array_getset_micro_seed_plan::refresh_function_array_getset_micro_seed_route,
     array_record_autouse_eligibility::refresh_module_array_record_autouse_eligibility_plans,
     array_record_materialization_boundary::refresh_module_array_record_materialization_boundary_plans,
     array_record_packed_autouse_pilot::refresh_module_array_record_packed_autouse_pilot_plans,
     array_record_storage_plan::refresh_module_array_record_storage_plans,
-    array_rmw_add1_leaf_seed_plan::refresh_function_array_rmw_add1_leaf_seed_route,
     array_rmw_window_plan::refresh_function_array_rmw_window_routes,
     array_string_len_window_plan::refresh_function_array_string_len_window_routes,
-    array_string_store_micro_seed_plan::refresh_function_array_string_store_micro_seed_route,
     array_text_combined_region_plan::refresh_function_array_text_combined_region_routes,
     array_text_edit_plan::refresh_function_array_text_edit_routes,
     array_text_loop_session_plan::{
@@ -26,9 +23,7 @@ use super::{
     array_text_loopcarry_plan::refresh_function_array_text_loopcarry_len_store_routes,
     array_text_observer_plan::refresh_function_array_text_observer_routes,
     array_text_residence_session_plan::refresh_function_array_text_residence_session_routes,
-    array_text_state_residence_plan::refresh_function_array_text_state_residence_route,
     boxed_sum_abi_plan::refresh_module_boxed_sum_abi_plans,
-    concat_const_suffix_micro_seed_plan::refresh_function_concat_const_suffix_micro_seed_route,
     direct_array_access_plan::refresh_function_direct_array_access_plans,
     direct_array_extent_fact::refresh_function_direct_array_extent_facts_with_def_map,
     direct_exact_hotcore_call_plan::refresh_module_direct_exact_hotcore_call_plans,
@@ -66,14 +61,11 @@ use super::{
     refresh_function_string_corridor_facts, refresh_function_string_corridor_relations,
     refresh_function_string_direct_set_window_routes, refresh_function_string_kernel_plans,
     refresh_function_sum_placement_layouts, refresh_function_sum_placement_selections,
-    refresh_function_sum_variant_project_seed_route, refresh_function_sum_variant_tag_seed_route,
     refresh_function_thin_entry_candidates, refresh_function_thin_entry_selections,
-    refresh_function_userbox_local_scalar_seed_route,
-    refresh_function_userbox_loop_micro_seed_route, refresh_function_value_consumer_facts,
-    refresh_module_string_kernel_plans, refresh_module_sum_placement_facts,
-    refresh_module_sum_placement_layouts, refresh_module_sum_placement_selections,
-    refresh_module_thin_entry_candidates, refresh_module_thin_entry_selections,
-    refresh_module_value_consumer_facts,
+    refresh_function_value_consumer_facts, refresh_module_string_kernel_plans,
+    refresh_module_sum_placement_facts, refresh_module_sum_placement_layouts,
+    refresh_module_sum_placement_selections, refresh_module_thin_entry_candidates,
+    refresh_module_thin_entry_selections, refresh_module_value_consumer_facts,
     route_decision::{
         refresh_function_route_decisions, refresh_module_hotcore_route_decisions,
         refresh_module_typed_object_exact_slot_route_decisions,
@@ -86,7 +78,6 @@ use super::{
     source_packed_array_direct_read_consumption::refresh_module_source_packed_array_direct_read_consumption_plans,
     span_access_plan::refresh_function_span_access_plans,
     string_dead_text_region_plan::refresh_function_string_dead_text_region_plans_with_def_map,
-    substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     sum_placement::refresh_function_sum_placement_facts_with_def_map,
     type_contracts::parameter_entry::refresh_function_parameter_entry_contracts,
     type_contracts::return_exit::refresh_function_return_exit_contract,
@@ -94,7 +85,6 @@ use super::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
     },
     user_box_method_route_plan::refresh_function_user_box_method_routes,
-    userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes,
     value_origin::build_value_def_map,
     value_representation_fact::refresh_module_value_representation_facts,
     MirFunction, MirInstruction, MirModule,
@@ -181,20 +171,6 @@ fn refresh_function_pre_fixpoint_routes(
     refresh_function_local_fastpath_facts(function);
 }
 
-fn refresh_function_experimental_seed_routes(function: &mut MirFunction) {
-    refresh_function_array_string_store_micro_seed_route(function);
-    refresh_function_array_getset_micro_seed_route(function);
-    refresh_function_array_rmw_add1_leaf_seed_route(function);
-    refresh_function_concat_const_suffix_micro_seed_route(function);
-    refresh_function_substring_views_micro_seed_route(function);
-    refresh_function_sum_variant_tag_seed_route(function);
-    refresh_function_sum_variant_project_seed_route(function);
-    refresh_function_userbox_local_scalar_seed_route(function);
-    refresh_function_userbox_loop_micro_seed_route(function);
-    refresh_function_exact_seed_backend_route(function);
-    refresh_function_array_text_state_residence_route(function);
-}
-
 /// Refresh MIR semantic metadata for one function using the current module
 /// metadata as the shared context owner.
 ///
@@ -211,7 +187,7 @@ pub fn refresh_function_semantic_metadata(
     refresh_function_source_and_fact_metadata(function, module_metadata);
     refresh_function_placement_metadata(function, module_metadata);
     refresh_function_pre_fixpoint_routes(function, module_metadata);
-    refresh_function_experimental_seed_routes(function);
+    refresh_function_exact_seed_backend_route(function);
 }
 
 /// Recompute FastMemory region instruction counts from the canonical MIR stream.
@@ -401,7 +377,6 @@ fn refresh_module_contracts_and_exact_numeric(module: &mut MirModule) {
     refresh_module_direct_exact_hotcore_call_plans(module);
     refresh_module_hotcore_route_decisions(module);
     refresh_module_typed_object_exact_slot_route_decisions(module);
-    refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
     refresh_module_exact_numeric_value_facts(module);
     refresh_module_mapstore_i64_key_witnesses(module);

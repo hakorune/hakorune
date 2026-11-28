@@ -7,11 +7,7 @@ use super::dynamic_v2_aot_admission::insert_dynamic_v2_aot_call_admission_json;
 use super::exact_numeric::insert_exact_numeric_metadata_json;
 use super::fastmem_metadata::insert_fastmem_metadata_json;
 use super::local_contracts::insert_local_contract_metadata_json;
-use super::metadata_seed::{
-    build_concat_const_suffix_micro_seed_route_json, build_exact_seed_backend_route_json,
-    build_substring_views_micro_seed_route_json, build_sum_variant_project_seed_route_json,
-    build_sum_variant_tag_seed_route_json, build_userbox_local_scalar_seed_route_json,
-};
+use super::metadata_seed::build_exact_seed_backend_route_json;
 use super::ownership_ssa::build_ownership_ssa_json;
 use super::parameter_contracts::insert_parameter_contract_metadata_json;
 use super::placement_effect::build_placement_effect_routes_json;
@@ -398,11 +394,6 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> Result<serde_json
                 "field_id": decision.field_id,
             })
         }).collect::<Vec<_>>(),
-        "concat_const_suffix_micro_seed_route": metadata.concat_const_suffix_micro_seed_route.as_ref().map(build_concat_const_suffix_micro_seed_route_json),
-        "substring_views_micro_seed_route": metadata.substring_views_micro_seed_route.as_ref().map(build_substring_views_micro_seed_route_json),
-        "sum_variant_tag_seed_route": metadata.sum_variant_tag_seed_route.as_ref().map(build_sum_variant_tag_seed_route_json),
-        "sum_variant_project_seed_route": metadata.sum_variant_project_seed_route.as_ref().map(build_sum_variant_project_seed_route_json),
-        "userbox_local_scalar_seed_route": metadata.userbox_local_scalar_seed_route.as_ref().map(build_userbox_local_scalar_seed_route_json),
         "exact_seed_backend_route": metadata.exact_seed_backend_route.as_ref().map(build_exact_seed_backend_route_json),
         "thin_entry_candidates": metadata.thin_entry_candidates.iter().map(|candidate| {
             json!({

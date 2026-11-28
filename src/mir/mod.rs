@@ -15,17 +15,14 @@ pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
 pub(crate) mod array_element_write; // canonical Array mutation owner
-pub mod array_getset_micro_seed_plan; // MIR-owned route plan for temporary array get/set micro seed bridge
 pub(crate) mod array_receiver_proof; // shared RuntimeDataBox -> ArrayBox receiver proof
 pub mod array_record_autouse_eligibility; // MIR-owned eligibility metadata for future packed ArrayBox auto-use
 pub(crate) mod array_record_backend_capability; // backend fail-fast for required packed ArrayBox record routes
 pub mod array_record_materialization_boundary; // MIR-owned materialization / escape boundary metadata for packed ArrayBox auto-use
 pub mod array_record_packed_autouse_pilot; // MIR-owned non-escaping packed ArrayBox auto-use pilot metadata
 pub mod array_record_storage_plan; // MIR-owned ArrayBox packed record storage descriptors
-pub mod array_rmw_add1_leaf_seed_plan; // MIR-owned route plan for temporary array RMW add1 leaf seed bridge
 pub mod array_rmw_window_plan; // MIR-owned route plans for array get/+1/set windows
 pub mod array_string_len_window_plan; // MIR-owned route plans for array get/length windows
-pub mod array_string_store_micro_seed_plan; // MIR-owned route plan for temporary array string-store micro seed bridge
 pub mod array_text_combined_region_plan; // MIR-owned combined array/text region route plans
 pub mod array_text_edit_plan; // MIR-owned route plans for array/text same-cell edits
 pub mod array_text_loop_session_plan; // MIR-owned proof plans for loop-local array text sessions
@@ -33,7 +30,6 @@ pub mod array_text_loopcarry_plan; // MIR-owned route plans for active array/tex
 pub mod array_text_observer_plan; // MIR-owned route plans for generic array/text read-side observers
 pub mod array_text_observer_region_contract; // Nested executor contract for observer-store regions
 pub mod array_text_residence_session_plan; // MIR-owned residence session route plans
-pub mod array_text_state_residence_plan; // MIR-owned route plan for generic array/text state residence
 pub(crate) mod backend_capability; // shared MIR backend capability gate
 pub mod basic_block;
 pub mod boxed_sum_abi_plan; // boxed runtime ABI plans for native enum transport
@@ -100,7 +96,6 @@ pub(crate) use compiler::canonical_source_identity::CanonicalSourceBytesDigestV1
 pub(crate) use compiler::normal_source_plan;
 pub mod cfg_extractor; // Phase 154: CFG extraction for hako_check
 pub(crate) mod checked_callout; // canonical MIR-owned checked Normal/Fault callout vocabulary
-pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod control_form;
 pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
@@ -143,7 +138,6 @@ pub mod global_call_route_plan; // MIR-owned unsupported global user-call route 
 pub mod hako_alloc_aligned_small_packed_store_pilot; // MIR-owned C210 aligned-small metadata packed-store pilot
 pub mod hako_alloc_huge_page_packed_store_pilot; // MIR-owned C211 huge-page metadata packed-store pilot
 pub mod hotcore_method_summary; // MIR-owned summaries for selected direct-exact hot-core callees
-pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub(crate) mod inline_leaf; // shared narrow leaf inline shape contract for optimizer/verifier
 pub mod inline_plan; // MIR-owned InlinePlan metadata derived from rune hints
 pub(crate) mod instance_constructor_abi; // shared source N / physical N+1 constructor ABI
@@ -224,12 +218,9 @@ pub(crate) mod string_dead_text_call_shape; // private call-shape matcher for de
 pub mod string_dead_text_region_plan; // MIR-owned dead text-region plans for substring concat loops
 pub mod string_direct_set_window_plan; // MIR-owned string direct-set source-window route plans
 pub mod string_kernel_plan; // backend-consumable string plan seam derived from corridor candidates
-pub mod substring_views_micro_seed_plan; // MIR-owned route plan for temporary substring views micro seed bridge
 pub mod sum_placement; // sum-local proving slice for later generic placement/effect pass
 pub mod sum_placement_layout; // LLVM-side payload-lane choices for selected local sums
 pub mod sum_placement_selection; // selection pilot over sum-local placement facts
-pub mod sum_variant_project_seed_plan; // MIR-owned route plan for temporary Sum variant_project exact seed bridge
-pub mod sum_variant_tag_seed_plan; // MIR-owned route plan for temporary Sum variant_tag exact seed bridge
 pub mod thin_entry; // thin-entry inventory for known local routes
 pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
 pub(crate) mod type_contracts; // Language v1 annotation guarantee matrix/proof vocabulary
@@ -238,9 +229,6 @@ pub(crate) mod typed_array_backend_capability;
 pub mod typed_object_plan; // MIR-owned typed user-object layout plans for EXE lowering
 pub mod types; // core MIR enums (ConstValue, Ops, MirType)
 pub mod user_box_method_route_plan; // MIR-owned route plans for typed user-box method calls
-pub mod userbox_known_receiver_method_seed_plan; // MIR-owned route plan for temporary UserBox known-receiver method exact seeds
-pub mod userbox_local_scalar_seed_plan; // MIR-owned route plan for temporary UserBox local scalar exact seeds
-pub mod userbox_loop_micro_seed_plan; // MIR-owned route plan for temporary UserBox loop micro exact seeds
 pub mod utils; // Phase 15 control flow utilities for root treatment
 pub mod value_consumer; // generic consumer capability facts for backend emitters
 pub mod value_id;
@@ -278,21 +266,11 @@ pub use hakorune_mir_core::{BasicBlockId, BindingId, LocalSlotId};
 pub use agg_local_scalarization::{
     refresh_function_agg_local_scalarization_routes, refresh_module_agg_local_scalarization_routes,
 };
-pub use array_getset_micro_seed_plan::{
-    refresh_function_array_getset_micro_seed_route, refresh_module_array_getset_micro_seed_routes,
-};
-pub use array_rmw_add1_leaf_seed_plan::{
-    refresh_function_array_rmw_add1_leaf_seed_route, refresh_module_array_rmw_add1_leaf_seed_routes,
-};
 pub use array_rmw_window_plan::{
     refresh_function_array_rmw_window_routes, refresh_module_array_rmw_window_routes,
 };
 pub use array_string_len_window_plan::{
     refresh_function_array_string_len_window_routes, refresh_module_array_string_len_window_routes,
-};
-pub use array_string_store_micro_seed_plan::{
-    refresh_function_array_string_store_micro_seed_route,
-    refresh_module_array_string_store_micro_seed_routes,
 };
 pub use array_text_combined_region_plan::{
     refresh_function_array_text_combined_region_routes,
@@ -311,14 +289,6 @@ pub use array_text_observer_plan::{
 pub use array_text_residence_session_plan::{
     refresh_function_array_text_residence_session_routes,
     refresh_module_array_text_residence_session_routes,
-};
-pub use array_text_state_residence_plan::{
-    refresh_function_array_text_state_residence_route,
-    refresh_module_array_text_state_residence_routes,
-};
-pub use concat_const_suffix_micro_seed_plan::{
-    refresh_function_concat_const_suffix_micro_seed_route,
-    refresh_module_concat_const_suffix_micro_seed_routes,
 };
 pub use definitions::Callee; // Unified call definitions
 pub use effect::{Effect, EffectMask};
@@ -372,22 +342,12 @@ pub use string_kernel_plan::{
     derive_string_kernel_plan, infer_string_kernel_text_consumer,
     refresh_function_string_kernel_plans, refresh_module_string_kernel_plans,
 };
-pub use substring_views_micro_seed_plan::{
-    refresh_function_substring_views_micro_seed_route,
-    refresh_module_substring_views_micro_seed_routes,
-};
 pub use sum_placement::{refresh_function_sum_placement_facts, refresh_module_sum_placement_facts};
 pub use sum_placement_layout::{
     refresh_function_sum_placement_layouts, refresh_module_sum_placement_layouts,
 };
 pub use sum_placement_selection::{
     refresh_function_sum_placement_selections, refresh_module_sum_placement_selections,
-};
-pub use sum_variant_project_seed_plan::{
-    refresh_function_sum_variant_project_seed_route, refresh_module_sum_variant_project_seed_routes,
-};
-pub use sum_variant_tag_seed_plan::{
-    refresh_function_sum_variant_tag_seed_route, refresh_module_sum_variant_tag_seed_routes,
 };
 pub use thin_entry::{
     refresh_function_thin_entry_candidates, refresh_module_thin_entry_candidates,
@@ -400,14 +360,6 @@ pub use types::{
 };
 pub use user_box_method_route_plan::{
     refresh_function_user_box_method_routes, refresh_module_user_box_method_routes,
-};
-pub use userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes;
-pub use userbox_local_scalar_seed_plan::{
-    refresh_function_userbox_local_scalar_seed_route,
-    refresh_module_userbox_local_scalar_seed_routes,
-};
-pub use userbox_loop_micro_seed_plan::{
-    refresh_function_userbox_loop_micro_seed_route, refresh_module_userbox_loop_micro_seed_routes,
 };
 pub use value_consumer::{
     refresh_function_value_consumer_facts, refresh_module_value_consumer_facts,

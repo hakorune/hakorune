@@ -57,4 +57,4 @@ cat "$manifest_out"
 
 mir_metadata_catalog_check_all
 
-echo "[$TAG] ok module_keys=14 seed_keys=11"
+echo "[$TAG] ok module_keys=14 seed_keys=1"

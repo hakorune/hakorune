@@ -306,38 +306,6 @@ pub(crate) mod test_support {
             proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
         }
     }
-
-    pub(crate) fn kilo_leaf_inner_route() -> ArrayRmwWindowRoute {
-        ArrayRmwWindowRoute {
-            block: BasicBlockId::new(23),
-            instruction_index: 8,
-            array_value: ValueId::new(49),
-            index_value: ValueId::new(45),
-            input_value: ValueId::new(32),
-            const_value: ValueId::new(55),
-            result_value: ValueId::new(53),
-            set_instruction_index: 13,
-            array_write_site_id: ArrayWriteSiteId::new(1),
-            skip_instruction_indices: vec![9, 10, 11, 12, 13],
-            proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
-        }
-    }
-
-    pub(crate) fn kilo_getset_inner_route() -> ArrayRmwWindowRoute {
-        ArrayRmwWindowRoute {
-            block: BasicBlockId::new(23),
-            instruction_index: 7,
-            array_value: ValueId::new(55),
-            index_value: ValueId::new(51),
-            input_value: ValueId::new(36),
-            const_value: ValueId::new(61),
-            result_value: ValueId::new(59),
-            set_instruction_index: 12,
-            array_write_site_id: ArrayWriteSiteId::new(1),
-            skip_instruction_indices: vec![8, 9, 10, 11, 12],
-            proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
-        }
-    }
 }
 
 #[cfg(test)]
@@ -393,7 +361,6 @@ mod tests {
         assert_eq!(route.set_instruction_index, 6);
         assert_eq!(route.skip_instruction_indices, vec![3, 4, 5, 6]);
     }
-
 
     #[test]
     fn array_rmw_rejects_unproven_update_windows() {

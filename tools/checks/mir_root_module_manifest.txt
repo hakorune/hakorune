@@ -9,17 +9,14 @@ agg_local_scalarization	pub	none
 analysis	pub	none
 aot_plan_import	pub	feature
 array_element_write	pub(crate)	none
-array_getset_micro_seed_plan	pub	none
 array_receiver_proof	pub(crate)	none
 array_record_autouse_eligibility	pub	none
 array_record_backend_capability	pub(crate)	none
 array_record_materialization_boundary	pub	none
 array_record_packed_autouse_pilot	pub	none
 array_record_storage_plan	pub	none
-array_rmw_add1_leaf_seed_plan	pub	none
 array_rmw_window_plan	pub	none
 array_string_len_window_plan	pub	none
-array_string_store_micro_seed_plan	pub	none
 array_text_combined_region_plan	pub	none
 array_text_edit_plan	pub	none
 array_text_loop_session_plan	pub	none
@@ -27,7 +24,6 @@ array_text_loopcarry_plan	pub	none
 array_text_observer_plan	pub	none
 array_text_observer_region_contract	pub	none
 array_text_residence_session_plan	pub	none
-array_text_state_residence_plan	pub	none
 backend_capability	pub(crate)	none
 basic_block	pub	none
 boxed_sum_abi_plan	pub	none
@@ -43,7 +39,6 @@ checked_callout	pub(crate)	none
 compile_target_capability	pub	none
 compile_timing	pub(crate)	none
 compiler	private	none
-concat_const_suffix_micro_seed_plan	pub	none
 contracts	pub	none
 control_form	pub	none
 core_method_op	pub	none
@@ -89,7 +84,6 @@ hako_alloc_aligned_small_packed_store_pilot	pub	none
 hako_alloc_huge_page_packed_store_pilot	pub	none
 hotcore_method_summary	pub	none
 if_recipe_contract	pub(crate)	none
-indexof_search_micro_seed_plan	pub	none
 inline_leaf	pub(crate)	none
 inline_plan	pub	none
 instance_constructor_abi	pub(crate)	none
@@ -176,12 +170,9 @@ string_dead_text_call_shape	pub(crate)	none
 string_dead_text_region_plan	pub	none
 string_direct_set_window_plan	pub	none
 string_kernel_plan	pub	none
-substring_views_micro_seed_plan	pub	none
 sum_placement	pub	none
 sum_placement_layout	pub	none
 sum_placement_selection	pub	none
-sum_variant_project_seed_plan	pub	none
-sum_variant_tag_seed_plan	pub	none
 test_support	pub(crate)	test
 thin_entry	pub	none
 thin_entry_selection	pub	none
@@ -191,9 +182,6 @@ typed_array_backend_capability	pub(crate)	none
 typed_object_plan	pub	none
 types	pub	none
 user_box_method_route_plan	pub	none
-userbox_known_receiver_method_seed_plan	pub	none
-userbox_local_scalar_seed_plan	pub	none
-userbox_loop_micro_seed_plan	pub	none
 utils	pub	none
 value_consumer	pub	none
 value_id	pub	none
