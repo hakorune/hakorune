@@ -141,15 +141,20 @@ link dlsym remain separate compatibility owners.
   legacy call metadata, including wrong-arity rejection before object output.
   This is physical-consumer evidence, not constructor source-to-EXE proof.
 - Selected lifecycle compilation consumes one completed physical-v2 input through
-  `hako_llvmc_compile_published_lifecycle_physical_v4`. The V2 frame/companion
+  `hako_llvmc_compile_published_lifecycle_physical_v4_with_options`. The old
+  four-argument symbol forwards O0 to the same compiler. The lifecycle target
+  session verifies IR and matches its triple and data layout. When level 1 is
+  requested, the session runs LLVM 18's `default<O1>` and verifies the result
+  again before the TargetMachine emits the object. The V2 frame/companion
   and V3 pending ingress are retired; static V1 remains unchanged. Finalization
   owns the source handoff, admission and storage profile. Its published view
   borrows the products and observes lifecycle presence without retaining another
   instruction-coordinate array or activating itself. Generic views stay fenced.
   Set `NYASH_LLVM_ROUTE_TRACE=1` to opt into one
   `stage=lifecycle-v4-measure` line per invocation. It reports parse/V2/V4/
-  emission/library-object timings and invocation-local index counts; the line is
-  diagnostic-only and the default route emits nothing.
+  emission/library-object timings, invocation-local index counts, requested and
+  effective optimization levels, and the LLVM module verification count. The
+  trace is diagnostic-only and opt-in.
 - The call-local physical-v2 parser checks structure/SSA, function/block/value/
   layout, Birth, PHI, invoke/frame and CFG references without source-name repair.
   Its private `hako_llvmc_ffi_physical_diagnostic_sites.inc` owns checked-site

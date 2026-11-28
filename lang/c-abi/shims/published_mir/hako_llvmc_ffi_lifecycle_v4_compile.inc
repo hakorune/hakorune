@@ -146,11 +146,12 @@ static void lv4_measure_v2_census(yyjson_val* root,
 }
 
 static void lv4_emit_measurement(const hako_llvmc_lifecycle_measurement* measurement,
-    int result) {
+    const hako_lts_session* session, int result) {
   char extra[1024];
   if (!measurement || !measurement->enabled) return;
   snprintf(extra, sizeof(extra),
       "input_revision=hako.published-lifecycle-physical-program.v2;profile=%u;native=%d;target=%s;toolchain=llvm-c-api;"
+      "requested_opt_level=%u;effective_opt_level=%u;llvm_verify_count=%u;"
       "index_lifetime=invocation;parse_ns=%llu;v2_ns=%llu;v4_ns=%llu;emit_ns=%llu;library_emit_ns=%llu;"
       "v2_functions=%llu;v2_blocks=%llu;v2_rows=%llu;"
       "v4_index_functions=%llu;v4_index_blocks=%llu;v4_index_values=%llu;"
@@ -159,6 +160,7 @@ static void lv4_emit_measurement(const hako_llvmc_lifecycle_measurement* measure
       "v4_type_lookups=%llu;v4_layout_lookups=%llu",
       measurement->profile, measurement->native,
       measurement->target_triple[0] ? measurement->target_triple : "unknown",
+      session->requested_opt_level, session->effective_opt_level, session->verify_count,
       (unsigned long long)measurement->parse_ns,
       (unsigned long long)measurement->v2_ns,
       (unsigned long long)measurement->v4_ns,
@@ -227,9 +229,15 @@ static int lv4_direct_target_matches(const hako_lv4_input* in, const hako_lts_se
 }
 
 __attribute__((visibility("default")))
-int hako_llvmc_compile_published_lifecycle_physical_v4(
+int hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
     const char* json_in, const hako_llvmc_lifecycle_target_session_v2* abi,
-    const char* obj_out, char** error) {
+    const hako_llvmc_lifecycle_options_v1* options, const char* obj_out, char** error) {
+  if (!options) return set_err_owned(error, "[freeze:contract][compile-options/null]");
+  if (options->revision != HAKO_LLVMC_LIFECYCLE_OPTIONS_REVISION ||
+      options->byte_size != sizeof(*options))
+    return set_err_owned(error, "[freeze:contract][compile-options/revision-size]");
+  if (options->opt_level > 3u)
+    return set_err_owned(error, "[freeze:contract][compile-options/opt-level]");
 #if defined(_WIN32)
   return set_err_owned(error, "[freeze:contract][published-lifecycle-v4/platform]");
 #else
@@ -244,6 +252,7 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
   const char* failure = "input";
   uint64_t started;
   measurement.enabled = hako_llvmc_route_trace_enabled();
+  session.requested_opt_level = options->opt_level;
   if (!json_in || !json_in[0] || !obj_out || !obj_out[0]) goto done;
   started = hako_llvmc_measure_now_ns();
   doc = yyjson_read_file(json_in, 0, NULL, NULL);
@@ -261,7 +270,7 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
   started = hako_llvmc_measure_now_ns();
   int v4_result = lv4_admit(yyjson_doc_get_root(doc), &input, error);
   measurement.v4_ns = hako_llvmc_measure_now_ns() - started;
-  if (v4_result != 0 || hako_lts_open(abi, &session, error) != 0) {
+  if (v4_result != 0 || hako_lts_open(abi, options->opt_level, &session, error) != 0) {
     failure = NULL; goto done;
   }
   for (size_t li = 0; li < input.layout_count; li++)
@@ -315,10 +324,10 @@ done:
   if (fd >= 0) close(fd);
   if (ll) { if (ll_owned) unlink(ll); free(ll); }
   if (object) { if (object_owned) unlink(object); free(object); }
-  hako_lts_close(&session);
   lv4_index_close(&input);
   if (doc) yyjson_doc_free(doc);
-  lv4_emit_measurement(&measurement, rc);
+  lv4_emit_measurement(&measurement, &session, rc);
+  hako_lts_close(&session);
   if (rc != 0 && failure) {
     char message[128];
     snprintf(message, sizeof(message), "[freeze:contract][published-lifecycle-v4/%s]", failure);
@@ -326,4 +335,15 @@ done:
   }
   return rc;
 #endif
+}
+
+__attribute__((visibility("default")))
+int hako_llvmc_compile_published_lifecycle_physical_v4(
+    const char* json_in, const hako_llvmc_lifecycle_target_session_v2* abi,
+    const char* obj_out, char** error) {
+  const hako_llvmc_lifecycle_options_v1 options = {
+      HAKO_LLVMC_LIFECYCLE_OPTIONS_REVISION, sizeof(options), 0u,
+  };
+  return hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+      json_in, abi, &options, obj_out, error);
 }

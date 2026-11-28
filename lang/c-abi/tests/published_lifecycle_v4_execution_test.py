@@ -34,8 +34,8 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
         assert not list(work.glob("pair.o.*")), "temporary artifact leak"
         return r
 
-    def link():
-        checked(["cc", obj, TESTS / "published_lifecycle_v4_runtime_probe.c", archive,
+    def link(selected=obj):
+        checked(["cc", selected, TESTS / "published_lifecycle_v4_runtime_probe.c", archive,
                  *["-Wl,--wrap=nyash." + name + "_v1" for name in wraps],
                  "-lpthread", "-ldl", "-lm", "-o", exe])
 
@@ -48,8 +48,24 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
         else:
             assert "FAULT " not in r.stdout, (mode, r)
         print(mode, status, counts)
+        return r.returncode, r.stdout, r.stderr
 
-    compile_input(issued)
+    def compile_levels(data):
+        path = work / "input.json"
+        path.write_text(json.dumps(data))
+        explicit, optimized, invalid = (work / name for name in ("o0.o", "o1.o", "invalid.o"))
+        r = checked([driver, path, obj, explicit, optimized, invalid],
+                    env=dict(env, NYASH_LLVM_ROUTE_TRACE="1"))
+        traces = [line for line in r.stderr.splitlines() if "stage=lifecycle-v4-measure" in line]
+        assert len(traces) == 3, traces
+        for trace, level, count in zip(traces, (0, 0, 1), (1, 1, 2)):
+            assert f"requested_opt_level={level};effective_opt_level={level};llvm_verify_count={count};" in trace, trace
+        assert checked(["readelf", "-x", ".text", obj]).stdout == checked(
+            ["readelf", "-x", ".text", explicit]).stdout
+        assert not invalid.exists()
+        return optimized
+
+    compile_levels(issued)
     assert "Advanced Micro Devices X86-64" in checked(["readelf", "-h", obj]).stdout
     link()
     execute("normal", 30, "1 2 1 0 0 1")
@@ -261,22 +277,30 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
         assert len(constants) == 2
         for ins, value in zip(constants, [lhs, rhs]):
             ins["value"] = value
-        compile_input(data)
-        link()
         value = lhs + rhs
+        optimized = compile_levels(data) if value == 400 else None
+        if optimized is None:
+            compile_input(data)
+        link()
         if 0 <= value <= 255:
             execute("normal", value, "1 2 1 0 0 1")
         else:
-            execute("normal", 70, "1 2 1 0 1 1",
-                    f"FAULT 102 {data['process_result_site']} {value} 0 HOME 1 RECLAIM 0")
+            fault = f"FAULT 102 {data['process_result_site']} {value} 0 HOME 1 RECLAIM 0"
+            before = execute("normal", 70, "1 2 1 0 1 1", fault)
+            if optimized is not None:
+                link(optimized)
+                assert execute("normal", 70, "1 2 1 0 1 1", fault) == before
 
     # Same unspecialized Birth, actual source-issued Bool values at either store.
     for index, data in enumerate(bool_inputs):
         assert data["functions"][1] == bool_inputs[0]["functions"][1]
-        compile_input(data)
+        optimized = compile_levels(data)
+        fault = f"FAULT 103 {sites[index]} 1 2 HOME 0 RECLAIM 1"
+        counts = f"1 {index} 0 1 1 1"
         link()
-        execute("normal", 70, f"1 {index} 0 1 1 1",
-                f"FAULT 103 {sites[index]} 1 2 HOME 0 RECLAIM 1")
+        before = execute("normal", 70, counts, fault)
+        link(optimized)
+        assert execute("normal", 70, counts, fault) == before
 
     # Tagged FieldSet expands one physical Fault edge into type/store failures.
     # Both must enter the same forwarding predecessor of the scalar PHI.

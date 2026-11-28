@@ -372,7 +372,8 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 | `NYASH_LLVM_PHI_STRICT=1` | OFF | PHI の default-zero フォールバックを禁止し、incoming miss を即エラー化 |
 | `NYASH_LLVM_FAST=1/on/true/yes` | OFF | C LLVM compile invocation がFASTの文字列定数処理を選ぶ。値はcompile開始時に一度だけ取得し、空文字・大文字・接尾辞付き値はOFF。 |
 | `NYASH_LLVM_FAST_NATIVE=1` | ON (`NYASH_LLVM_FAST=1` 時) | FAST lane の target machine を host CPU/features 向けに調整する（perf 向け）。`0` で generic target を強制。 |
-| `NYASH_LLVM_OPT_LEVEL=0..3` | `2` | LLVM | llvmlite codegen の最適化レベル。`HAKO_LLVM_OPT_LEVEL` は互換 alias（未指定時のみ参照）。 |
+| `NYASH_LLVM_OPT_LEVEL=0..3` | `2` | llvmlite codegen の最適化レベル。`HAKO_LLVM_OPT_LEVEL` は互換 alias（未指定時のみ参照）。 |
+| `HAKO_LLVM_OPT_LEVEL=0..3` / `NYASH_LLVM_OPT_LEVEL=0..3`（lifecycle V4） | `0` | Rust の明示 `Opts.opt_level` が優先。明示がなければ両変数を照合し、不一致は `compile-options/opt-level-alias-conflict`。段 1 は `default<O1>` と codegen `Less`、段 0・2・3 は IR pass なしと codegen `None`。 |
 
 ### 使用例
 

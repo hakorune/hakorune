@@ -215,7 +215,8 @@ fn lifecycle_capi_wrapper_keeps_unique_input_through_success_and_failure_inner()
     let ffi_path = workspace.path().join("liblifecycle_stub.so");
     fs::write(
         &source_path,
-        r#"#include <stdio.h>
+        r#"#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -239,9 +240,16 @@ static void copy_input(const char* input) {
   if (out) fclose(out);
 }
 
-int hako_llvmc_compile_published_lifecycle_physical_v4(
-    const char* input, const void* row, const char* output, char** err_out) {
+typedef struct {
+  uint32_t revision, byte_size, opt_level;
+} lifecycle_options_v1;
+
+int hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+    const char* input, const void* row, const lifecycle_options_v1* options,
+    const char* output, char** err_out) {
   (void)row;
+  if (!options || options->revision != 1u ||
+      options->byte_size != sizeof(*options) || options->opt_level != 1u) return 3;
   copy_input(input);
   if (getenv("HAKO_LIFECYCLE_MODE") &&
       strcmp(getenv("HAKO_LIFECYCLE_MODE"), "fail") == 0) {
@@ -286,6 +294,8 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
             ("HAKO_AOT_FFI_LIB", Some(ffi_text.as_str())),
             ("HAKO_LIFECYCLE_RECORD_PATH", Some(record_text.as_str())),
             ("HAKO_LIFECYCLE_MODE", Some("success")),
+            ("HAKO_LLVM_OPT_LEVEL", Some("2")),
+            ("NYASH_LLVM_OPT_LEVEL", Some("3")),
         ],
         || {
             let parsed =
@@ -314,10 +324,14 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
                         super::super::lifecycle_invocation::LifecycleInvocationInputV1::bind(
                             physical, &session,
                         )?;
+                    let opts = super::super::boundary_default_object_opts(
+                        None, None, Some("1".into()), None,
+                    );
                     let success_output = workspace.path().join("success.o");
                     super::super::capi_transport::compile_published_lifecycle_physical_v4(
                         &input,
                         &success_output,
+                        &opts,
                     )?;
                     assert!(success_output.is_file());
                     assert_input_was_consumed_and_dropped(&record);
@@ -328,6 +342,7 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
                         super::super::capi_transport::compile_published_lifecycle_physical_v4(
                             &input,
                             &failure_output,
+                            &opts,
                         )
                         .expect_err("controlled lifecycle C failure must return");
                     assert!(error.contains("controlled lifecycle failure"), "{error}");

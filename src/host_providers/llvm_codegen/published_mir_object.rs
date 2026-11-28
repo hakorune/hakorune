@@ -101,7 +101,8 @@ fn compile_published_view_object<'session>(
             input,
             lifecycle_session.expect("checked lifecycle session"),
         )?;
-        capi_transport::compile_published_lifecycle_physical_v4(&input, Path::new(obj_out))?;
+        let opts = boundary_default_object_opts(None, None, None, None);
+        capi_transport::compile_published_lifecycle_physical_v4(&input, Path::new(obj_out), &opts)?;
         return Ok(Some(input.runtime_archive()));
     }
     crate::mir::backend_capability::enforce_published_backend_supported(view, "ny-llvmc-obj")?;

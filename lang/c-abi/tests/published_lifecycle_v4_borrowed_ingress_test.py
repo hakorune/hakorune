@@ -421,16 +421,30 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
 
     for owned, result_kind in [(False, 'i64'), (True, 'i64'), (True, 'unit'), (True, 'bool')]:
         data, text = borrowed_text_graph(owned, result=result_kind)
-        compile_input(data)
-        checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
-                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps + ['string.checked_end', 'string.checked_print', 'string.checked_add']],
-                 '-lpthread', '-ldl', '-lm', '-o', exe])
-        for mode, expected_exit in [('normal', 7), ('fault-first', 70)]:
-            result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE=mode), capture_output=True, text=True)
-            assert result.returncode == expected_exit, (owned, mode, result)
-            assert text + '\n' in result.stdout, (owned, mode, result)
-            assert 'TEXT_ENDS ' + str(int(owned)) + '\n' in result.stdout, result
-            assert ('COUNTS 1 1 1 0 ' + ('1' if mode == 'fault-first' else '0') + ' 1\n') in result.stdout, result
+        objects = [obj]
+        if owned and result_kind == 'i64':
+            path = work / 'input.json'
+            path.write_text(json.dumps(data))
+            explicit, optimized, invalid = (work / name for name in ('o0.o', 'o1.o', 'invalid.o'))
+            checked([driver, path, obj, explicit, optimized, invalid], env=ENV)
+            objects.append(optimized)
+        else:
+            compile_input(data)
+        observations = []
+        for selected in objects:
+            checked(['cc', '-DHAKO_TEST_BORROWED_TEXT', selected, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                     *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps + ['string.checked_end', 'string.checked_print', 'string.checked_add']],
+                     '-lpthread', '-ldl', '-lm', '-o', exe])
+            modes = []
+            for mode, expected_exit in [('normal', 7), ('fault-first', 70)]:
+                result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE=mode), capture_output=True, text=True)
+                assert result.returncode == expected_exit, (owned, mode, result)
+                assert text + '\n' in result.stdout, (owned, mode, result)
+                assert 'TEXT_ENDS ' + str(int(owned)) + '\n' in result.stdout, result
+                assert ('COUNTS 1 1 1 0 ' + ('1' if mode == 'fault-first' else '0') + ' 1\n') in result.stdout, result
+                modes.append((result.returncode, result.stdout, result.stderr))
+            observations.append(modes)
+        assert all(result == observations[0] for result in observations)
         for mutation in ['numeric4', 'scalar-incoming', 'scalar-operand', 'forged-pointer', 'object-view', 'lost-domain',
                          'false-domain', 'end', 'escape', 'arithmetic', 'store']:
             changed = copy.deepcopy(data)

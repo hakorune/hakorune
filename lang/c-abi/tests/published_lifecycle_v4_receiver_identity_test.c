@@ -6,6 +6,9 @@
 #include "../include/hako_llvmc_ffi.h"
 #include "../../../include/nyrt_fault_v1.h"
 
+static const hako_llvmc_lifecycle_options_v1 options = {
+  HAKO_LLVMC_LIFECYCLE_OPTIONS_REVISION, sizeof(options), 0u,
+};
 static const char* input_path = "/tmp/hako-lifecycle-v4-receiver-identity.json";
 static const char* output_path = "/tmp/hako-lifecycle-v4-receiver-identity.o";
 
@@ -55,8 +58,8 @@ int main(void) {
     .outcome_size = 32, .outcome_align = 8, .outcome_revision = 1,
   };
   char* error = NULL;
-  int rc = hako_llvmc_compile_published_lifecycle_physical_v4(
-      input_path, &session, output_path, &error);
+  int rc = hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+      input_path, &session, &options, output_path, &error);
   assert(rc == 0);
   assert(error == NULL);
   free(error);
@@ -69,8 +72,8 @@ int main(void) {
   write_input(json);
   remove(output_path);
   error = NULL;
-  rc = hako_llvmc_compile_published_lifecycle_physical_v4(
-      input_path, &session, output_path, &error);
+  rc = hako_llvmc_compile_published_lifecycle_physical_v4_with_options(
+      input_path, &session, &options, output_path, &error);
   assert(rc != 0);
   assert(error != NULL);
   assert(strstr(error,
