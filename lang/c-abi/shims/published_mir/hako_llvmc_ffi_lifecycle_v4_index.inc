@@ -15,6 +15,7 @@ typedef struct {
   size_t ordinal;
   yyjson_val* block;
   unsigned char* tagged_fault_with_cleanup;
+  size_t map_support;
 } hako_lv4_block;
 
 typedef struct hako_lv4_function_index {
@@ -28,6 +29,7 @@ typedef struct hako_lv4_function_index {
   uint32_t return_object;
   int return_object_state;
   int has_text_carriers, has_owned_parameters;
+  int has_map_support, has_map_views;
   /* Sibling table and the scalar-leaf fact: a body whose only effects are
      scalar field reads/writes can never mutate a Map slot or any residence. */
   const struct hako_lv4_function_index* peers;
@@ -582,7 +584,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     for (size_t bi = 0; bi < fn->block_count; bi++) {
       yyjson_val* block = yyjson_arr_get(blocks, bi);
       yyjson_val* rows = yyjson_obj_get(block, "instructions");
-      fn->blocks[bi] = (hako_lv4_block){lv4_u(block, "id"), bi, block, NULL};
+      fn->blocks[bi] = (hako_lv4_block){.id = lv4_u(block, "id"), .ordinal = bi, .block = block};
       for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
         yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
         yyjson_val* dst = hako_physical_instruction_dst(ins);

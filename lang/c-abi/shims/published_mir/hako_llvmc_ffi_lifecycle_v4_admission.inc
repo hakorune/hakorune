@@ -380,7 +380,7 @@ static int lv4_indexed_admit(hako_lv4_input* in, char** error) {
     if (!entry || frames > 1 || (!fi && frames != 1) ||
         lv4_pred_count(fn, entry->id)) return 0;
     if (!lv4_declared_read_effects(fn)) return 0;
-    if (!lv4_work_open(&work, count, lv4_state_count(fn), entry->ordinal)) return 0;
+    if (!lv4_work_open(&work, count, lv4_map_support_stride(fn), entry->ordinal)) return 0;
     for (size_t vi = 0; vi < fn->value_count; vi++) {
       hako_lv4_value* value = &fn->values[vi];
       if (lv4_owned_parameter_object(in, fn, value))

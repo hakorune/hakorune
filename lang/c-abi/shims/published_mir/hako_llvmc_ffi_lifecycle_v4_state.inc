@@ -14,6 +14,8 @@ static int lv4_state_empty(const hako_lv4_state* state, size_t count) {
 #define LV4_DYNAMIC_CARRIER_LIVE (UINT64_C(5) << 32)
 #define LV4_CARRIER_ARRAY_LIVE (UINT64_C(6) << 32)
 #define LV4_SHARED_BORROW_LIVE (UINT64_C(7) << 32)
+/* Stays an outstanding view obligation, but cannot be read. */
+#define LV4_MAP_VIEW_EXPIRED (UINT64_C(8) << 32)
 
 static hako_lv4_state lv4_map_transfer(int origin) {
   return LV4_TRANSFER_BASE + (uint32_t)origin;

@@ -46,7 +46,8 @@ static int lv4_indexed_return(const hako_lv4_input* in,
     /* A live LV4_MAP lease transfers into caller-owned storage. A spent
        lease or any other value is not a valid ordinary_map result. */
     if (faulted || !result || result->kind != LV4_MAP || result->origin < 0 ||
-        state[result->origin] != LV4_LIVE) return 0;
+        state[result->origin] != LV4_LIVE ||
+        !lv4_map_support_allowed(fn, state, result->id, NULL, NULL, 1)) return 0;
     state[result->origin] = 0;
     for (size_t i = 0; i < count; i++)
       if (state[i] == lv4_map_transfer(result->origin)) state[i] = 0;
