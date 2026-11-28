@@ -340,18 +340,6 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
             err_out,
             "selected Dynamic C1 physical predecessor projection is inconsistent");
       }
-      if (!ptfc_selected &&
-          (hako_llvmc_match_indexof_line_text_state_residence_fn(
-               fn0, obj_out, &invocation->options) == 0 ||
-           hako_llvmc_match_indexof_leaf_text_state_residence_fn(
-               fn0, obj_out, &invocation->options) == 0)) {
-        if (ptfb_contract_bound) {
-          return set_err_owned(
-              err_out,
-              "contract-bound module cannot use a pattern emitter");
-        }
-        return 0;
-      }
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       #include "hako_llvmc_ffi_origin_kind_vocabulary.inc"
       #include "hako_llvmc_ffi_generic_pure_lowering_state.inc"

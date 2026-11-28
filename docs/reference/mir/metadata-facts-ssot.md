@@ -491,19 +491,13 @@ until each family has proof parity through the folded row.
 | Family | Current preferred reader | Compatibility fallback | Fold-up retire condition |
 | --- | --- | --- | --- |
 | string corridor route windows | `placement_effect_routes` rows with `source=string_corridor` and `decision=direct_kernel_entry` | `string_corridor_candidates` plan window readers | retire fallback once folded routes carry all source-root/window/proof fields needed by string concat/substring readers |
-| sum placement local aggregate | `placement_effect_routes` rows with `source=sum_placement` and `decision=local_aggregate` | `sum_placement_facts` and `sum_placement_selections` | retire fallback once selected value/source-sum/manifest-row proof parity is covered by folded routes |
-| sum local aggregate layout | `placement_effect_routes` rows with `source=agg_local_scalarization` and `decision=local_aggregate` | `sum_placement_layouts` | retire fallback once layout detail is represented by folded route detail or a generic layout route |
-| thin entry | `placement_effect_routes` rows with `source=thin_entry` and selected entry decision | `thin_entry_selections` | retire fallback once public/thin entry selection consumers no longer need family rows |
 | string direct kernels | `string_kernel_plans` | none; family-specific verified route remains active | do not fold into `placement_effect_routes` until borrow/publication/carrier/text-consumer verifier facts have an equivalent generic route shape |
 
-Current C shim anchors:
+C no longer reads the Sum placement or thin-entry selection rows. These
+rows remain available to MIR consumers.
 
-- `hako_llvmc_placement_effect_routes`
-- `hako_llvmc_has_thin_entry_selection`
-- `hako_llvmc_sum_has_thin_internal_selection`
-- `hako_llvmc_sum_has_local_aggregate_fact`
-- `hako_llvmc_sum_has_local_aggregate_selection`
-- `hako_llvmc_sum_has_layout`
+Current C shim anchor:
+
 - `hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes`
 
 Stop lines:
@@ -964,8 +958,7 @@ Selections map facts onto the currently chosen lowering path:
 
 ### `sum_placement_layouts[]`
 
-Layouts tell LLVM which local aggregate layout to use once a sum site is selected
-for the local aggregate path:
+Layouts describe the local aggregate layout of a selected Sum site:
 
 | Field | Meaning |
 | --- | --- |

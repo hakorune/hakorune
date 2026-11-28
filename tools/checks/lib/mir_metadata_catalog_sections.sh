@@ -18,8 +18,6 @@
 # - SOURCE_PACKED_AUTOUSE
 # - SOURCE_PACKED_DIRECT
 # - ARRAY_RECORD_BACKEND
-# - LLVM_COMMON_SHIM
-# - LLVM_SUM_LOCAL_SHIM
 # - LLVM_STRING_CANDIDATE_SHIM
 # - LLVM_PURE_COMPILE_SHIM
 # - PACKED_BACKEND_GUARD
@@ -378,9 +376,6 @@ mir_metadata_catalog_check_ledger_docs() {
     "Placement Effect Consumer Fold-Up Plan" \
     "Family rows remain compatibility fallbacks" \
     "string corridor route windows" \
-    "sum placement local aggregate" \
-    "sum local aggregate layout" \
-    "thin entry" \
     "string direct kernels" \
     "verifier-equivalent generic route shape" \
     "boxed fallback disabled" \
@@ -390,12 +385,6 @@ mir_metadata_catalog_check_ledger_docs() {
   done
 
   mir_metadata_catalog_require_source_token "tools/checks/mir_metadata_catalog_guard.sh" "$INDEX"
-  mir_metadata_catalog_require_source_token "hako_llvmc_placement_effect_routes" "$LLVM_COMMON_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_has_thin_entry_selection" "$LLVM_COMMON_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_sum_has_thin_internal_selection" "$LLVM_SUM_LOCAL_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_sum_has_local_aggregate_fact" "$LLVM_SUM_LOCAL_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_sum_has_local_aggregate_selection" "$LLVM_SUM_LOCAL_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_sum_has_layout" "$LLVM_SUM_LOCAL_SHIM"
   mir_metadata_catalog_require_source_token "hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes" "$LLVM_STRING_CANDIDATE_SHIM"
 }
 

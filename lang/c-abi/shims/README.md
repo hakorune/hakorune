@@ -256,10 +256,6 @@ link dlsym remain separate compatibility owners.
 - `native_ptr_*` spelling may appear only in MIR-owned LoweringPlan/extern-route
   consumers. Raw shared C ABI implementation shims must not infer runtime-decl
   native pointer row semantics from those names.
-- `hako_llvmc_ffi_user_box_micro_seed*.inc` is a legacy exact-seed exception
-  for old narrow fixtures. Do not extend it for real-app bringup; migrate or
-  retire rows into TypedObjectPlan / LoweringPlan-owned facts instead. See
-  [`LEGACY_RETIREMENT.md`](LEGACY_RETIREMENT.md).
 - Same-module `.inc` partitions may publish backend-local register type/origin
   facts from metadata, but MIRBuilder owns the semantic truth that produces
   those facts.
@@ -348,18 +344,9 @@ Current partitions:
   - thin facade include for loop/string hot-path seed families
 - `hako_llvmc_ffi_string_loop_seed_emitters.inc`
   - exact LLVM IR emitters shared by the loop/string pure-first seed families
-- `hako_llvmc_ffi_string_loop_seed_views_only.inc`
-  - metadata reader plus temporary exact emitter for `kilo_micro_substring_views_only`
-  - borrowed-slice windows are MIR-owned `StringKernelPlan` data; exact source/loop proof is `substring_views_micro_seed_route`
 - `hako_llvmc_ffi_string_loop_seed_substring_concat.inc`
   - substring-concat exact matcher family
   - consumes MIR `StringKernelPlan.loop_payload` and `stable_length_scalar` relation metadata; do not regrow raw block scanners here
-- `hako_llvmc_ffi_array_string_store_seed.inc`
-  - pure-first seed metadata reader and emitter for the exact array/string-store micro path
-  - temporary bridge surface only; route-shape proof is MIR-owned `array_string_store_micro_seed_route`
-- `hako_llvmc_ffi_indexof_text_state_residence.inc`
-  - temporary text-state residence emitter for current indexOf micro fronts
-  - consumes MIR `array_text_state_residence_route`; do not regrow search route dispatch or raw block scanners here
 - `hako_llvmc_ffi_array_text_loop_session_metadata.inc`
   - metadata reader for MIR `array_text_loop_session_plans` and
     `array_text_indexof_const_region_plans`
@@ -368,36 +355,6 @@ Current partitions:
   - metadata reader for MIR `string_dead_text_region_plans`
   - validates the dead-text region arithmetic and no-publication contract only;
     it does not emit substring-concat region lowering
-- `hako_llvmc_ffi_array_micro_seed.inc`
-  - pure-first seed metadata reader and emitter for array get/set micro paths
-  - route-shape proof is MIR-owned `array_getset_micro_seed_route`; do not regrow raw block scanners here
-- `hako_llvmc_ffi_user_box_micro_seed.inc`
-  - pure-first seed emit/match helpers for the narrow typed user-box local scalar and point-add / flag-toggle micro paths
-  - now partitioned further into `hako_llvmc_ffi_user_box_micro_seed_helpers.inc` plus typed family slices
-- `hako_llvmc_ffi_user_box_micro_seed_helpers.inc`
-  - shared legacy seed helpers, including route JSON open/select context helpers
-  - owns boilerplate only; per-route metadata contracts stay in the typed route slices
-- `hako_llvmc_ffi_user_box_micro_seed_point_route.inc`
-  - metadata consumer for the UserBox Point local/copy scalar exact seed route
-  - consumes MIR `userbox_local_scalar_seed_route`; do not regrow raw block scanners here
-- `hako_llvmc_ffi_user_box_micro_seed_flag_pointf_route.inc`
-  - metadata consumer for the UserBox Flag/PointF local/copy scalar exact seed route
-  - consumes MIR `userbox_local_scalar_seed_route`; do not regrow raw block scanners here
-- `hako_llvmc_ffi_sum_local_seed.inc`
-  - thin facade include for local variant/sum pure-first seeds
-- `hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc`
-  - shared metadata readers for thin-entry and sum-placement local aggregate checks
-- `hako_llvmc_ffi_sum_local_seed_emitters.inc`
-  - exact local variant tag/project pure IR emitters
-- `hako_llvmc_ffi_sum_local_seed_matchers_tag.inc`
-  - metadata consumer for the Sum `variant_tag` exact seed route
-  - consumes MIR `sum_variant_tag_seed_route`; do not regrow raw block scanners here
-- `hako_llvmc_ffi_sum_local_seed_project_route.inc`
-  - metadata consumer for the Sum `variant_project` exact seed route
-  - consumes MIR `sum_variant_project_seed_route`; do not regrow raw block scanners here
-- `hako_llvmc_ffi_concat_const_suffix_seed.inc`
-  - metadata reader plus temporary exact-micro emitter for `kilo_micro_concat_const_suffix`
-  - route-shape proof is MIR-owned `concat_const_suffix_micro_seed_route`; do not regrow raw block scanners here
 - `hako_llvmc_ffi_indexof_observer_state.inc`
   - shared `indexOf` observer match/state helpers used by pure-first and probe lanes
 - `hako_llvmc_ffi_indexof_observer_direct_match.inc`

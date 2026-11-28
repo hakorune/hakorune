@@ -3289,17 +3289,11 @@
     "count": 5
    },
    "backend_consumer": {
-    "role": "selected_observed",
+    "role": "none",
     "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_common.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_common.inc:289:thin_entry_selections",
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc:52:thin_entry_selections"
-     ],
-     "count": 2
+     "owners": [],
+     "anchors": [],
+     "count": 0
     }
    },
    "reference_consumer": {
@@ -3352,15 +3346,11 @@
     "count": 3
    },
    "backend_consumer": {
-    "role": "selected_observed",
+    "role": "none",
     "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc:114:sum_placement_facts"
-     ],
-     "count": 1
+     "owners": [],
+     "anchors": [],
+     "count": 0
     }
    },
    "reference_consumer": {
@@ -3412,15 +3402,11 @@
     "count": 4
    },
    "backend_consumer": {
-    "role": "selected_observed",
+    "role": "none",
     "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc:179:sum_placement_selections"
-     ],
-     "count": 1
+     "owners": [],
+     "anchors": [],
+     "count": 0
     }
    },
    "reference_consumer": {
@@ -3473,15 +3459,11 @@
     "count": 3
    },
    "backend_consumer": {
-    "role": "selected_observed",
+    "role": "none",
     "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc:255:sum_placement_layouts"
-     ],
-     "count": 1
+     "owners": [],
+     "anchors": [],
+     "count": 0
     }
    },
    "reference_consumer": {
@@ -3662,7 +3644,7 @@
       "lang/c-abi/shims/hako_llvmc_ffi_string_metadata_fn_readers.inc"
      ],
      "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:59:string_kernel_plans",
+      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:17:string_kernel_plans",
       "lang/c-abi/shims/hako_llvmc_ffi_string_candidate_plan_readers.inc:190:string_kernel_plans"
      ],
      "count": 4
@@ -5369,7 +5351,7 @@
       "lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
      ],
      "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_dispatch.inc:19:exact_seed_backend_route",
+      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_dispatch.inc:8:exact_seed_backend_route",
       "lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc:144:exact_seed_backend_route"
      ],
      "count": 2

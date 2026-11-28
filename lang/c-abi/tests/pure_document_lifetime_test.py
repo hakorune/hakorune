@@ -34,8 +34,8 @@ invalid["functions"][0]["blocks"][0]["instructions"].insert(2, {
 cases.append(("generic-abort", json.dumps(invalid), -1, 1, "typed", "unsupported_newbox_type"))
 invalid = copy.deepcopy(body)
 invalid["functions"][0]["metadata"]["exact_seed_backend_route"] = dict(
-    tag="array_string_store_micro", source_route="array_string_store_micro_seed_route",
-    proof="kilo_micro_array_string_store_8block")
+    tag="substring_concat_loop_ascii", source_route="string_kernel_plans.loop_payload",
+    proof="string_kernel_plan_concat_triplet_loop_payload", selected_value=1)
 cases.append(("exact-seed-reject", json.dumps(invalid), -1, 1, "typed", "exact-seed route forbidden"))
 invalid = copy.deepcopy(body)
 invalid["functions"][1]["metadata"]["dynamic_v2_aot_call_admission_v2"] = {}
@@ -55,34 +55,13 @@ for label, metadata, instructions, error in (
         "callee": {"type": "Extern", "name": "nyash.console.log"}, "args": [1]}}, ret],
      "published_extern_not_allowed"),
     ("seed", {"exact_seed_backend_route": dict(
-        tag="array_string_store_micro", source_route="array_string_store_micro_seed_route",
-        proof="kilo_micro_array_string_store_8block")}, [const, ret], "exact-seed route forbidden"),
+        tag="substring_concat_loop_ascii", source_route="string_kernel_plans.loop_payload",
+        proof="string_kernel_plan_concat_triplet_loop_payload", selected_value=1)}, [const, ret], "exact-seed route forbidden"),
 ):
     value = copy.deepcopy(empty)
     value["functions"][0]["metadata"] = metadata
     value["functions"][0]["blocks"][0]["instructions"] = instructions
     cases.append(("empty-v2-" + label, json.dumps(value), -1, 1, "selected-empty-v2", error))
-# Existing metadata-selected pattern return, before definition-plan validation.
-# Deliberately malformed later plan proves that its validation was not hoisted.
-pattern = copy.deepcopy(body)
-pattern["functions"][0]["metadata"] = {
-    "same_module_function_definitions": 42,
-    "array_text_state_residence_route": {
-        "observer_kind": "indexof", "residence": "loop_local_pointer_array",
-        "result_repr": "scalar_i64", "consumer_capability": "direct_array_text_state_residence",
-        "publication_boundary": "none", "temporary_indexof_seed_payload": {
-            "variant": "leaf", "rows": 64, "ops": 400000, "flip_period": 0,
-            "line_seed": "line-seed", "line_seed_len": 9,
-            "none_seed": "none-seed", "none_seed_len": 9,
-            "needle": "line", "needle_len": 4,
-            "proof": "kilo_leaf_array_string_indexof_const_10block",
-            "result_use": "found_predicate", "backend_action": "literal_membership_predicate",
-            "candidate_outcomes": [{"literal": "line-seed", "outcome": "found"},
-                                   {"literal": "none-seed", "outcome": "not_found"}]}}}
-# A bad unrequested Named outcome must not override the earlier pattern success.
-pattern["functions"][0]["blocks"][0]["instructions"].insert(2, {
-    "op": "newbox", "dst": 2, "type": "Unsupported", "args": []})
-cases.append(("pattern-success", json.dumps(pattern), 0, 1, "generic", None))
 if len(sys.argv) > 2:
     cases.append(("source-dynamic", Path(sys.argv[2]).read_text(), 0, 1, "generic", None))
 # A copied constant can carry i1 metadata without an emitted SSA definition.
@@ -96,12 +75,11 @@ for bit in (0, 1):
             {"id": 1, "instructions": [dict(const, dst=3), dict(ret, value=3)]},
             {"id": 2, "instructions": [dict(const, dst=4, value={"type": "i64", "value": 0}), dict(ret, value=4)]}]}]}
     cases.append((f"copied-bool-branch-{bit}", json.dumps(branch), 0, 1, "generic", None))
-# Deferred storage failure: early schema/pattern terminals win, actual demand fails.
+# Deferred storage failure: earlier schema validation wins, actual demand fails.
 oom_cases = []
 for fail_at, count in ((1, 1), (2, 17)):
     for label, base, expected, mode, error in (
         ("schema", body, -1, "typed", "invalid schema_version"),
-        ("pattern", pattern, 0, "generic", None),
         ("generic-demand", body, -1, "typed", "named_outcome_storage_failed"),
         ("same-module-demand", body, -1, "typed", "named_outcome_storage_failed"),
     ):
