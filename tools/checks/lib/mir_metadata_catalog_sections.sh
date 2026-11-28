@@ -18,8 +18,6 @@
 # - SOURCE_PACKED_AUTOUSE
 # - SOURCE_PACKED_DIRECT
 # - ARRAY_RECORD_BACKEND
-# - LLVM_COMMON_SHIM
-# - LLVM_SUM_LOCAL_SHIM
 # - LLVM_STRING_CANDIDATE_SHIM
 # - LLVM_PURE_COMPILE_SHIM
 # - PACKED_BACKEND_GUARD
@@ -250,15 +248,6 @@ mir_metadata_catalog_check_seed_retirement() {
     "not CorePlan promotion candidates"
     "is a selector over already"
     "Generic replacement target"
-    "array/string micro seed"
-    "array get/set micro seed"
-    "array RMW add1 leaf seed"
-    "string const-suffix micro seed"
-    "string substring views micro seed"
-    "sum placement seed"
-    "thin-entry / typed-object seed"
-    "userbox loop micro seed"
-    "known-receiver userbox method seed"
     "string_kernel_plans.loop_payload"
     "Do not add a new seed row without an owner family"
     "Do not promote seed payloads to CorePlan ownership"
@@ -363,16 +352,6 @@ mir_metadata_catalog_check_keys() {
   done
 
   local seed_keys=(
-    array_string_store_micro_seed_route
-    array_getset_micro_seed_route
-    array_rmw_add1_leaf_seed_route
-    concat_const_suffix_micro_seed_route
-    substring_views_micro_seed_route
-    sum_variant_tag_seed_route
-    sum_variant_project_seed_route
-    userbox_local_scalar_seed_route
-    userbox_loop_micro_seed_route
-    userbox_known_receiver_method_seed_route
     exact_seed_backend_route
   )
   for key in "${seed_keys[@]}"; do
@@ -397,9 +376,6 @@ mir_metadata_catalog_check_ledger_docs() {
     "Placement Effect Consumer Fold-Up Plan" \
     "Family rows remain compatibility fallbacks" \
     "string corridor route windows" \
-    "sum placement local aggregate" \
-    "sum local aggregate layout" \
-    "thin entry" \
     "string direct kernels" \
     "verifier-equivalent generic route shape" \
     "boxed fallback disabled" \
@@ -409,12 +385,6 @@ mir_metadata_catalog_check_ledger_docs() {
   done
 
   mir_metadata_catalog_require_source_token "tools/checks/mir_metadata_catalog_guard.sh" "$INDEX"
-  mir_metadata_catalog_require_source_token "hako_llvmc_placement_effect_routes" "$LLVM_COMMON_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_has_thin_entry_selection" "$LLVM_COMMON_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_sum_has_thin_internal_selection" "$LLVM_SUM_LOCAL_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_sum_has_local_aggregate_fact" "$LLVM_SUM_LOCAL_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_sum_has_local_aggregate_selection" "$LLVM_SUM_LOCAL_SHIM"
-  mir_metadata_catalog_require_source_token "hako_llvmc_sum_has_layout" "$LLVM_SUM_LOCAL_SHIM"
   mir_metadata_catalog_require_source_token "hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes" "$LLVM_STRING_CANDIDATE_SHIM"
 }
 

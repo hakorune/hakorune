@@ -52,12 +52,6 @@ if [[ "$(count_fixed 'hako_llvmc_ptfc_count_integer_occurrences(' "$PREFLIGHT")"
   guard_fail "$TAG" "selected scalar Branch must retain its exhaustive sole-use preflight"
 fi
 
-preflight_line="$(rg -n -m1 'hako_llvmc_ptfc_preflight_selected_candidate' "$PURE" | cut -d: -f1)"
-pattern_line="$(rg -n -m1 'hako_llvmc_match_indexof_line_text_state_residence_fn' "$PURE" | cut -d: -f1)"
-if [[ -z "$preflight_line" || -z "$pattern_line" || "$preflight_line" -ge "$pattern_line" ]]; then
-  guard_fail "$TAG" "selected preflight must run before every pattern emitter"
-fi
-
 if rg -n 'fopen|EMIT\(|ptfb_session_(open|emit_object)|emit_pinned_text_residence_carrier_fixture' "$PREFLIGHT"; then
   guard_fail "$TAG" "effect-free preflight must not emit IR, open a session, or reuse the fixture"
 fi

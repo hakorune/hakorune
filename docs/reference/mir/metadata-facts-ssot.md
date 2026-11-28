@@ -264,7 +264,7 @@ request to change JSON shape in place.
 | `source_packed_array_direct_read_consumption_plans` | `LoweringRoutes`, CorePlan direct-read route | Real packed direct-read backend lowering is introduced. | Add backend proof, capability gate, and `boxed_fallback=false` contract in the same row. |
 | `loop_range_facts` | `Contracts`, `verifier_active` | LoopRange facts start deciding accepted write/index policy. | Promote the write-policy booleans into a verifier-owned accept/reject contract before lowering depends on them. |
 | `array_text_loop_session_plans` | `LoweringRoutes`, export-only until backend consumer row | C/EXE consumers need loop-session reuse from an explicit MIR plan instead of rediscovering `Array.get(i).length()` legality. | Keep `backend_consumer_enabled=0` until a dedicated consumer row reads proof booleans and rejects malformed plans without helper-name inference. |
-| `array_text_*` / `array_text_state_residence_route` | `LoweringRoutes`, CorePlan text/array route | C/EXE consumers depend on effects, materialization policy, byte-boundary proof, or executor mode. | Route consumers must read a proof-bearing route, not rediscover region legality. |
+| `array_text_*` | `LoweringRoutes`, CorePlan text/array route | C/EXE consumers depend on effects, materialization policy, byte-boundary proof, or executor mode. | Route consumers must read a proof-bearing route, not rediscover region legality. |
 | enum use rows derived from `enum_decls` | `Contracts`, `verifier_active` | Sum construction/projection/runtime dispatch depends on declared tag/payload shape. | Keep `enum_decls` as source inventory; add verifier checks for declared variant/tag/payload use. |
 | exact numeric binary/compare/shift route facts | `LoweringRoutes` | Backend lowering consumes op-specific exact numeric facts. | Move consumption behind route rows with backend capability rejection. |
 
@@ -304,7 +304,7 @@ appears:
 | Future row family | Trigger | Boundary |
 | --- | --- | --- |
 | `METADATA-CONSUME-PLACEMENT-*` | A backend consumer is ready to stop reading family-specific placement rows directly. | One consumer family per row; consume a proof-bearing route, not raw helper names. |
-| `METADATA-SEED-RETIRE-*` | A generic route can replace one exact seed payload with the same proof and publication boundary. | One seed family per row; no broad seed deletion. |
+| `METADATA-SEED-RETIRE-*` | A generic route can replace one exact seed payload with the same proof and publication boundary. | One seed family per row. R2 (2026-11-28) retired the group B exact-shape families together by maintainer decision. |
 | verifier contract sidecar | A metadata row starts deciding fail-fast legality. | Promote the derived contract, not raw source attrs. |
 | `PACKED-BACKEND-*` | Packed direct-read backend lowering is explicitly reopened. | Must carry backend proof, capability gate, and `boxed_fallback=false`. |
 
@@ -436,17 +436,7 @@ Contract:
 | `array_text_*` | array/object | Array/text loopcarry, edit, residence, observer, combined-region, and state-residence plans |
 | `declared_param_decls` / `declared_return_type_name` | array / string or null | Source signature annotation transported without forcing the callable ABI |
 | `exact_numeric_*` | arrays / maps | Exact numeric facts, route facts, rejection rows, and runtime-check contracts |
-| `array_string_store_micro_seed_route` | object or null | Exact array/string-store micro seed payload |
-| `array_getset_micro_seed_route` | object or null | Exact array get/set micro seed payload |
-| `array_rmw_add1_leaf_seed_route` | object or null | Exact array RMW add1 leaf seed payload |
-| `concat_const_suffix_micro_seed_route` | object or null | Exact concat const-suffix micro seed payload |
-| `substring_views_micro_seed_route` | object or null | Exact substring views micro seed payload |
-| `sum_variant_tag_seed_route` | object or null | Exact Sum `variant_tag` seed route selected from Sum placement metadata |
-| `sum_variant_project_seed_route` | object or null | Exact Sum `variant_project` seed route selected from Sum placement metadata |
-| `userbox_local_scalar_seed_route` | object or null | Exact UserBox Point local/copy scalar seed route selected from thin-entry field metadata |
-| `userbox_loop_micro_seed_route` | object or null | Exact UserBox loop micro seed payload |
-| `userbox_known_receiver_method_seed_route` | object or null | Exact UserBox known-receiver method seed payload |
-| `exact_seed_backend_route` | object or null | Function-level backend route tag for one already-proven exact seed payload |
+| `exact_seed_backend_route` | object or null | Selects the verified `string_kernel_plans.loop_payload` for the ASCII substring concat loop |
 
 ### `fastmem_regions[]`
 
@@ -501,19 +491,13 @@ until each family has proof parity through the folded row.
 | Family | Current preferred reader | Compatibility fallback | Fold-up retire condition |
 | --- | --- | --- | --- |
 | string corridor route windows | `placement_effect_routes` rows with `source=string_corridor` and `decision=direct_kernel_entry` | `string_corridor_candidates` plan window readers | retire fallback once folded routes carry all source-root/window/proof fields needed by string concat/substring readers |
-| sum placement local aggregate | `placement_effect_routes` rows with `source=sum_placement` and `decision=local_aggregate` | `sum_placement_facts` and `sum_placement_selections` | retire fallback once selected value/source-sum/manifest-row proof parity is covered by folded routes |
-| sum local aggregate layout | `placement_effect_routes` rows with `source=agg_local_scalarization` and `decision=local_aggregate` | `sum_placement_layouts` | retire fallback once layout detail is represented by folded route detail or a generic layout route |
-| thin entry | `placement_effect_routes` rows with `source=thin_entry` and selected entry decision | `thin_entry_selections` | retire fallback once public/thin entry selection consumers no longer need family rows |
 | string direct kernels | `string_kernel_plans` | none; family-specific verified route remains active | do not fold into `placement_effect_routes` until borrow/publication/carrier/text-consumer verifier facts have an equivalent generic route shape |
 
-Current C shim anchors:
+C no longer reads the Sum placement or thin-entry selection rows. These
+rows remain available to MIR consumers.
 
-- `hako_llvmc_placement_effect_routes`
-- `hako_llvmc_has_thin_entry_selection`
-- `hako_llvmc_sum_has_thin_internal_selection`
-- `hako_llvmc_sum_has_local_aggregate_fact`
-- `hako_llvmc_sum_has_local_aggregate_selection`
-- `hako_llvmc_sum_has_layout`
+Current C shim anchor:
+
 - `hako_llvmc_string_corridor_read_route_window_from_placement_effect_routes`
 
 Stop lines:
@@ -548,21 +532,17 @@ Contract:
 Seed routes are not CorePlan promotion candidates. They are exact-shape proof
 bridges that let backend code select a known emitter without rediscovering app
 shape from raw MIR. `exact_seed_backend_route` is a selector over already
-proven source seed rows; it does not own legality.
+verified `string_kernel_plans.loop_payload` metadata. Legality belongs to the
+string kernel plan.
+
+R2 (2026-11-28) retired the group B array, string, Sum, UserBox, indexof
+and array/text residence seeds together. PH-0 and PC-10 found no compiler
+entry that produces their exact shapes. The maintainer approved retiring
+these families and their C consumers without replacement routes.
 
 | Seed row | Current owner family | Generic replacement target | Retire condition |
 | --- | --- | --- | --- |
-| `array_string_store_micro_seed_route` | array/string micro seed | `lowering_plan` entries over array store/string value-demand routes | retire when the backend consumes proof-bearing array/string store route entries without exact block-count payloads |
-| `array_getset_micro_seed_route` | array get/set micro seed | generic array get/set `LoweringRoutes` with value-demand/proof fields | retire when array get/set lowering no longer needs a seven-block exact payload |
-| `array_rmw_add1_leaf_seed_route` | array RMW add1 leaf seed | `array_rmw_window_routes` folded into `lowering_plan` | retire when RMW legality, selected value, and publication proof are carried by the generic route |
-| `concat_const_suffix_micro_seed_route` | string const-suffix micro seed | `string_kernel_plans` / string lowering route entries | retire when const-suffix concat is emitted from verified string kernel routes |
-| `substring_views_micro_seed_route` | string substring views micro seed | `string_kernel_plans` / string view route entries | retire when substring view legality and retained-form proof are emitted from generic string routes |
-| `sum_variant_tag_seed_route` | sum placement seed | `placement_effect_routes` plus generic sum tag lowering route | retire when tag layout/proof/value identity is carried by generic sum routes |
-| `sum_variant_project_seed_route` | sum placement seed | `placement_effect_routes` plus generic sum project lowering route | retire when payload layout/proof/value identity is carried by generic sum routes |
-| `userbox_local_scalar_seed_route` | thin-entry / typed-object seed | `typed_object_plans`, `thin_entry_*`, and `placement_effect_routes` folded into `lowering_plan` | retire when local scalar field get/set routes carry slot, value, and publication proof without Point/Flag/PointF exact payloads |
-| `userbox_loop_micro_seed_route` | userbox loop micro seed | generic userbox method/body `LoweringRoutes` | retire when loop method lowering consumes method route proof instead of exact loop payloads |
-| `userbox_known_receiver_method_seed_route` | known-receiver userbox method seed | `user_box_method_routes` folded into `lowering_plan` | retire when known receiver method calls lower from typed route facts without exact receiver app-shape payloads |
-| `exact_seed_backend_route` | selector over source seed rows | generic backend route priority over `lowering_plan` / `placement_effect_routes` / `string_kernel_plans` | retire after all source seed rows above are retired or the C shim reads only generic route entries |
+| `exact_seed_backend_route` | selector for `string_kernel_plans.loop_payload` | direct `string_kernel_plans` consumer | retire together with the exact loop-payload entry |
 | `string_kernel_plans.loop_payload` exact seed tag | route-backed string exact entry | direct `string_kernel_plans` consumer | retire when substring concat loop ASCII emit reads the verified string kernel route directly and no longer uses `exact_seed_backend_route` |
 
 Stop lines:
@@ -978,70 +958,13 @@ Selections map facts onto the currently chosen lowering path:
 
 ### `sum_placement_layouts[]`
 
-Layouts tell LLVM which local aggregate layout to use once a sum site is selected
-for the local aggregate path:
+Layouts describe the local aggregate layout of a selected Sum site:
 
 | Field | Meaning |
 | --- | --- |
 | `block`, `instruction_index`, `value`, `surface`, `subject`, `source_sum` | Site identity |
 | `layout` | `tag_only`, `tag_i64_payload`, `tag_f64_payload`, or `tag_handle_payload` |
 | `reason` | Stable explanation string |
-
-### `sum_variant_tag_seed_route`
-
-`sum_variant_tag_seed_route` is the exact-seed bridge for the current
-`variant_tag` local/copy seed family. It is derived from the Sum metadata above;
-it does not replace canonical `variant_make` / `variant_tag` instructions.
-
-| Field | Meaning |
-| --- | --- |
-| `kind` | `variant_tag_local_i64`, `variant_tag_local_tag_only`, `variant_tag_local_f64`, `variant_tag_local_handle`, or `variant_tag_copy_local_i64` |
-| `enum`, `variant`, `subject` | Enum and variant identity |
-| `layout` | Selected local aggregate layout |
-| `variant_tag` | Discriminant value emitted by the exact helper |
-| `make_block`, `make_instruction_index`, `tag_block`, `tag_instruction_index` | MIR sites proven by the route |
-| `sum_value`, `tag_value`, `tag_source_value`, `copy_value`, `payload_value` | Value ids needed by backend validation |
-| `proof` | `sum_variant_tag_local_aggregate_seed` |
-| `consumer_capability` | `direct_sum_variant_tag_local` |
-| `publication_boundary` | `none` |
-
-### `sum_variant_project_seed_route`
-
-`sum_variant_project_seed_route` is the exact-seed bridge for the current
-`variant_project` local/copy seed family. It carries the literal payload needed
-by the temporary backend helper while route legality stays in Sum placement
-metadata.
-
-| Field | Meaning |
-| --- | --- |
-| `kind` | `variant_project_local_i64`, `variant_project_local_f64`, `variant_project_local_handle`, `variant_project_copy_local_i64`, `variant_project_copy_local_f64`, or `variant_project_copy_local_handle` |
-| `enum`, `variant`, `subject` | Enum and variant identity |
-| `layout` | Selected local aggregate layout |
-| `variant_tag` | Expected discriminant for the projected variant |
-| `make_block`, `make_instruction_index`, `project_block`, `project_instruction_index` | MIR sites proven by the route |
-| `sum_value`, `project_value`, `project_source_value`, `copy_value`, `payload_value` | Value ids needed by backend validation |
-| `payload_literal_kind`, `payload_i64`, `payload_f64`, `payload_string` | Literal payload for the exact helper |
-| `proof` | `sum_variant_project_local_aggregate_seed` |
-| `consumer_capability` | `direct_sum_variant_project_local` |
-| `publication_boundary` | `none` |
-
-### `userbox_local_scalar_seed_route`
-
-`userbox_local_scalar_seed_route` is the exact-seed bridge for the current
-UserBox Point local/copy scalar seed pair. It is derived from thin-entry field
-metadata; it does not replace canonical `newbox` / `field_set` / `field_get`
-instructions.
-
-| Field | Meaning |
-| --- | --- |
-| `kind` | `point_local_i64` or `point_copy_local_i64` |
-| `box`, `x_field`, `y_field` | UserBox and field identity; current slice is `Point.x` / `Point.y` |
-| `block`, `newbox_instruction_index`, `set_x_instruction_index`, `set_y_instruction_index`, `get_x_instruction_index`, `get_y_instruction_index` | MIR sites proven by the route |
-| `point_value`, `copy_value`, `x_value`, `y_value`, `get_x_value`, `get_y_value`, `result_value` | Value ids needed by backend validation |
-| `x_i64`, `y_i64` | Literal field payloads for the temporary exact helper |
-| `proof` | `userbox_point_field_local_scalar_seed` |
-| `consumer_capability` | `direct_userbox_point_local_scalar` |
-| `publication_boundary` | `none` |
 
 ### `exact_seed_backend_route`
 
@@ -1050,10 +973,10 @@ payload before walking any legacy compatibility ladder.
 
 | Field | Meaning |
 | --- | --- |
-| `tag` | Stable backend tag such as `sum_variant_tag_local` |
-| `source_route` | Metadata field that owns the payload, such as `sum_variant_tag_seed_route` or `sum_variant_project_seed_route` |
-| `proof` | Proof string copied from the selected source route |
-| `selected_value` | Optional value id for plan-indexed routes; null for route-payload fields such as Sum and UserBox exact seeds |
+| `tag` | Backend tag `substring_concat_loop_ascii` |
+| `source_route` | Payload owner `string_kernel_plans.loop_payload` |
+| `proof` | Proof `string_kernel_plan_concat_triplet_loop_payload` |
+| `selected_value` | Positive value id indexing the selected string kernel plan |
 
 ## CallableContract source transport
 

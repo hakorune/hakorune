@@ -175,16 +175,13 @@ corridor.
 Useful report vocabulary:
 
 ```text
-array_text_selected_route_count
 array_text_selected_indexof_const_utf8_count
-array_text_compat_string_indexof_hisi_count
 array_text_with_array_box_ready_selected_count
 array_text_session_begin_count
 array_text_session_reuse_count
 array_text_session_end_count
 array_text_publication_in_selected_region_count
 array_text_registry_carrier_in_selected_region_count
-array_text_silent_fallback_after_selected_route_count
 ```
 
 Useful explain surfaces:

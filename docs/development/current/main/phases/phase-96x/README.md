@@ -54,7 +54,7 @@ Related:
 
 - the phase29y vm_hako gate is now a retired compatibility stub; `select_emit`, `open_handle_phi`, and all `mapbox` rows moved to non-vm_hako owners, and the remaining vm_hako references are frozen as the 4-row monitor pack `tools/smokes/v2/suites/integration/vm-hako-core.txt` (`compare`, `env`, `file_close`, `file_read`)
 - the `mapbox` bridge is fully retired from `collection-core.txt`; all 7 `MapBox.*` owner rows now live in dedicated non-vm_hako emit+exec smokes under `phase29y/hako/emit_mir/`
-- LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*`, `phase29ck_llvm_backend_*`, and `phase163x_boundary_*` proof families
+- LLVM replacement anchors already exist in the current `phase29ck_boundary/runtime_data/*` and `phase29ck_llvm_backend_*` proof families
 - recommended single monitor canary while the replacement matrix is moving:
   - `tools/smokes/v2/profiles/integration/vm_hako_caps/env/env_get_ported_vm.sh`
   - it is the smallest stable signal that still exercises extern routing

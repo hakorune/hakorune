@@ -38,13 +38,6 @@ class InspectScopeDumpTest(unittest.TestCase):
                                 "selected_bridge_symbol": "hako.object.exact_slot_get_i64_hii",
                             }
                         ],
-                        "array_text_state_residence_route": {
-                            "function": "main",
-                            "selected_route": "hako.array_text.session_indexof_const_utf8",
-                            "selected_bridge_symbol": "hako.array_text.session_indexof_const_utf8",
-                            "fallback_route": "nyash.array.string_indexof_hisi",
-                            "fallback_policy": "fail_fast",
-                        },
                         "array_text_residence_sessions": [
                             {
                                 "function": "main",
@@ -115,7 +108,7 @@ class InspectScopeDumpTest(unittest.TestCase):
             self.assertTrue((out_dir / "report.kv").is_file())
             report = (out_dir / "report.kv").read_text(encoding="utf-8")
             self.assertIn("output_contract=hako-check-inspect-scope-v0", report)
-            self.assertIn("array_text_selected_route_count=1", report)
+            self.assertIn("array_text_session_count=1", report)
             self.assertIn("typed_object_exact_route_decision_count=1", report)
             self.assertIn("summary=ok", report)
             identity = json.loads((out_dir / "identity.json").read_text(encoding="utf-8"))
@@ -282,7 +275,7 @@ class InspectScopeDumpTest(unittest.TestCase):
             report = (out_dir / "report.kv").read_text(encoding="utf-8")
             self.assertIn("output_contract=hako-check-inspect-route-v0", report)
             self.assertIn("selected_route_filter=hako.array_text.session_indexof_const_utf8", report)
-            self.assertIn("route_row_count=2", report)
+            self.assertIn("route_row_count=1", report)
             self.assertIn("summary=ok", report)
 
     def test_mark_bundle_finds_anchor_and_window(self) -> None:

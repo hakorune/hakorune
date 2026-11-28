@@ -5,7 +5,7 @@
  "source": {
   "path": "src/mir/function/metadata.rs",
   "anchor": "pub struct FunctionMetadata",
-  "field_count": 128
+  "field_count": 117
  },
  "boundary": {
   "start": "src/mir/function/metadata.rs::FunctionMetadata stored fields",
@@ -38,7 +38,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:104:checked_callout_site_plans"
+     "src/mir/function/metadata.rs:93:checked_callout_site_plans"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -141,7 +141,7 @@
     ],
     "anchors": [
      "src/mir/builder/module_lowering_invocation_resolved_loan.rs:84:pinned_text_backend_frame_contract",
-     "src/runner/mir_json_emit/metadata.rs:518:pinned_text_backend_frame_contract"
+     "src/runner/mir_json_emit/metadata.rs:509:pinned_text_backend_frame_contract"
     ],
     "count": 2,
     "kind": "observed_mutation"
@@ -181,7 +181,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:518:pinned_text_backend_frame_contract"
+     "src/runner/mir_json_emit/metadata.rs:509:pinned_text_backend_frame_contract"
     ],
     "count": 1
    },
@@ -242,7 +242,7 @@
      "src/runner/mir_json_emit/root.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:525:pinned_text_residence_backend_carrier",
+     "src/runner/mir_json_emit/metadata.rs:516:pinned_text_residence_backend_carrier",
      "src/runner/mir_json_emit/root.rs:152:pinned_text_residence_backend_carrier"
     ],
     "count": 2
@@ -259,7 +259,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:125:dynamic_v2_aot_metadata"
+     "src/mir/function/metadata.rs:114:dynamic_v2_aot_metadata"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -325,7 +325,7 @@
      "src/backend/mir_interpreter/exec/function_loop.rs:116:source_file",
      "src/backend/vm_types.rs:42:source_file"
     ],
-    "count": 22,
+    "count": 15,
     "kind": "observed_mutation"
    },
    "production_consumer": {
@@ -398,7 +398,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:131:line_number"
+     "src/mir/function/metadata.rs:120:line_number"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -868,7 +868,7 @@
     ],
     "anchors": [
      "src/mir/ownership_backend_capability.rs:25:ownership_ssa_v1",
-     "src/runner/mir_json_emit/metadata.rs:486:ownership_ssa_v1"
+     "src/runner/mir_json_emit/metadata.rs:477:ownership_ssa_v1"
     ],
     "count": 3,
     "kind": "observed_mutation"
@@ -906,7 +906,7 @@
      "src/runner/mir_json_emit/ownership_ssa.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:486:ownership_ssa_v1",
+     "src/runner/mir_json_emit/metadata.rs:477:ownership_ssa_v1",
      "src/runner/mir_json_emit/ownership_ssa.rs:6:ownership_ssa_v1"
     ],
     "count": 2
@@ -1146,7 +1146,7 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_metadata.rs:109:same_module_definition_plans"
+     "src/runner/mir_json_emit/route_metadata.rs:83:same_module_definition_plans"
     ],
     "count": 1
    },
@@ -1544,7 +1544,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:43:span_access_plans"
+     "src/runner/mir_json_emit/metadata.rs:39:span_access_plans"
     ],
     "count": 1
    },
@@ -1597,7 +1597,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:59:record_state_field_access_plans"
+     "src/runner/mir_json_emit/metadata.rs:55:record_state_field_access_plans"
     ],
     "count": 1
    },
@@ -1652,7 +1652,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:77:required_fastpath_regions"
+     "src/runner/mir_json_emit/metadata.rs:73:required_fastpath_regions"
     ],
     "count": 1
    },
@@ -1705,7 +1705,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:87:fastpath_obligations"
+     "src/runner/mir_json_emit/metadata.rs:83:fastpath_obligations"
     ],
     "count": 1
    },
@@ -2237,7 +2237,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:246:fastmem_index_access_sites"
+     "src/mir/function/metadata.rs:235:fastmem_index_access_sites"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -2485,7 +2485,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:105:effect_summaries"
+     "src/runner/mir_json_emit/metadata.rs:101:effect_summaries"
     ],
     "count": 1
    },
@@ -2538,7 +2538,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:125:receiver_snapshot_publication_plans"
+     "src/runner/mir_json_emit/metadata.rs:121:receiver_snapshot_publication_plans"
     ],
     "count": 1
    },
@@ -2593,7 +2593,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:143:hotcore_method_summaries"
+     "src/runner/mir_json_emit/metadata.rs:139:hotcore_method_summaries"
     ],
     "count": 1
    },
@@ -2609,7 +2609,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:291:direct_exact_hotcore_call_plans"
+     "src/mir/function/metadata.rs:280:direct_exact_hotcore_call_plans"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -2648,7 +2648,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:166:direct_exact_hotcore_call_plans"
+     "src/runner/mir_json_emit/metadata.rs:162:direct_exact_hotcore_call_plans"
     ],
     "count": 1
    },
@@ -3011,7 +3011,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:196:string_corridor_facts"
+     "src/runner/mir_json_emit/metadata.rs:192:string_corridor_facts"
     ],
     "count": 1
    },
@@ -3074,7 +3074,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:219:string_corridor_candidates"
+     "src/runner/mir_json_emit/metadata.rs:215:string_corridor_candidates"
     ],
     "count": 1
    },
@@ -3090,7 +3090,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:324:string_corridor_relations"
+     "src/mir/function/metadata.rs:313:string_corridor_relations"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -3136,7 +3136,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:208:string_corridor_relations"
+     "src/runner/mir_json_emit/metadata.rs:204:string_corridor_relations"
     ],
     "count": 1
    },
@@ -3195,7 +3195,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:193:value_storage_classes"
+     "src/runner/mir_json_emit/metadata.rs:189:value_storage_classes"
     ],
     "count": 1
    },
@@ -3252,7 +3252,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:407:thin_entry_candidates"
+     "src/runner/mir_json_emit/metadata.rs:398:thin_entry_candidates"
     ],
     "count": 1
    },
@@ -3280,32 +3280,20 @@
      "src/mir/placement_effect/routes.rs",
      "src/mir/printer.rs",
      "src/mir/sum_placement.rs",
-     "src/mir/sum_variant_project_seed_plan.rs",
-     "src/mir/sum_variant_tag_seed_plan.rs",
-     "src/mir/thin_entry_selection.rs",
-     "src/mir/userbox_known_receiver_method_seed_plan/matchers/counter.rs",
-     "src/mir/userbox_known_receiver_method_seed_plan/matchers/point.rs",
-     "src/mir/userbox_local_scalar_seed_plan.rs",
-     "src/mir/userbox_loop_micro_seed_plan.rs"
+     "src/mir/thin_entry_selection.rs"
     ],
     "anchors": [
      "src/mir/agg_local_scalarization.rs:121:thin_entry_selections",
      "src/mir/placement_effect/routes.rs:131:thin_entry_selections"
     ],
-    "count": 11
+    "count": 5
    },
    "backend_consumer": {
-    "role": "selected_observed",
+    "role": "none",
     "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_common.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_common.inc:289:thin_entry_selections",
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc:52:thin_entry_selections"
-     ],
-     "count": 2
+     "owners": [],
+     "anchors": [],
+     "count": 0
     }
    },
    "reference_consumer": {
@@ -3323,7 +3311,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:421:thin_entry_selections"
+     "src/runner/mir_json_emit/metadata.rs:412:thin_entry_selections"
     ],
     "count": 1
    },
@@ -3350,25 +3338,19 @@
     "owners": [
      "src/mir/printer.rs",
      "src/mir/sum_placement.rs",
-     "src/mir/sum_placement_selection.rs",
-     "src/mir/sum_variant_project_seed_plan.rs",
-     "src/mir/sum_variant_tag_seed_plan.rs"
+     "src/mir/sum_placement_selection.rs"
     ],
     "anchors": [
      "src/mir/printer.rs:299:sum_placement_facts"
     ],
-    "count": 5
+    "count": 3
    },
    "backend_consumer": {
-    "role": "selected_observed",
+    "role": "none",
     "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc:114:sum_placement_facts"
-     ],
-     "count": 1
+     "owners": [],
+     "anchors": [],
+     "count": 0
     }
    },
    "reference_consumer": {
@@ -3386,7 +3368,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:437:sum_placement_facts"
+     "src/runner/mir_json_emit/metadata.rs:428:sum_placement_facts"
     ],
     "count": 1
    },
@@ -3412,25 +3394,19 @@
      "src/mir/placement_effect/routes.rs",
      "src/mir/printer.rs",
      "src/mir/sum_placement_layout.rs",
-     "src/mir/sum_placement_selection.rs",
-     "src/mir/sum_variant_project_seed_plan.rs",
-     "src/mir/sum_variant_tag_seed_plan.rs"
+     "src/mir/sum_placement_selection.rs"
     ],
     "anchors": [
      "src/mir/placement_effect/routes.rs:121:sum_placement_selections"
     ],
-    "count": 6
+    "count": 4
    },
    "backend_consumer": {
-    "role": "selected_observed",
+    "role": "none",
     "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc:179:sum_placement_selections"
-     ],
-     "count": 1
+     "owners": [],
+     "anchors": [],
+     "count": 0
     }
    },
    "reference_consumer": {
@@ -3448,7 +3424,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:453:sum_placement_selections"
+     "src/runner/mir_json_emit/metadata.rs:444:sum_placement_selections"
     ],
     "count": 1
    },
@@ -3475,25 +3451,19 @@
     "owners": [
      "src/mir/agg_local_scalarization.rs",
      "src/mir/printer.rs",
-     "src/mir/sum_placement_layout.rs",
-     "src/mir/sum_variant_project_seed_plan.rs",
-     "src/mir/sum_variant_tag_seed_plan.rs"
+     "src/mir/sum_placement_layout.rs"
     ],
     "anchors": [
      "src/mir/agg_local_scalarization.rs:101:sum_placement_layouts"
     ],
-    "count": 5
+    "count": 3
    },
    "backend_consumer": {
-    "role": "selected_observed",
+    "role": "none",
     "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc:255:sum_placement_layouts"
-     ],
-     "count": 1
+     "owners": [],
+     "anchors": [],
+     "count": 0
     }
    },
    "reference_consumer": {
@@ -3511,7 +3481,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:466:sum_placement_layouts"
+     "src/runner/mir_json_emit/metadata.rs:457:sum_placement_layouts"
     ],
     "count": 1
    },
@@ -3566,7 +3536,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:478:agg_local_scalarization_routes"
+     "src/runner/mir_json_emit/metadata.rs:469:agg_local_scalarization_routes"
     ],
     "count": 1
    },
@@ -3627,7 +3597,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:481:placement_effect_routes"
+     "src/runner/mir_json_emit/metadata.rs:472:placement_effect_routes"
     ],
     "count": 1
    },
@@ -3659,7 +3629,7 @@
      "src/mir/verification/string_kernel.rs"
     ],
     "anchors": [
-     "src/mir/exact_seed_backend_route.rs:57:string_kernel_plans",
+     "src/mir/exact_seed_backend_route.rs:29:string_kernel_plans",
      "src/mir/passes/string_corridor_sink/publication.rs:7:string_kernel_plans"
     ],
     "count": 4
@@ -3674,7 +3644,7 @@
       "lang/c-abi/shims/hako_llvmc_ffi_string_metadata_fn_readers.inc"
      ],
      "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:59:string_kernel_plans",
+      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:17:string_kernel_plans",
       "lang/c-abi/shims/hako_llvmc_ffi_string_candidate_plan_readers.inc:190:string_kernel_plans"
      ],
      "count": 4
@@ -3695,7 +3665,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:277:string_kernel_plans"
+     "src/runner/mir_json_emit/metadata.rs:273:string_kernel_plans"
     ],
     "count": 1
    },
@@ -3752,7 +3722,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:280:string_direct_set_window_routes"
+     "src/runner/mir_json_emit/metadata.rs:276:string_direct_set_window_routes"
     ],
     "count": 1
    },
@@ -3809,7 +3779,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:301:string_dead_text_region_plans"
+     "src/runner/mir_json_emit/metadata.rs:297:string_dead_text_region_plans"
     ],
     "count": 1
    },
@@ -3904,8 +3874,8 @@
      "src/runner/mir_json_emit/route_json.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:341:generic_method_routes",
-     "src/runner/mir_json_emit/route_json.rs:10:generic_method_routes"
+     "src/runner/mir_json_emit/metadata.rs:337:generic_method_routes",
+     "src/runner/mir_json_emit/route_json.rs:7:generic_method_routes"
     ],
     "count": 2
    },
@@ -4068,7 +4038,7 @@
      "src/runner/mir_json_emit/proof_envelope.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:10:direct_array_access_plans",
+     "src/runner/mir_json_emit/array_metadata.rs:9:direct_array_access_plans",
      "src/runner/mir_json_emit/proof_envelope.rs:13:direct_array_access_plans"
     ],
     "count": 2
@@ -4132,7 +4102,7 @@
      "src/runner/mir_json_emit/metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:376:route_decisions"
+     "src/runner/mir_json_emit/metadata.rs:372:route_decisions"
     ],
     "count": 1
    },
@@ -4150,7 +4120,7 @@
     ],
     "anchors": [
      "src/mir/extern_call_route_plan/route.rs:224:extern_call_routes",
-     "src/runner/mir_json_emit/route_json.rs:65:extern_call_routes"
+     "src/runner/mir_json_emit/route_json.rs:62:extern_call_routes"
     ],
     "count": 2,
     "kind": "observed_mutation"
@@ -4201,8 +4171,8 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_json.rs:65:extern_call_routes",
-     "src/runner/mir_json_emit/route_metadata.rs:22:extern_call_routes"
+     "src/runner/mir_json_emit/route_json.rs:62:extern_call_routes",
+     "src/runner/mir_json_emit/route_metadata.rs:20:extern_call_routes"
     ],
     "count": 2
    },
@@ -4281,8 +4251,8 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_json.rs:101:global_call_routes",
-     "src/runner/mir_json_emit/route_metadata.rs:32:global_call_routes"
+     "src/runner/mir_json_emit/route_json.rs:98:global_call_routes",
+     "src/runner/mir_json_emit/route_metadata.rs:30:global_call_routes"
     ],
     "count": 2
    },
@@ -4338,8 +4308,8 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_json.rs:108:builtin_global_call_routes",
-     "src/runner/mir_json_emit/route_metadata.rs:42:builtin_global_call_routes"
+     "src/runner/mir_json_emit/route_json.rs:105:builtin_global_call_routes",
+     "src/runner/mir_json_emit/route_metadata.rs:40:builtin_global_call_routes"
     ],
     "count": 2
    },
@@ -4415,8 +4385,8 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_json.rs:113:user_box_method_routes",
-     "src/runner/mir_json_emit/route_metadata.rs:52:user_box_method_routes"
+     "src/runner/mir_json_emit/route_json.rs:110:user_box_method_routes",
+     "src/runner/mir_json_emit/route_metadata.rs:50:user_box_method_routes"
     ],
     "count": 2
    },
@@ -4475,7 +4445,7 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_metadata.rs:86:map_lookup_fusion_routes"
+     "src/runner/mir_json_emit/route_metadata.rs:60:map_lookup_fusion_routes"
     ],
     "count": 1
    },
@@ -4532,7 +4502,7 @@
      "src/runner/mir_json_emit/route_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/route_metadata.rs:96:same_module_fusion_plans"
+     "src/runner/mir_json_emit/route_metadata.rs:70:same_module_fusion_plans"
     ],
     "count": 1
    },
@@ -4831,15 +4801,12 @@
    "production_consumer": {
     "owners": [
      "src/mir/array_element_write.rs",
-     "src/mir/array_getset_micro_seed_plan.rs",
-     "src/mir/array_rmw_add1_leaf_seed_plan.rs",
      "src/mir/array_rmw_window_plan.rs"
     ],
     "anchors": [
-     "src/mir/array_element_write.rs:146:array_rmw_window_routes",
-     "src/mir/array_getset_micro_seed_plan.rs:5:array_rmw_window_routes"
+     "src/mir/array_element_write.rs:146:array_rmw_window_routes"
     ],
-    "count": 4
+    "count": 2
    },
    "backend_consumer": {
     "role": "selected_observed",
@@ -4868,7 +4835,7 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:38:array_rmw_window_routes"
+     "src/runner/mir_json_emit/array_metadata.rs:37:array_rmw_window_routes"
     ],
     "count": 1
    },
@@ -4926,7 +4893,7 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:62:array_string_len_window_routes"
+     "src/runner/mir_json_emit/array_metadata.rs:61:array_string_len_window_routes"
     ],
     "count": 1
    },
@@ -4983,7 +4950,7 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:112:array_text_loop_session_plans"
+     "src/runner/mir_json_emit/array_metadata.rs:111:array_text_loop_session_plans"
     ],
     "count": 1
    },
@@ -5040,7 +5007,7 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:116:array_text_indexof_const_region_plans"
+     "src/runner/mir_json_emit/array_metadata.rs:115:array_text_indexof_const_region_plans"
     ],
     "count": 1
    },
@@ -5100,7 +5067,7 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:88:array_text_loopcarry_len_store_routes"
+     "src/runner/mir_json_emit/array_metadata.rs:87:array_text_loopcarry_len_store_routes"
     ],
     "count": 1
    },
@@ -5160,7 +5127,7 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:120:array_text_edit_routes"
+     "src/runner/mir_json_emit/array_metadata.rs:119:array_text_edit_routes"
     ],
     "count": 1
    },
@@ -5217,7 +5184,7 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:170:array_text_combined_regions"
+     "src/runner/mir_json_emit/array_metadata.rs:169:array_text_combined_regions"
     ],
     "count": 1
    },
@@ -5276,7 +5243,7 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:162:array_text_residence_sessions"
+     "src/runner/mir_json_emit/array_metadata.rs:161:array_text_residence_sessions"
     ],
     "count": 1
    },
@@ -5339,698 +5306,13 @@
      "src/runner/mir_json_emit/array_metadata.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:166:array_text_observer_routes"
+     "src/runner/mir_json_emit/array_metadata.rs:165:array_text_observer_routes"
     ],
     "count": 1
    },
    "verification_kind": "static_owner_file",
    "caller_state": "live",
    "retire_when": "retain until the owning production consumer is retired or replaced with parity and caller-zero evidence"
-  },
-  {
-   "field": "array_text_state_residence_route",
-   "class": "LoweringRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/array_text_state_residence_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/array_text_state_residence_plan.rs:331:array_text_state_residence_route"
-    ],
-    "count": 1,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/array_text_state_residence_plan.rs",
-     "src/mir/indexof_search_micro_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/array_text_state_residence_plan.rs:331:array_text_state_residence_route",
-     "src/mir/indexof_search_micro_seed_plan.rs:5:array_text_state_residence_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_indexof_text_state_residence.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_indexof_text_state_residence.inc:215:array_text_state_residence_route"
-     ],
-     "count": 1
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/array_metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:213:array_text_state_residence_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retain until the owning production consumer is retired or replaced with parity and caller-zero evidence"
-  },
-  {
-   "field": "array_string_store_micro_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/array_string_store_micro_seed_plan.rs",
-     "src/mir/exact_seed_backend_route.rs"
-    ],
-    "anchors": [
-     "src/mir/array_string_store_micro_seed_plan.rs:111:array_string_store_micro_seed_route",
-     "src/mir/exact_seed_backend_route.rs:383:array_string_store_micro_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/array_string_store_micro_seed_plan.rs",
-     "src/mir/exact_seed_backend_route.rs"
-    ],
-    "anchors": [
-     "src/mir/array_string_store_micro_seed_plan.rs:111:array_string_store_micro_seed_route",
-     "src/mir/exact_seed_backend_route.rs:52:array_string_store_micro_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_array_string_store_seed.inc:171:array_string_store_micro_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:17:array_string_store_micro_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/array_metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:174:array_string_store_micro_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "array_getset_micro_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/array_getset_micro_seed_plan.rs",
-     "src/mir/exact_seed_backend_route.rs"
-    ],
-    "anchors": [
-     "src/mir/array_getset_micro_seed_plan.rs:147:array_getset_micro_seed_route",
-     "src/mir/exact_seed_backend_route.rs:211:array_getset_micro_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/array_getset_micro_seed_plan.rs",
-     "src/mir/exact_seed_backend_route.rs"
-    ],
-    "anchors": [
-     "src/mir/array_getset_micro_seed_plan.rs:147:array_getset_micro_seed_route",
-     "src/mir/exact_seed_backend_route.rs:53:array_getset_micro_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc:137:array_getset_micro_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:19:array_getset_micro_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/route_metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/route_metadata.rs:62:array_getset_micro_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "array_rmw_add1_leaf_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/array_rmw_add1_leaf_seed_plan.rs",
-     "src/mir/exact_seed_backend_route.rs"
-    ],
-    "anchors": [
-     "src/mir/array_rmw_add1_leaf_seed_plan.rs:113:array_rmw_add1_leaf_seed_route",
-     "src/mir/exact_seed_backend_route.rs:222:array_rmw_add1_leaf_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/array_rmw_add1_leaf_seed_plan.rs",
-     "src/mir/exact_seed_backend_route.rs"
-    ],
-    "anchors": [
-     "src/mir/array_rmw_add1_leaf_seed_plan.rs:113:array_rmw_add1_leaf_seed_route",
-     "src/mir/exact_seed_backend_route.rs:54:array_rmw_add1_leaf_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc:339:array_rmw_add1_leaf_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:21:array_rmw_add1_leaf_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/array_metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/array_metadata.rs:195:array_rmw_add1_leaf_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "concat_const_suffix_micro_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/concat_const_suffix_micro_seed_plan.rs",
-     "src/mir/exact_seed_backend_route.rs"
-    ],
-    "anchors": [
-     "src/mir/concat_const_suffix_micro_seed_plan.rs:99:concat_const_suffix_micro_seed_route",
-     "src/mir/exact_seed_backend_route.rs:402:concat_const_suffix_micro_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/concat_const_suffix_micro_seed_plan.rs",
-     "src/mir/exact_seed_backend_route.rs"
-    ],
-    "anchors": [
-     "src/mir/concat_const_suffix_micro_seed_plan.rs:99:concat_const_suffix_micro_seed_route",
-     "src/mir/exact_seed_backend_route.rs:55:concat_const_suffix_micro_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_concat_const_suffix_seed.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_concat_const_suffix_seed.inc:111:concat_const_suffix_micro_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:55:concat_const_suffix_micro_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:401:concat_const_suffix_micro_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "substring_views_micro_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/substring_views_micro_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:573:substring_views_micro_seed_route",
-     "src/mir/substring_views_micro_seed_plan.rs:80:substring_views_micro_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/substring_views_micro_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:56:substring_views_micro_seed_route",
-     "src/mir/substring_views_micro_seed_plan.rs:80:substring_views_micro_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed_views_only.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:57:substring_views_micro_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_string_loop_seed_views_only.inc:44:substring_views_micro_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:402:substring_views_micro_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "sum_variant_tag_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/sum_variant_tag_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:233:sum_variant_tag_seed_route",
-     "src/mir/sum_variant_tag_seed_plan.rs:178:sum_variant_tag_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/sum_variant_tag_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:58:sum_variant_tag_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_matchers_tag.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:23:sum_variant_tag_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_matchers_tag.inc:119:sum_variant_tag_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:403:sum_variant_tag_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "sum_variant_project_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/sum_variant_project_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:244:sum_variant_project_seed_route",
-     "src/mir/sum_variant_project_seed_plan.rs:224:sum_variant_project_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/sum_variant_project_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:59:sum_variant_project_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_project_route.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:25:sum_variant_project_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_project_route.inc:122:sum_variant_project_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:404:sum_variant_project_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "userbox_local_scalar_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/userbox_local_scalar_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:255:userbox_local_scalar_seed_route",
-     "src/mir/userbox_local_scalar_seed_plan.rs:150:userbox_local_scalar_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/userbox_local_scalar_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:60:userbox_local_scalar_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_flag_pointf_route.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_point_route.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:27:userbox_local_scalar_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_flag_pointf_route.inc:107:userbox_local_scalar_seed_route"
-     ],
-     "count": 3
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:405:userbox_local_scalar_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "userbox_loop_micro_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/userbox_loop_micro_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:276:userbox_loop_micro_seed_route",
-     "src/mir/userbox_loop_micro_seed_plan.rs:158:userbox_loop_micro_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/userbox_loop_micro_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:62:userbox_loop_micro_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_loop_micro_route.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:33:userbox_loop_micro_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_loop_micro_route.inc:80:userbox_loop_micro_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/route_metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/route_metadata.rs:70:userbox_loop_micro_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
-  },
-  {
-   "field": "userbox_known_receiver_method_seed_route",
-   "class": "ExperimentalSeedRoutes",
-   "producer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/userbox_known_receiver_method_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:551:userbox_known_receiver_method_seed_route",
-     "src/mir/userbox_known_receiver_method_seed_plan.rs:51:userbox_known_receiver_method_seed_route"
-    ],
-    "count": 2,
-    "kind": "observed_mutation"
-   },
-   "production_consumer": {
-    "owners": [
-     "src/mir/exact_seed_backend_route.rs",
-     "src/mir/userbox_known_receiver_method_seed_plan.rs"
-    ],
-    "anchors": [
-     "src/mir/exact_seed_backend_route.rs:63:userbox_known_receiver_method_seed_route"
-    ],
-    "count": 2
-   },
-   "backend_consumer": {
-    "role": "selected_observed",
-    "evidence": {
-     "owners": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc",
-      "lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_known_receiver_method_route.inc"
-     ],
-     "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_registry.inc:38:userbox_known_receiver_method_seed_route",
-      "lang/c-abi/shims/hako_llvmc_ffi_user_box_micro_seed_known_receiver_method_route.inc:192:userbox_known_receiver_method_seed_route"
-     ],
-     "count": 2
-    }
-   },
-   "reference_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "non_selected_consumer": {
-    "owners": [],
-    "anchors": [],
-    "count": 0
-   },
-   "egress": {
-    "owners": [
-     "src/runner/mir_json_emit/route_metadata.rs"
-    ],
-    "anchors": [
-     "src/runner/mir_json_emit/route_metadata.rs:78:userbox_known_receiver_method_seed_route"
-    ],
-    "count": 1
-   },
-   "verification_kind": "static_owner_file",
-   "caller_state": "live",
-   "retire_when": "retire when the named generic replacement route has proof parity and this row reaches caller-zero"
   },
   {
    "field": "exact_seed_backend_route",
@@ -6043,8 +5325,8 @@
      "src/runner/mir_json_emit/metadata_seed.rs"
     ],
     "anchors": [
-     "src/mir/exact_seed_backend_route.rs:192:exact_seed_backend_route",
-     "src/mir/mod.rs:370:exact_seed_backend_route"
+     "src/mir/exact_seed_backend_route.rs:94:exact_seed_backend_route",
+     "src/mir/mod.rs:296:exact_seed_backend_route"
     ],
     "count": 4,
     "kind": "observed_mutation"
@@ -6056,8 +5338,8 @@
      "src/mir/semantic_refresh.rs"
     ],
     "anchors": [
-     "src/mir/exact_seed_backend_route.rs:192:exact_seed_backend_route",
-     "src/mir/mod.rs:156:exact_seed_backend_route"
+     "src/mir/exact_seed_backend_route.rs:94:exact_seed_backend_route",
+     "src/mir/mod.rs:122:exact_seed_backend_route"
     ],
     "count": 3
    },
@@ -6069,7 +5351,7 @@
       "lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
      ],
      "anchors": [
-      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_dispatch.inc:19:exact_seed_backend_route",
+      "lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_dispatch.inc:8:exact_seed_backend_route",
       "lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc:144:exact_seed_backend_route"
      ],
      "count": 2
@@ -6091,8 +5373,8 @@
      "src/runner/mir_json_emit/metadata_seed.rs"
     ],
     "anchors": [
-     "src/runner/mir_json_emit/metadata.rs:406:exact_seed_backend_route",
-     "src/runner/mir_json_emit/metadata_seed.rs:2:exact_seed_backend_route"
+     "src/runner/mir_json_emit/metadata.rs:397:exact_seed_backend_route",
+     "src/runner/mir_json_emit/metadata_seed.rs:1:exact_seed_backend_route"
     ],
     "count": 2
    },
@@ -7654,7 +6936,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:725:exact_numeric_runtime_check_contracts"
+     "src/mir/function/metadata.rs:653:exact_numeric_runtime_check_contracts"
     ],
     "count": 1,
     "kind": "default_carrier"
@@ -7713,7 +6995,7 @@
      "src/mir/function/metadata.rs"
     ],
     "anchors": [
-     "src/mir/function/metadata.rs:729:exact_numeric_field_contract_proofs"
+     "src/mir/function/metadata.rs:657:exact_numeric_field_contract_proofs"
     ],
     "count": 1,
     "kind": "default_carrier"

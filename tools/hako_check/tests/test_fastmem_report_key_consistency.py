@@ -751,12 +751,6 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
                 {
                     "name": "array_text_indexof",
                     "metadata": {
-                        "array_text_state_residence_route": {
-                            "selected_route": "hako.array_text.session_indexof_const_utf8",
-                            "selected_bridge_symbol": "hako.array_text.session_indexof_const_utf8",
-                            "fallback_route": "nyash.array.string_indexof_hisi",
-                            "fallback_policy": "fail_fast",
-                        },
                         "array_text_residence_sessions": [
                             {
                                 "begin_block": 1,
@@ -811,10 +805,6 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
 
             self.assertEqual(rc, 0)
             text = out_path.read_text(encoding="utf-8")
-            self.assertIn("array_text_state_residence_route_count=1", text)
-            self.assertIn("array_text_selected_route_count=1", text)
-            self.assertIn("array_text_selected_bridge_symbol_count=1", text)
-            self.assertIn("array_text_compat_string_indexof_hisi_count=1", text)
             self.assertIn("array_text_session_count=1", text)
             self.assertIn("array_text_session_begin_count=1", text)
             self.assertIn("array_text_session_end_count=1", text)
@@ -824,18 +814,6 @@ class FastMemReportKeyConsistencyTest(unittest.TestCase):
             )
             self.assertIn(
                 "array_text_registry_carrier_in_selected_region_count=0",
-                text,
-            )
-            self.assertIn(
-                "array_text_silent_fallback_after_selected_route_count=0",
-                text,
-            )
-            self.assertIn(
-                "array_text_state_residence_route_0_selected_route=hako.array_text.session_indexof_const_utf8",
-                text,
-            )
-            self.assertIn(
-                "array_text_state_residence_route_0_selected_bridge_symbol=hako.array_text.session_indexof_const_utf8",
                 text,
             )
             self.assertIn(

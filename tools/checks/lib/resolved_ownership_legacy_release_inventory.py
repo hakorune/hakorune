@@ -41,7 +41,7 @@ EXPECTED_EXCLUSIONS = {
     "tools/checks/lib/resolved_ownership_production_profile.py",
 }
 EXPECTED_SURFACE_COUNTS = {
-    "producer": 5,
+    "producer": 2,
     "consumer": 24,
     "opcode_surface": 7,
     "pass": 14,
@@ -51,7 +51,7 @@ EXPECTED_SURFACE_COUNTS = {
 }
 EXPECTED_DISPOSITION_COUNTS = {
     "canonical_caller_zero_delete": 1,
-    "legacy_builder_isolate": 4,
+    "legacy_builder_isolate": 1,
     "optional_rc_insertion_isolate": 3,
     "optimizer_cfg_rewrite_isolate": 11,
     "backend_json_compatibility_isolate": 31,
@@ -59,9 +59,6 @@ EXPECTED_DISPOSITION_COUNTS = {
 }
 EXPECTED_CANONICAL = {"src/mir/builder/resolved_lowering/lowerer.rs"}
 EXPECTED_LEGACY_BUILDERS = {
-    "src/mir/array_getset_micro_seed_plan.rs",
-    "src/mir/array_rmw_add1_leaf_seed_plan.rs",
-    "src/mir/array_string_store_micro_seed_plan.rs",
     "src/mir/builder/builder_build.rs",
 }
 EXPECTED_OPTIONAL_RC = {

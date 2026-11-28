@@ -253,17 +253,6 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-") as directory:
     run_original_cases(compile_case, witness, const, ROOT, KERNEL, ENV, no_core)
 
     body, frame = witness()
-    body["functions"][0]["metadata"] = {"array_text_state_residence_route": {
-        "observer_kind": "indexof", "residence": "loop_local_pointer_array", "result_repr": "scalar_i64",
-        "consumer_capability": "direct_array_text_state_residence", "publication_boundary": "none",
-        "temporary_indexof_seed_payload": {"variant": "leaf", "rows": 64, "ops": 400000, "flip_period": 0,
-            "line_seed": "line-seed", "line_seed_len": 9, "none_seed": "none-seed", "none_seed_len": 9,
-            "needle": "line", "needle_len": 4, "proof": "kilo_leaf_array_string_indexof_const_10block",
-            "result_use": "found_predicate", "backend_action": "literal_membership_predicate",
-            "candidate_outcomes": [{"literal": "line-seed", "outcome": "found"}, {"literal": "none-seed", "outcome": "not_found"}]}}}
-    compile_case("early-pattern-residual", body, frame, "static-v2/map-row-not-consumed")
-
-    body, frame = witness()
     for label, change, diagnostic in (
         ("revision", lambda b, f: f.update(revision=3), "static-v2/header"),
         ("size", lambda b, f: f.update(byte_size=0), "static-v2/header"),

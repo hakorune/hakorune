@@ -202,8 +202,10 @@ separate, currently unguarded navigation surface.
 This census does **not** prove that tests, seeds, pilots, or compat modules are
 production semantic authorities. `#[cfg(test)]` placement and filename tokens
 are inventory evidence only. In particular, raw/compat modules in this census
-are crate-internal, and seed retirement remains row-specific under
-`docs/reference/mir/metadata-facts-ssot.md`.
+are crate-internal. Seed retirement is normally row-specific under
+`docs/reference/mir/metadata-facts-ssot.md`. R2 (2026-11-28) retired group B as
+a maintainer-approved exception. The exact selector for the substring concat
+loop remains.
 
 The conceptual labels `core / contracts / analysis / recipe / lowering /
 passes / verification / compiler / compat` may guide navigation. They are not

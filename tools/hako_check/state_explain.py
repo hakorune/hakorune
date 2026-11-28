@@ -119,21 +119,6 @@ def function_metadata_rows(data: dict[str, Any], key: str) -> list[dict[str, Any
     return rows
 
 
-def function_metadata_object_rows(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    for function in root_list(data, "functions"):
-        metadata = function.get("metadata")
-        if not isinstance(metadata, dict):
-            continue
-        value = metadata.get(key)
-        if not isinstance(value, dict):
-            continue
-        copied = dict(value)
-        copied.setdefault("function", function.get("name", "unknown"))
-        rows.append(copied)
-    return rows
-
-
 def field_name(row: dict[str, Any]) -> str:
     return str(row.get("name", "unknown"))
 
@@ -235,9 +220,6 @@ def main() -> int:
     direct_state_plans = root_list(data, "direct_state_plans")
     record_layout_plans = root_list(data, "record_layout_plans")
     record_state_residence_plans = root_list(data, "record_state_residence_plans")
-    array_text_state_residence_routes = function_metadata_object_rows(
-        data, "array_text_state_residence_route"
-    )
     array_text_residence_session_rows = function_metadata_rows(
         data, "array_text_residence_sessions"
     )
@@ -310,11 +292,6 @@ def main() -> int:
         if args.box_filter is None
         or str(plan.get("owner_box", "unknown")) == args.box_filter
     ]
-    selected_array_text_state_residence_routes = [
-        route
-        for route in array_text_state_residence_routes
-        if args.box_filter is None or str(route.get("function", "unknown")) == args.box_filter
-    ]
     selected_array_text_residence_sessions = [
         route
         for route in array_text_residence_session_rows
@@ -356,21 +333,6 @@ def main() -> int:
     record_state_lowering_owner_reason = "record_state_access_sites_not_ready"
     record_state_lowering_owner_next_bridge = "record_state_field_access_site_measurement"
 
-    array_text_selected_route_count = sum(
-        1
-        for route in selected_array_text_state_residence_routes
-        if str(route.get("selected_route", "")).startswith("hako.array_text.")
-    )
-    array_text_selected_bridge_symbol_count = sum(
-        1
-        for route in selected_array_text_state_residence_routes
-        if str(route.get("selected_bridge_symbol", "")).startswith("hako.array_text.")
-    )
-    array_text_compat_string_indexof_count = sum(
-        1
-        for route in selected_array_text_state_residence_routes
-        if str(route.get("fallback_route", "")).startswith("nyash.array.string_indexof_")
-    )
     array_text_selected_session_count = sum(
         1
         for route in selected_array_text_residence_sessions
@@ -385,11 +347,6 @@ def main() -> int:
         1
         for route in selected_array_text_residence_sessions
         if "registry" in str(route.get("carrier", "")).lower()
-    )
-    array_text_silent_fallback_count = sum(
-        1
-        for route in selected_array_text_state_residence_routes
-        if str(route.get("fallback_policy", "")) != "fail_fast"
     )
     array_text_observer_indexof_count = sum(
         1
@@ -489,16 +446,11 @@ def main() -> int:
         f"record_state_lowering_owner_next_bridge={record_state_lowering_owner_next_bridge}",
         f"record_state_residence_candidate_field_count={len(record_state_candidate_fields)}",
         f"record_state_handle_reject_field_count={len(handle_reject_fields)}",
-        f"array_text_state_residence_route_count={len(selected_array_text_state_residence_routes)}",
-        f"array_text_selected_route_count={array_text_selected_route_count}",
-        f"array_text_selected_bridge_symbol_count={array_text_selected_bridge_symbol_count}",
-        f"array_text_compat_string_indexof_hisi_count={array_text_compat_string_indexof_count}",
         f"array_text_session_count={len(selected_array_text_residence_sessions)}",
         f"array_text_session_begin_count={array_text_selected_session_count}",
         f"array_text_session_end_count={array_text_selected_session_count}",
         f"array_text_publication_in_selected_region_count={array_text_selected_publication_count}",
         f"array_text_registry_carrier_in_selected_region_count={array_text_registry_carrier_count}",
-        f"array_text_silent_fallback_after_selected_route_count={array_text_silent_fallback_count}",
         f"array_text_observer_route_count={len(selected_array_text_observer_routes)}",
         f"array_text_observer_indexof_count={array_text_observer_indexof_count}",
         f"array_text_observer_selected_route_count={array_text_observer_selected_route_count}",
@@ -605,18 +557,6 @@ def main() -> int:
                 f"{prefix}_selected_storage={row.get('selected_storage', 'unknown')}",
                 f"{prefix}_receiver_box_name={row.get('receiver_box_name', 'unknown')}",
                 f"{prefix}_field_id={row.get('field_id', 'unknown')}",
-            ]
-        )
-
-    for idx, route in enumerate(selected_array_text_state_residence_routes[: max(0, args.topn)]):
-        prefix = f"array_text_state_residence_route_{idx}"
-        lines.extend(
-            [
-                f"{prefix}_function={route.get('function', 'unknown')}",
-                f"{prefix}_selected_route={route.get('selected_route', 'unknown')}",
-                f"{prefix}_selected_bridge_symbol={route.get('selected_bridge_symbol', 'unknown')}",
-                f"{prefix}_fallback_route={route.get('fallback_route', 'unknown')}",
-                f"{prefix}_fallback_policy={route.get('fallback_policy', 'unknown')}",
             ]
         )
 

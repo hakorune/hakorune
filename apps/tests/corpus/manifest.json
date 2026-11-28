@@ -43776,26 +43776,6 @@
       "cadence": "every"
     },
     {
-      "path": "lang/src/compiler/lib/array_getset_micro_seed_proof_label_formatter.hako",
-      "sha256": "b782fe1d1583e7b843b0b74e40ef3989d6acb9659c3d08d1094ff588a25da223",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
-      "path": "lang/src/compiler/lib/array_rmw_add1_leaf_seed_proof_label_formatter.hako",
-      "sha256": "143653f602e0c4e48d72dd709f416dfed1868a41ba37b03e21fc8daadfbeaa5c",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
       "path": "lang/src/compiler/lib/array_rmw_window_proof_label_formatter.hako",
       "sha256": "60ecab5c8acaeab2ee90e0da6eed8fd9f6b52942fc0f91ef191ef53675b0c651",
       "groups": [
@@ -43828,26 +43808,6 @@
     {
       "path": "lang/src/compiler/lib/array_string_len_window_mode_formatter.hako",
       "sha256": "5f6d45e67bdc6efab07757970a67345a3822461e5225916a2ee04c371bb757c9",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
-      "path": "lang/src/compiler/lib/array_string_store_micro_seed_proof_formatter.hako",
-      "sha256": "8810f5c668f8e545c18fb8b56c50091a911df2c6f44772a6723f54b74627be8f",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
-      "path": "lang/src/compiler/lib/array_string_store_micro_seed_proof_label_formatter.hako",
-      "sha256": "64d71bbd72ee33361b080ae21cb0389d51ce07185bb5c092531421c5979e6948",
       "groups": [
         "A",
         "B"
@@ -44236,16 +44196,6 @@
       "cadence": "every"
     },
     {
-      "path": "lang/src/compiler/lib/array_text_state_residence_label_formatter.hako",
-      "sha256": "54bc6e8940e3f38dc02ac8e57be2711d2045faafd6e641177ed4079d94ea45f7",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
       "path": "lang/src/compiler/lib/basic_block_empty_classifier.hako",
       "sha256": "3f9f0cf6586467320dc22e764e69f8b040e7935246abb37ce090e1e98c7ec946",
       "groups": [
@@ -44506,16 +44456,6 @@
       "cadence": "every"
     },
     {
-      "path": "lang/src/compiler/lib/concat_const_suffix_micro_seed_proof_label_formatter.hako",
-      "sha256": "96e15985d5afde14d8c7678bf26779aa04260861d602b8677154eb077d392be8",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
       "path": "lang/src/compiler/lib/condition_true_literal_classifier.hako",
       "sha256": "d068bbd664aeadd8c0370a49654e3bc7771722a40a66f7df3fa5732b9f1f2a31",
       "groups": [
@@ -44667,7 +44607,7 @@
     },
     {
       "path": "lang/src/compiler/lib/exact_seed_backend_route_label_formatter.hako",
-      "sha256": "85bbf1c9a6859d08ce7df9e17cf962061f3197308ffb331f7d979983bc43ad1f",
+      "sha256": "047aba6b72c3fec683eac4d103101fc5f91c80a05f086356972a669f263d1a56",
       "groups": [
         "A",
         "B"
@@ -44988,16 +44928,6 @@
     {
       "path": "lang/src/compiler/lib/index_target_kind_formatter.hako",
       "sha256": "653c8fcbfd6c49b09cbacf2a2285edbab9c140e5829566d3d356629a9af2f0d2",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
-      "path": "lang/src/compiler/lib/indexof_search_micro_seed_label_formatter.hako",
-      "sha256": "5fba1183c21c8955c634a198f40a97101baf380a9cb6f4b7a2835d97434f7a74",
       "groups": [
         "A",
         "B"
@@ -45636,16 +45566,6 @@
       "cadence": "every"
     },
     {
-      "path": "lang/src/compiler/lib/substring_views_micro_seed_proof_label_formatter.hako",
-      "sha256": "86f82071c0bae45341c459b93d00f839d7225ed77479fd254530a8d5d8ac73c7",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
       "path": "lang/src/compiler/lib/sum_local_aggregate_layout_tag_formatter.hako",
       "sha256": "ef3d1ca13174c62912b381cbfca6277ac3dc3784aee661a068edb0bec373b633",
       "groups": [
@@ -45668,16 +45588,6 @@
     {
       "path": "lang/src/compiler/lib/sum_placement_path_label_formatter.hako",
       "sha256": "184501af3b4cc3d9634a83d05b3b9e64f598b348b1161e18decb788410ea9c91",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
-      "path": "lang/src/compiler/lib/sum_variant_seed_label_formatter.hako",
-      "sha256": "f3b1bb00dbe044cf8386c3904a03f13c9eba34bfb2c34360d7901a34f27b03ef",
       "groups": [
         "A",
         "B"
@@ -45818,36 +45728,6 @@
     {
       "path": "lang/src/compiler/lib/user_box_method_type_label_formatter.hako",
       "sha256": "b766dd07ab42eafcb8cca27329a38a19265694b52c4363c745a140f53eebd848",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
-      "path": "lang/src/compiler/lib/userbox_known_receiver_method_seed_label_formatter.hako",
-      "sha256": "96423dd6ae8e0f877e13d6dde15c785589088ffa73e235d708ca77f2c1edd7b0",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
-      "path": "lang/src/compiler/lib/userbox_local_scalar_seed_label_formatter.hako",
-      "sha256": "2c56ece5eb8a81e357f974e21eb9e49dd4a9dac5d7c566afbec3381ec37bd02c",
-      "groups": [
-        "A",
-        "B"
-      ],
-      "coverage_exe": false,
-      "cadence": "every"
-    },
-    {
-      "path": "lang/src/compiler/lib/userbox_loop_micro_seed_label_formatter.hako",
-      "sha256": "a89e7abd3b6e4ffe2106d3ebcbb773886844a10f1fbf6d124dcd03f6cca7823a",
       "groups": [
         "A",
         "B"

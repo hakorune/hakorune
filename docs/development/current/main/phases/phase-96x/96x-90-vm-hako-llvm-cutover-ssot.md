@@ -87,8 +87,6 @@ Current blocker detail for `mapbox/`:
 - `tools/smokes/v2/profiles/integration/phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_map_has_min.sh`
 - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_map_set_size_runtime_proof.sh`
 - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
-- `tools/smokes/v2/profiles/integration/phase163x_boundary_user_box_metadata_keep_min.sh`
-- `tools/smokes/v2/profiles/integration/phase163x_boundary_user_box_method_known_receiver_min.sh`
 
 ## Replacement Gap
 

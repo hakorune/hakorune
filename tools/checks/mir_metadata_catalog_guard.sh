@@ -25,8 +25,6 @@ ARRAY_RECORD_PACKED_PILOT="$ROOT_DIR/src/mir/array_record_packed_autouse_pilot.r
 SOURCE_PACKED_AUTOUSE="$ROOT_DIR/src/mir/source_packed_array_autouse_pilot.rs"
 SOURCE_PACKED_DIRECT="$ROOT_DIR/src/mir/source_packed_array_direct_read_consumption.rs"
 ARRAY_RECORD_BACKEND="$ROOT_DIR/src/mir/array_record_backend_capability.rs"
-LLVM_COMMON_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
-LLVM_SUM_LOCAL_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_sum_local_seed_metadata_helpers.inc"
 LLVM_STRING_CANDIDATE_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_string_candidate_plan_readers.inc"
 LLVM_PURE_COMPILE_SHIM="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
 PACKED_BACKEND_GUARD="$ROOT_DIR/tools/checks/k2_wide_packed_record_backend_failfast_guard.sh"
@@ -43,8 +41,8 @@ guard_require_files "$TAG" \
   "$STRING_KERNEL_VERIFIER" "$EXACT_NUMERIC_CONTRACTS" \
   "$EXACT_NUMERIC_BACKEND" "$EXACT_SEED_BACKEND" "$ARRAY_RECORD_BOUNDARY" \
   "$ARRAY_RECORD_PACKED_PILOT" "$SOURCE_PACKED_AUTOUSE" \
-  "$SOURCE_PACKED_DIRECT" "$ARRAY_RECORD_BACKEND" "$LLVM_COMMON_SHIM" \
-  "$LLVM_SUM_LOCAL_SHIM" "$LLVM_STRING_CANDIDATE_SHIM" \
+  "$SOURCE_PACKED_DIRECT" "$ARRAY_RECORD_BACKEND" \
+  "$LLVM_STRING_CANDIDATE_SHIM" \
   "$LLVM_PURE_COMPILE_SHIM" "$PACKED_BACKEND_GUARD" \
   "$SOURCE_PACKED_AUTOUSE_GUARD" "$INDEX"
 
@@ -57,4 +55,4 @@ cat "$manifest_out"
 
 mir_metadata_catalog_check_all
 
-echo "[$TAG] ok module_keys=14 seed_keys=11"
+echo "[$TAG] ok module_keys=14 seed_keys=1"

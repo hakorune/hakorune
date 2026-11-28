@@ -82,7 +82,7 @@ Physical definition plan
   The reader now retains its result and borrowed overflow detail without
   invoking the compile diagnostic owner. The sole generic prescan consumer
   reports that detail before the existing generic plan error, at the same late
-  stage. First-error precedence and early pattern success are unchanged.
+  stage. First-error precedence is unchanged.
   The owner unit test deliberately provides no diagnostic callback.
 - Focused tests: compile/run `tests/physical_definition_plan_test.c` with yyjson;
   run `python3 lang/c-abi/tests/physical_definition_emission_test.py` after the
@@ -114,8 +114,8 @@ Pure-first invocation ownership
   Validator, pinned census, route readers and generic
   emitters borrow that document; they do not free it. The standalone file
   validator keeps its public ABI and uses the same private validator.
-- Validation order and late definition-plan reading are preserved, including
-  the earlier indexof pattern return. Non-document cleanup is unchanged.
+- Validation order, late definition-plan reading and non-document cleanup
+  are preserved.
   Downstream legacy exact-seed/replay file readers and other ABI entrypoints
   are outside this parse-once boundary; selected typed rows reject those routes.
 
@@ -199,10 +199,10 @@ Named allocation emission
 - Compile/run `tests/named_allocation_outcomes_test.c` with yyjson for identity,
   repeated reads, target exclusion and deferred allocation failure. The ASan
   document driver also checks table destruction before document release. Its
-  eight injected OOM cases cover first/growth failure, earlier schema/pattern
-  outcomes, and both actual Named dispatchers; an optional Dynamic input brings
-  the total to16 Named/document cases. Six empty-V2 call-activity cases bring
-  the suite to22. Same-module dispatch is boolean: lookup failure returns0.
+  six injected OOM cases cover first/growth failure, schema rejection and both
+  Named dispatchers. The script runs 21 cases, including six empty-V2 cases
+  and two copied-Bool branches. The optional Dynamic input adds one case.
+  Same-module dispatch is boolean: lookup failure returns 0.
 - Private `hako_llvmc_ffi_named_query.inc` projects unique function/block/ordinal
   coordinates from the same invocation. Program observation is cached once;
   unavailable program/storage and unaddressable/unobserved sites remain distinct.

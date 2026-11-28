@@ -61,7 +61,6 @@ Status: landed, with a follow-up boundary-default pure-first repair landed on th
 
 - `ny-llvm` mainline acceptance:
   - `bash tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_boundary_pure_string_indexof_min.sh`
-  - `bash tools/smokes/v2/profiles/integration/phase29ck_boundary/string/phase29ck_boundary_pure_indexof_line_min.sh`
 - keep-lane acceptance:
   - `PYTHONPATH=src/llvm_py:. python3 -m unittest src.llvm_py.tests.test_string_console_method_call`
   - `PYTHONPATH=src/llvm_py:. python3 -m unittest src.llvm_py.tests.test_strlen_fast`
